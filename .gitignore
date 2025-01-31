@@ -174,3 +174,5 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+itu-minitwit/flag_tool
