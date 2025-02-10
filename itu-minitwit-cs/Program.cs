@@ -46,6 +46,43 @@ SqliteConnection ConnectDb()
     return connection;
 }
 
+List<Dictionary<string, object>> QueryDb(SqliteConnection db, string query, object[] args = null, bool one = false)
+{
+  using (var command = db.CreateCommand())
+  {
+    command.CommandText = query;
+    if (args != null)
+    {
+      for (int i = 0; i < args.Length; i++)
+      {
+        command.Parameters.AddWithValue($"@p{i}", args[i]);
+      }
+    }
+
+    using (var reader = command.ExecuteReader())
+    {
+      var result = new List<Dictionary<string, object>>();
+      while (reader.Read())
+      {
+        var row = new Dictionary<string, object>();
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+          row[reader.GetName(i)] = reader.IsDBNull(i) ? null : reader.GetValue(i);
+        }
+
+        result.Add(row);
+      }
+
+      if (one)
+      {
+        return result.Count > 0 ? new List<Dictionary<string, object>> { result[0] } : null;
+      }
+
+      return result;
+    }
+  }
+}
+
 
 void BeforeRequest(HttpContext context)
 {
