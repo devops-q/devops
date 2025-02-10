@@ -36,6 +36,85 @@ var app = builder.Build();
 app.UseSession();
 app.UseStaticFiles(); // Enable serving static files like CSS
 
+
+SqliteConnection ConnectDb()
+{
+    // Returns a new connection to the database
+    var connection = new SqliteConnection("Data Source=" + DATABASE);
+    connection.Open();
+
+    return connection;
+}
+
+List<Dictionary<string, object>> QueryDb(SqliteConnection db, string query, object[] args = null, bool one = false)
+{
+  using (var command = db.CreateCommand())
+  {
+    command.CommandText = query;
+    if (args != null)
+    {
+      for (int i = 0; i < args.Length; i++)
+      {
+        command.Parameters.AddWithValue($"@p{i}", args[i]);
+      }
+    }
+
+    using (var reader = command.ExecuteReader())
+    {
+      var result = new List<Dictionary<string, object>>();
+      while (reader.Read())
+      {
+        var row = new Dictionary<string, object>();
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+          row[reader.GetName(i)] = reader.IsDBNull(i) ? null : reader.GetValue(i);
+        }
+
+        result.Add(row);
+      }
+
+      if (one)
+      {
+        return result.Count > 0 ? new List<Dictionary<string, object>> { result[0] } : null;
+      }
+
+      return result;
+    }
+  }
+}
+
+
+void BeforeRequest(HttpContext context)
+{
+  // Make sure we are connected to the database each request and look
+  // up the current user so that we know he's there.
+  context.Items["db"] = ConnectDb();
+  context.Items["user"] = null;
+
+  if (context.Session.TryGetValue("user_id", out var userIdBytes))
+  {
+    var userId = Encoding.UTF8.GetString(userIdBytes);
+    var user = QueryDb((SqliteConnection)context.Items["db"], "SELECT * FROM user WHERE user_id = @p0",
+      new object[] { userId }, one: true);
+    context.Items["user"] = user;
+  }
+}
+
+void AfterRequest(HttpContext context)
+{
+    // Closes the database again at the end of the request.
+    var db = (SqliteConnection)context.Items["db"];
+    db?.Close();
+}
+
+
+app.Use(async (context, next) =>
+{
+    BeforeRequest(context);
+    await next.Invoke();
+    AfterRequest(context);
+});
+
 // Timeline route
 app.MapGet("/", (HttpRequest request, HttpContext context) =>
     timeline(request, context));
