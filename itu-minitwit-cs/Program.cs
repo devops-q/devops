@@ -90,12 +90,20 @@ IResult timeline(HttpRequest request, HttpContext context)
     }
   }
 
+ var messagesWithImages = messages.Select(message => new Dictionary<string, object>
+  {
+    ["username"] = message["username"],
+    ["text"] = message["text"],
+    ["pub_date"] = message["pub_date"],
+    ["email"] = message["email"],
+    ["image_url"] = GetGravatarUrl(message["username"].ToString()) // Add a generated image URL
+  }).ToList();
 
   // Data dictionary for template
   var data = new Dictionary<string, object>
   {
     ["title"] = "My Timeline",
-    ["messages"] = messages,
+    ["messages"] = messagesWithImages,
     ["endpoint"] = request.Path,
     ["userIDFromSession"] = new Dictionary<string, string>
     {
@@ -110,30 +118,9 @@ IResult timeline(HttpRequest request, HttpContext context)
     ["followed"] = false
   };
 
-  var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "templates");
-  var templateContext = new TemplateContext
-  {
-    TemplateLoader = new MiniTwitTemplateLoader(templatePath)
-  };
 
-  var layoutText = File.ReadAllText(Path.Combine(templatePath, "layout.html"), Encoding.UTF8);
-  var timelineText = File.ReadAllText(Path.Combine(templatePath, "timeline.html"), Encoding.UTF8);
 
-  var layoutTemplate = Template.Parse(layoutText);
-  var timelineTemplate = Template.Parse(timelineText);
-
-  var timelineContent = timelineTemplate.Render(data);
-
-  var finalData = new Dictionary<string, object>(data)
-  {
-    ["body"] = timelineContent
-  };
-
-  var scriptObject = new ScriptObject();
-  scriptObject.Import(finalData);
-  templateContext.PushGlobal(scriptObject);
-
-  var finalRenderedHTML = layoutTemplate.Render(templateContext);
+  var finalRenderedHTML = sendToHtml(data, "timeline");
 
   return Results.Content(finalRenderedHTML, "text/html; charset=utf-8");
 }
@@ -188,10 +175,20 @@ IResult public_timeline(HttpRequest request, HttpContext context)
     }
   }
 
+   var messagesWithImages = messages.Select(message => new Dictionary<string, object>
+  {
+    ["username"] = message["username"],
+    ["text"] = message["text"],
+    ["pub_date"] = message["pub_date"],
+    ["email"] = message["email"],
+    ["image_url"] = GetGravatarUrl(message["username"].ToString()) // Add a generated image URL
+  }).ToList();
+
+
   var data = new Dictionary<string, object>
   {
     ["title"] = "Public timeline",
-    ["messages"] = messages,
+    ["messages"] = messagesWithImages,
     ["endpoint"] = request.Path,
     ["profile_user"] = new Dictionary<string, string>
     {
@@ -201,30 +198,8 @@ IResult public_timeline(HttpRequest request, HttpContext context)
     ["followed"] = false
   };
 
-  var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "templates");
-  var templateContext = new TemplateContext
-  {
-    TemplateLoader = new MiniTwitTemplateLoader(templatePath)
-  };
 
-  var layoutText = File.ReadAllText(Path.Combine(templatePath, "layout.html"), Encoding.UTF8);
-  var timelineText = File.ReadAllText(Path.Combine(templatePath, "timeline.html"), Encoding.UTF8);
-
-  var layoutTemplate = Template.Parse(layoutText);
-  var timelineTemplate = Template.Parse(timelineText);
-
-  var timelineContent = timelineTemplate.Render(data);
-
-  var finalData = new Dictionary<string, object>(data)
-  {
-    ["body"] = timelineContent
-  };
-
-  var scriptObject = new ScriptObject();
-  scriptObject.Import(finalData);
-  templateContext.PushGlobal(scriptObject);
-
-  var finalRenderedHTML = layoutTemplate.Render(templateContext);
+  var finalRenderedHTML = sendToHtml(data, "timeline");
 
   return Results.Content(finalRenderedHTML, "text/html; charset=utf-8");
 }
@@ -275,10 +250,21 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
   }
 
 
+  if (messages.Count == 0)
+  {
+    return Results.NotFound();
+  }
 
+  for (int i = 0; i < messages.Count; i++)
+  {
+    foreach (KeyValuePair<string, string> k in messages[i])
+    {
+      Console.WriteLine(k);
+    }
+  }
 
-  var userIDFromSession = "1";  
-  var profile_user = messages[0]["username"]; 
+  var userIDFromSession = "1";
+  var profile_user = messages[0]; // profile user
 
   var queryFollowed = @"SELECT 1 FROM follower 
                       WHERE follower.who_id = @currentUserID 
@@ -287,7 +273,7 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
   command.CommandText = queryFollowed;
   command.Parameters.Clear();
   command.Parameters.Add(new SqliteParameter("@currentUserID", userIDFromSession));
-  command.Parameters.Add(new SqliteParameter("@profileUserID", profile_user));
+  command.Parameters.Add(new SqliteParameter("@profileUserID", profile_user["user_id"]));
 
   var followed = false;
 
@@ -295,7 +281,7 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
   {
     if (reader.Read())
     {
-      followed = true;  
+      followed = true;
     }
   }
 
@@ -306,7 +292,7 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
             order by message.pub_date desc limit @Perpage";
 
   command.CommandText = queryThree;
-  command.Parameters.Add(new SqliteParameter("@profileUser", profile_user));
+  command.Parameters.Add(new SqliteParameter("@profileUser", profile_user["user_id"]));
   command.Parameters.Add(new SqliteParameter("@Perpage", PER_page));
 
 
@@ -336,16 +322,37 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
     }
   }
 
+  var messagesWithImages = messagesThree.Select(message => new Dictionary<string, object>
+  {
+    ["username"] = message["username"],
+    ["text"] = message["text"],
+    ["pub_date"] = message["pub_date"],
+    ["email"] = message["email"],
+    ["image_url"] = GetGravatarUrl(message["username"].ToString()) // Add a generated image URL
+  }).ToList();
+
 
   var data = new Dictionary<string, object>
   {
-    ["title"] = $"{profile_user}'s Timeline",
-    ["messages"] = messagesThree,
+    ["title"] = $"{profile_user["username"]}'s Timeline",
+    ["messages"] = messagesWithImages,
     ["endpoint"] = request.Path,
     ["followed"] = followed,
-    ["profile_user"] = profile_user
+    ["profile_user"] = profile_user,
+    
   };
 
+  string finalRenderedHTML = sendToHtml(data, "timeline");
+
+  return Results.Content(finalRenderedHTML, "text/html; charset=utf-8");
+}
+
+
+
+app.Run();
+
+static string sendToHtml(Dictionary<string, object> data, string filename)
+{
   var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "templates");
   var templateContext = new TemplateContext
   {
@@ -353,7 +360,7 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
   };
 
   var layoutText = File.ReadAllText(Path.Combine(templatePath, "layout.html"), Encoding.UTF8);
-  var timelineText = File.ReadAllText(Path.Combine(templatePath, "timeline.html"), Encoding.UTF8);
+  var timelineText = File.ReadAllText(Path.Combine(templatePath, filename + ".html"), Encoding.UTF8);
 
   var layoutTemplate = Template.Parse(layoutText);
   var timelineTemplate = Template.Parse(timelineText);
@@ -370,12 +377,14 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
   templateContext.PushGlobal(scriptObject);
 
   var finalRenderedHTML = layoutTemplate.Render(templateContext);
-
-  return Results.Content(finalRenderedHTML, "text/html; charset=utf-8");
+  return finalRenderedHTML;
 }
 
-
-
-app.Run();
+static string GetGravatarUrl(string email, int size = 48)
+{
+  var hash = BitConverter.ToString(MD5.HashData(Encoding.UTF8.GetBytes(email.Trim().ToLower())))
+      .Replace("-", "").ToLower();
+  return $"https://www.gravatar.com/avatar/{hash}?s={size}&d=retro";
+}
 
 

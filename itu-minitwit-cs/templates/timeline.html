@@ -35,18 +35,20 @@
 
   <ul class="messages">
     {{~ for message in messages ~}}
-      <li>
-        <img src="{{ message["email"] }}" />
-        <p>
-          <strong>
-            <a href="{{ "../" + message["username"] }}">{{ message["username"] }}</a>
-          </strong>
-          {{ message["text"] }}
-          <small> Written @ {{ message["pub_date"] }}</small>
-        </p>
-      </li>
+        <li>
+            <img src="{{ message.image_url }}" width="48" height="48">
+            <p>
+                <strong>
+                    <a href="{{ message.username }}">{{ message.username }}</a>
+                </strong>
+                {{ message.text }}
+                <small> Written @ {{ message.pub_date }}</small>
+            </p>
+        </li>
     {{~ else ~}}
-      <li><em>There's no message so far.</em></li>
+        <li><em>There's no message so far.</em></li>
     {{~ end ~}}
-  </ul>
+</ul>
+
+
 {{ endblock }}
