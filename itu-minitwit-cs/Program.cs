@@ -36,6 +36,61 @@ var app = builder.Build();
 app.UseSession();
 app.UseStaticFiles(); // Enable serving static files like CSS
 
+
+SqliteConnection ConnectDb()
+{
+    // Returns a new connection to the database
+    var connection = new SqliteConnection("Data Source=" + DATABASE);
+    connection.Open();
+
+    return connection;
+}
+
+
+void BeforeRequest(HttpContext context)
+{
+    // Make sure we are connected to the database each request and look
+    // up the current user so that we know he's there.
+    context.Items["db"] = ConnectDb();
+    context.Items["user"] = null;
+
+    if (context.Session.TryGetValue("user_id", out var userIdBytes))
+    {
+        var userId = Encoding.UTF8.GetString(userIdBytes);
+        var command = ((SqliteConnection)context.Items["db"]).CreateCommand();
+        command.CommandText = "SELECT * FROM user WHERE user_id = @UserId";
+        command.Parameters.Add(new SqliteParameter("@UserId", userId));
+        using (var reader = command.ExecuteReader())
+        {
+            if (reader.Read())
+            {
+                var user = new Dictionary<string, string>();
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    user[reader.GetName(i)] = reader.IsDBNull(i) ? "" : reader.GetString(i);
+                }
+
+                context.Items["user"] = user;
+            }
+        }
+    }
+}
+
+void AfterRequest(HttpContext context)
+{
+    // Closes the database again at the end of the request.
+    var db = (SqliteConnection)context.Items["db"];
+    db?.Close();
+}
+
+
+app.Use(async (context, next) =>
+{
+    BeforeRequest(context);
+    await next.Invoke();
+    AfterRequest(context);
+});
+
 // Timeline route
 app.MapGet("/", (HttpRequest request, HttpContext context) =>
     timeline(request, context));
