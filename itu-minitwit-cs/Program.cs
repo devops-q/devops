@@ -86,31 +86,18 @@ List<Dictionary<string, object>> QueryDb(SqliteConnection db, string query, obje
 
 void BeforeRequest(HttpContext context)
 {
-    // Make sure we are connected to the database each request and look
-    // up the current user so that we know he's there.
-    context.Items["db"] = ConnectDb();
-    context.Items["user"] = null;
+  // Make sure we are connected to the database each request and look
+  // up the current user so that we know he's there.
+  context.Items["db"] = ConnectDb();
+  context.Items["user"] = null;
 
-    if (context.Session.TryGetValue("user_id", out var userIdBytes))
-    {
-        var userId = Encoding.UTF8.GetString(userIdBytes);
-        var command = ((SqliteConnection)context.Items["db"]).CreateCommand();
-        command.CommandText = "SELECT * FROM user WHERE user_id = @UserId";
-        command.Parameters.Add(new SqliteParameter("@UserId", userId));
-        using (var reader = command.ExecuteReader())
-        {
-            if (reader.Read())
-            {
-                var user = new Dictionary<string, string>();
-                for (int i = 0; i < reader.FieldCount; i++)
-                {
-                    user[reader.GetName(i)] = reader.IsDBNull(i) ? "" : reader.GetString(i);
-                }
-
-                context.Items["user"] = user;
-            }
-        }
-    }
+  if (context.Session.TryGetValue("user_id", out var userIdBytes))
+  {
+    var userId = Encoding.UTF8.GetString(userIdBytes);
+    var user = QueryDb((SqliteConnection)context.Items["db"], "SELECT * FROM user WHERE user_id = @p0",
+      new object[] { userId }, one: true);
+    context.Items["user"] = user;
+  }
 }
 
 void AfterRequest(HttpContext context)
