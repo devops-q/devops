@@ -1,9 +1,12 @@
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.FileProviders;
@@ -39,11 +42,11 @@ app.UseStaticFiles(); // Enable serving static files like CSS
 
 SqliteConnection ConnectDb()
 {
-    // Returns a new connection to the database
-    var connection = new SqliteConnection("Data Source=" + DATABASE);
-    connection.Open();
+  // Returns a new connection to the database
+  var connection = new SqliteConnection("Data Source=" + DATABASE);
+  connection.Open();
 
-    return connection;
+  return connection;
 }
 
 List<Dictionary<string, object>> QueryDb(SqliteConnection db, string query, object[] args = null, bool one = false)
@@ -102,17 +105,17 @@ void BeforeRequest(HttpContext context)
 
 void AfterRequest(HttpContext context)
 {
-    // Closes the database again at the end of the request.
-    var db = (SqliteConnection)context.Items["db"];
-    db?.Close();
+  // Closes the database again at the end of the request.
+  var db = (SqliteConnection)context.Items["db"];
+  db?.Close();
 }
 
 
 app.Use(async (context, next) =>
 {
-    BeforeRequest(context);
-    await next.Invoke();
-    AfterRequest(context);
+  BeforeRequest(context);
+  await next.Invoke();
+  AfterRequest(context);
 });
 
 // Timeline route
@@ -169,7 +172,7 @@ IResult timeline(HttpRequest request, HttpContext context)
     }
   }
 
- var messagesWithImages = messages.Select(message => new Dictionary<string, object>
+  var messagesWithImages = messages.Select(message => new Dictionary<string, object>
   {
     ["username"] = message["username"],
     ["text"] = message["text"],
@@ -254,7 +257,7 @@ IResult public_timeline(HttpRequest request, HttpContext context)
     }
   }
 
-   var messagesWithImages = messages.Select(message => new Dictionary<string, object>
+  var messagesWithImages = messages.Select(message => new Dictionary<string, object>
   {
     ["username"] = message["username"],
     ["text"] = message["text"],
@@ -418,7 +421,7 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
     ["endpoint"] = request.Path,
     ["followed"] = followed,
     ["profile_user"] = profile_user,
-    
+
   };
 
   string finalRenderedHTML = sendToHtml(data, "timeline");
@@ -426,6 +429,38 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
   return Results.Content(finalRenderedHTML, "text/html; charset=utf-8");
 }
 
+
+app.MapPost("/add_message", (HttpRequest request, HttpContext context) =>
+  add_message(request, context)
+);
+
+async Task<IResult> add_message(HttpRequest request, HttpContext context)
+{
+    var db = context.Items["db"] as SqliteConnection;
+
+    // TODO: Implement proper session-based user ID retrieval
+    var userIDFromSession = "1"; 
+
+    if (string.IsNullOrEmpty(userIDFromSession))
+    {
+        Console.WriteLine("No id found.");
+        return Results.NotFound();
+    }
+
+    var form = await request.ReadFormAsync();
+    var messageText = form["text"].ToString();
+
+    if (!string.IsNullOrEmpty(messageText))
+    {
+        var query = @"insert into message (author_id, text, pub_date, flagged) values (@p0, @p1, @p2, 0)";
+
+        QueryDb(db, query, new object[] { userIDFromSession, messageText, DateTimeOffset.UtcNow.ToUnixTimeSeconds() });
+
+        Console.WriteLine("Message added");
+    }
+
+    return Results.Redirect("/");
+}
 
 
 app.Run();
