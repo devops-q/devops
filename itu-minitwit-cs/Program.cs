@@ -83,6 +83,11 @@ List<Dictionary<string, object>> QueryDb(SqliteConnection db, string query, obje
   }
 }
 
+object? get_user_id(string username)
+{
+    // TODO implement method (issue #17)
+    throw new NotImplementedException();
+}
 
 void BeforeRequest(HttpContext context)
 {
