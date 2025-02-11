@@ -462,7 +462,7 @@ IResult register(string method, HttpRequest request, HttpContext context)
             data["error"] = "You have to enter a password";
         else if ((string)request.Form["password"] != (string)request.Form["password2"])
             data["error"] = "The two passwords do not match";
-        else if (get_user_id(request.Form["username"]) != null)
+        else if (get_user_id(request.Form["username"], context) != null)
             data["error"] = "The username is already taken";
         else
         {
