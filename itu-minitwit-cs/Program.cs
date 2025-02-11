@@ -4,9 +4,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Primitives;
 using Scriban;
 
 
@@ -431,6 +433,54 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
   return Results.Content(finalRenderedHTML, "text/html; charset=utf-8");
 }
 
+app.MapGet("/register", (HttpRequest request, HttpContext context) =>
+    register("GET", request, context));
+
+app.MapPost("/register", (HttpRequest request, HttpContext context) =>
+    register("POST", request, context));
+
+IResult register(string method, HttpRequest request, HttpContext context)
+{
+    if (context.Items["user"] != null)
+        return Results.Redirect("/");
+    Dictionary<string, object> data = new Dictionary<string, object> {
+        { "error", null },
+    };
+    if (method == "POST")
+    {
+        data["username"] = (string)request.Form["username"];
+        data["email"] = (string)request.Form["email"];
+        if (request.Form["username"] == "")
+            data["error"] = "You have to enter a username";
+        else if (request.Form["email"] == "" || !((string)request.Form["email"]).Contains('@'))
+            data["error"] = "You have to enter a valid email address";
+        else if (request.Form["password"] == "")
+            data["error"] = "You have to enter a password";
+        else if ((string)request.Form["password"] != (string)request.Form["password2"])
+            data["error"] = "The two passwords do not match";
+        else if (get_user_id(request.Form["username"]) != null)
+            data["error"] = "The username is already taken";
+        else
+        {
+            var db = (SqliteConnection)context.Items["db"];
+            var command = db.CreateCommand();
+            command.CommandText = @"
+                insert into user 
+                (username, email, pw_hash) values (@username, @email, @pw_hash)
+            ";
+            command.Parameters.AddWithValue("@username", (string)request.Form["username"]);
+            command.Parameters.AddWithValue("@email", (string)request.Form["email"]);
+            var pwHasher = new PasswordHasher<string>();
+            command.Parameters.AddWithValue("@pw_hash", pwHasher.HashPassword((string)request.Form["username"], (string)request.Form["password"]));
+            command.ExecuteScalar();
+            return Results.Redirect("/login");
+        }
+
+    }
+
+    string render = sendToHtml(data, "register");
+    return Results.Content(render, "text/html; charset=utf-8");
+}
 
 
 app.Run();
