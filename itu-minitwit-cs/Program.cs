@@ -432,8 +432,8 @@ long? get_user_id(string username, HttpContext context)
     throw new NotImplementedException();
 }
 
-app.MapGet("/{username}/unfollow", unfollowUser);
-IResult unfollowUser(string username, HttpContext context)
+app.MapGet("/{username}/unfollow", unfollow_user);
+IResult unfollow_user(string username, HttpContext context)
 {
     if (context.Items["user"] == null)
         return Results.Unauthorized();
