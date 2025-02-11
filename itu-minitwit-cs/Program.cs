@@ -448,7 +448,7 @@ IResult unfollow_user(string username, HttpContext context)
     command.Parameters.AddWithValue("@whomID", whomID);
     command.ExecuteScalar();
     
-    return Results.Redirect("/" + username);
+    return Results.Redirect($"/{username}");
 }
 
 
