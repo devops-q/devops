@@ -1,0 +1,54 @@
+{{ body }}
+  <h2>{{ title }}</h2>
+  
+  {{~ if endpoint == "/public_timeline" ~}}
+    Public Timeline
+  {{~ elsif endpoint == "/user_timeline" ~}}
+    {{ profile_user["username"] }}'s Timeline
+  {{~ else ~}}
+    My Timeline
+  {{~ end ~}}
+
+  {{~ if userIDFromSession ~}}
+    {{~ if endpoint == "/user_timeline" ~}}
+      <div class="followstatus">
+        {{~ if userIDFromSession["user_id"] == profile_user["user_id"] ~}}
+          This is you!
+        {{~ elsif followed ~}}
+          You are currently following this user.
+          <a class="unfollow" href="{{ "../" + profile_user["username"] + "/unfollow" }}">Unfollow user</a>.
+        {{~ else ~}}
+          You are not yet following this user.
+          <a class="follow" href="{{ "../" + profile_user["username"] + "/follow" }}">Follow user</a>.
+        {{~ end ~}}
+      </div>
+    {{~ end ~}}
+
+    <div class="twitbox">
+      <h3>What's on your mind {{ userIDFromSession["username"] }}?</h3>
+      <form action="{{ "/add_message" }}" method="post">
+        <p><input type="text" name="text" size="60" /></p>
+        <input type="submit" value="Share" />
+      </form>
+    </div>
+  {{~ end ~}}
+
+  <ul class="messages">
+    {{~ for message in messages ~}}
+        <li>
+            <img src="{{ message.image_url }}" width="48" height="48">
+            <p>
+                <strong>
+                    <a href="{{ message.username }}">{{ message.username }}</a>
+                </strong>
+                {{ message.text }}
+                <small> Written @ {{ message.pub_date }}</small>
+            </p>
+        </li>
+    {{~ else ~}}
+        <li><em>There's no message so far.</em></li>
+    {{~ end ~}}
+</ul>
+
+
+{{ endblock }}

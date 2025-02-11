@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>{{ title }} | MiniTwit</title>
+  <link rel="stylesheet" type="text/css" href="{{ "/css/style.css" }}">
+</head>
+<body>
+
+  <div class="page">
+    <h1>MiniTwit</h1>
+    
+    <div class="navigation">
+      {{~ if userIDFromSession ~}}
+        <a href="{{ "/" }}">my timeline</a> |
+        <a href="{{ "/public" }}">public timeline</a> |
+        <a href="{{ "/login" }}">sign out [{{ userIDFromSession["username"] }}]</a>
+      {{~ else ~}}
+        <a href="{{ "/public" }}">public timeline</a> |
+        <a href="{{ "/register" }}">sign up</a> |
+        <a href="{{ "/login" }}">sign in</a>
+      {{~ end ~}}
+    </div>
+
+    {{~ if flashes ~}}
+      <ul class="flashes">
+        {{~ for message in flashes ~}}
+          <li>{{ message }}</li>
+        {{~ end ~}}
+      </ul>
+    {{~ end ~}}
+
+    <!-- BEGIN: Main Content Block -->
+    <div class="body">
+      {{ body }}
+    </div>
+    <!-- END: Main Content Block -->
+
+    <div class="footer">
+      MiniTwit &mdash; A Scriban Application 
+    </div>
+  </div>
+
+</body>
+</html>
