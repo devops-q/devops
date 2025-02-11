@@ -426,6 +426,30 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
   return Results.Content(finalRenderedHTML, "text/html; charset=utf-8");
 }
 
+// TODO remove when #17 exists
+long? get_user_id(string username, HttpContext context)
+{
+    throw new NotImplementedException();
+}
+
+app.MapGet("/{username}/unfollow", unfollowUser);
+IResult unfollowUser(string username, HttpContext context)
+{
+    if (context.Items["user"] == null)
+        return Results.Unauthorized();
+    var whomID = get_user_id(username, context);
+    if (whomID == null)
+        return Results.NotFound();
+
+    var db = (SqliteConnection)context.Items["db"];
+    var command = db.CreateCommand();
+    command.CommandText = @"delete from follower where who_id=@whoID and whom_id=@whomID";
+    command.Parameters.AddWithValue("@whoID", context.Session.GetString("user_id"));
+    command.Parameters.AddWithValue("@whomID", whomID);
+    command.ExecuteScalar();
+    
+    return Results.Redirect("/" + username);
+}
 
 
 app.Run();
