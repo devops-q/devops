@@ -426,6 +426,30 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
   return Results.Content(finalRenderedHTML, "text/html; charset=utf-8");
 }
 
+// TODO remove once #17 is implemented
+long? get_user_id(string username, HttpContext context)
+{
+    throw new NotImplementedException();
+}
+app.MapGet("/{username}/follow", follow_user);
+IResult follow_user(string username, HttpContext context)
+{
+    if (context.Items["user"] == null)
+        return Results.Unauthorized();
+    var whomID = get_user_id(username, context);
+    if (whomID == null)
+        return Results.NotFound();
+
+    var db = (SqliteConnection)context.Items["db"];
+    var command = db.CreateCommand();
+    command.CommandText = @"insert into follower (who_id, whom_id) values (@whoID, @whomID)";
+    command.Parameters.AddWithValue("@whoID", context.Session.GetString("user_id"));
+    command.Parameters.AddWithValue("@whomID", whomID);
+    command.ExecuteScalar();
+
+    return Results.Redirect($"/{username}");
+}
+
 
 
 app.Run();
