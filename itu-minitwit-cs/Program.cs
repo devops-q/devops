@@ -50,6 +50,7 @@ SqliteConnection ConnectDb()
 
 void InitDb()
 {
+    // Initialize database by executing a schema.sql file against it.
     const string schemaPath = "schema.sql";
     var schemaCommandText = File.ReadAllText(schemaPath);
 
