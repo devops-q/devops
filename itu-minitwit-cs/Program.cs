@@ -487,6 +487,14 @@ IResult register(string method, HttpRequest request, HttpContext context)
 }
 
 
+app.MapGet("/logout", logout);
+
+IResult logout(HttpContext context)
+{
+    context.Session.Remove("user_id");
+    return Results.Redirect("/timeline");
+}
+
 app.Run();
 
 static string sendToHtml(Dictionary<string, object> data, string filename)
