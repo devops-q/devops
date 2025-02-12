@@ -524,6 +524,60 @@ IResult register(string method, HttpRequest request, HttpContext context)
     return Results.Content(render, "text/html; charset=utf-8");
 }
 
+app.MapMethods("/login", new[] { "GET", "POST" }, async (HttpRequest request, HttpContext context) =>
+{
+  // Logs the user in.
+
+  if (context.Items["user"] != null)
+  {
+    return Results.Redirect("/");
+  }
+
+  string error = null;
+  string username = null;
+
+  if (request.Method == "POST")
+  {
+    var form = await request.ReadFormAsync();
+    username = form["username"].ToString();
+    var password = form["password"].ToString();
+
+    var user = QueryDb((SqliteConnection)context.Items["db"], "SELECT * FROM user WHERE username = @p0",
+      new object[] { username }, one: true)?.FirstOrDefault();
+
+    if (user == null)
+    {
+      error = "Invalid username";
+    }
+    else if (!CheckPasswordHash(user["pw_hash"].ToString(), password))
+    {
+      error = "Invalid password";
+    }
+    else
+    {
+      context.Session.SetString("user_id", user["user_id"].ToString());
+      return Results.Redirect("/");
+    }
+  }
+
+  var data = new Dictionary<string, object>
+  {
+    ["error"] = error,
+    ["username"] = username
+  };
+
+  var finalRenderedHTML = sendToHtml(data, "login");
+  return Results.Content(finalRenderedHTML, "text/html; charset=utf-8");
+});
+
+bool CheckPasswordHash(string storedHash, string password)
+{
+  var pwHasher = new PasswordHasher<string>();
+
+  var verificationResult = pwHasher.VerifyHashedPassword((string)"abc", storedHash, password);
+
+  return verificationResult == PasswordVerificationResult.Success;
+}
 
 app.MapGet("/logout", logout);
 
