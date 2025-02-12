@@ -93,6 +93,7 @@ object? get_user_id(string username)
 
 string FormatDatetime(int timestamp)
 {
+  // Convert a unix timestamp (seconds) to a human-readable date string.
   var datetime = DateTimeOffset.FromUnixTimeSeconds(timestamp);
   return datetime.ToString("yyyy-MM-dd @ HH:mm");
 }
