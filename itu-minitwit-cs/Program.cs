@@ -91,6 +91,12 @@ object? get_user_id(string username)
     throw new NotImplementedException();
 }
 
+string FormatDatetime(int timestamp)
+{
+  var datetime = DateTimeOffset.FromUnixTimeSeconds(timestamp);
+  return datetime.ToString("yyyy-MM-dd @ HH:mm");
+}
+
 void BeforeRequest(HttpContext context)
 {
   // Make sure we are connected to the database each request and look
