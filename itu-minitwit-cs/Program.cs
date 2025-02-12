@@ -85,10 +85,14 @@ List<Dictionary<string, object>> QueryDb(SqliteConnection db, string query, obje
   }
 }
 
-object? get_user_id(string username)
+long? get_user_id(string username, HttpContext context)
 {
-    // TODO implement method (issue #17)
-    throw new NotImplementedException();
+    var db = (SqliteConnection)context.Items["db"];
+    var command = db.CreateCommand();
+    command.CommandText = @"select user_id from user where username = @username";
+    command.Parameters.AddWithValue("@username", username);
+
+    return (long)command.ExecuteScalar();
 }
 
 void BeforeRequest(HttpContext context)
@@ -458,7 +462,7 @@ IResult register(string method, HttpRequest request, HttpContext context)
             data["error"] = "You have to enter a password";
         else if ((string)request.Form["password"] != (string)request.Form["password2"])
             data["error"] = "The two passwords do not match";
-        else if (get_user_id(request.Form["username"]) != null)
+        else if (get_user_id(request.Form["username"], context) != null)
             data["error"] = "The username is already taken";
         else
         {
