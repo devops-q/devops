@@ -85,10 +85,14 @@ List<Dictionary<string, object>> QueryDb(SqliteConnection db, string query, obje
   }
 }
 
-object? get_user_id(string username)
+long? get_user_id(string username, HttpContext context)
 {
-    // TODO implement method (issue #17)
-    throw new NotImplementedException();
+    var db = (SqliteConnection)context.Items["db"];
+    var command = db.CreateCommand();
+    command.CommandText = @"select user_id from user where username = @username";
+    command.Parameters.AddWithValue("@username", username);
+
+    return (long)command.ExecuteScalar();
 }
 
 void BeforeRequest(HttpContext context)
@@ -452,6 +456,25 @@ IResult follow_user(string username, HttpContext context)
     return Results.Redirect($"/{username}");
 }
 
+app.MapGet("/{username}/unfollow", unfollow_user);
+IResult unfollow_user(string username, HttpContext context)
+{
+    if (context.Items["user"] == null)
+        return Results.Unauthorized();
+    var whomID = get_user_id(username, context);
+    if (whomID == null)
+        return Results.NotFound();
+
+    var db = (SqliteConnection)context.Items["db"];
+    var command = db.CreateCommand();
+    command.CommandText = @"delete from follower where who_id=@whoID and whom_id=@whomID";
+    command.Parameters.AddWithValue("@whoID", context.Session.GetString("user_id"));
+    command.Parameters.AddWithValue("@whomID", whomID);
+    command.ExecuteScalar();
+
+    return Results.Redirect($"/{username}");
+}
+
 app.MapGet("/register", (HttpRequest request, HttpContext context) =>
     register("GET", request, context));
 
@@ -477,7 +500,7 @@ IResult register(string method, HttpRequest request, HttpContext context)
             data["error"] = "You have to enter a password";
         else if ((string)request.Form["password"] != (string)request.Form["password2"])
             data["error"] = "The two passwords do not match";
-        else if (get_user_id(request.Form["username"]) != null)
+        else if (get_user_id(request.Form["username"], context) != null)
             data["error"] = "The username is already taken";
         else
         {
@@ -501,6 +524,14 @@ IResult register(string method, HttpRequest request, HttpContext context)
     return Results.Content(render, "text/html; charset=utf-8");
 }
 
+
+app.MapGet("/logout", logout);
+
+IResult logout(HttpContext context)
+{
+    context.Session.Remove("user_id");
+    return Results.Redirect("/timeline");
+}
 
 app.Run();
 
