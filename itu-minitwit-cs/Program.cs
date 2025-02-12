@@ -585,7 +585,7 @@ app.MapGet("/logout", logout);
 IResult logout(HttpContext context)
 {
     context.Session.Remove("user_id");
-    return Results.Redirect("/timeline");
+    return Results.Redirect("/public");
 }
 
 app.Run();
