@@ -92,7 +92,8 @@ long? get_user_id(string username, HttpContext context)
     command.CommandText = @"select user_id from user where username = @username";
     command.Parameters.AddWithValue("@username", username);
 
-    return (long)command.ExecuteScalar();
+    var res = command.ExecuteScalar();
+    return res != null ? (long)res : null;
 }
 
 void BeforeRequest(HttpContext context)
