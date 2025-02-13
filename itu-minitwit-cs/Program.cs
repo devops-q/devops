@@ -47,6 +47,9 @@ SqliteConnection ConnectDb()
   // Returns a new connection to the database
   var connection = new SqliteConnection("Data Source=" + DATABASE);
   connection.Open();
+  // Returns a new connection to the database
+  var connection = new SqliteConnection("Data Source=" + DATABASE);
+  connection.Open();
 
   return connection;
 }
@@ -136,6 +139,9 @@ void BeforeRequest(HttpContext context)
 
 void AfterRequest(HttpContext context)
 {
+  // Closes the database again at the end of the request.
+  var db = (SqliteConnection)context.Items["db"];
+  db?.Close();
   // Closes the database again at the end of the request.
   var db = (SqliteConnection)context.Items["db"];
   db?.Close();
@@ -354,38 +360,6 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
 }
 
 
-app.MapPost("/add_message", (HttpRequest request, HttpContext context) =>
-  add_message(request, context)
-);
-
-async Task<IResult> add_message(HttpRequest request, HttpContext context)
-{
-    var db = context.Items["db"] as SqliteConnection;
-
-    // TODO: Implement proper session-based user ID retrieval
-    var userIDFromSession = "1"; 
-
-    if (string.IsNullOrEmpty(userIDFromSession))
-    {
-        Console.WriteLine("No id found.");
-        return Results.NotFound();
-    }
-
-    var form = await request.ReadFormAsync();
-    var messageText = form["text"].ToString();
-
-    if (!string.IsNullOrEmpty(messageText))
-    {
-        var query = @"insert into message (author_id, text, pub_date, flagged) values (@p0, @p1, @p2, 0)";
-
-        QueryDb(db, query, new object[] { userIDFromSession, messageText, DateTimeOffset.UtcNow.ToUnixTimeSeconds() });
-
-        Console.WriteLine("Message added");
-    }
-
-    return Results.Redirect("/");
-}
-
 app.MapGet("/{username}/follow", follow_user);
 IResult follow_user(string username, HttpContext context, HttpRequest request)
 {
@@ -591,8 +565,12 @@ app.MapMethods("/login", new[] { "GET", "POST" }, async (HttpRequest request, Ht
 
   var data = new Dictionary<string, object>
   {
-    ["error"] = error,
-    ["username"] = username
+    ["title"] = $"{profile_user["username"]}'s Timeline",
+    ["messages"] = messagesWithImages,
+    ["endpoint"] = request.Path,
+    ["followed"] = followed,
+    ["profile_user"] = profile_user,
+
   };
 
   var finalRenderedHTML = sendToHtml(data, "login");
@@ -615,6 +593,37 @@ IResult logout(HttpContext context)
   context.Session.Remove("user_id");
   return Results.Redirect("/");
 }
+app.MapPost("/add_message", (HttpRequest request, HttpContext context) =>
+  add_message(request, context)
+);
+
+async Task<IResult> add_message(HttpRequest request, HttpContext context)
+{
+    var db = context.Items["db"] as SqliteConnection;
+
+    var userIDFromSession = context.Session.GetString("user_id"); 
+
+    if (string.IsNullOrEmpty(userIDFromSession))
+    {
+        Console.WriteLine("No id found.");
+        return Results.NotFound();
+    }
+
+    var form = await request.ReadFormAsync();
+    var messageText = form["text"].ToString();
+
+    if (!string.IsNullOrEmpty(messageText))
+    {
+        var query = @"insert into message (author_id, text, pub_date, flagged) values (@p0, @p1, @p2, 0)";
+
+        QueryDb(db, query, new object[] { userIDFromSession, messageText, DateTimeOffset.UtcNow.ToUnixTimeSeconds() });
+
+        Console.WriteLine("Message added");
+    }
+
+    return Results.Redirect("/");
+}
+
 
 app.Run();
 
