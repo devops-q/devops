@@ -124,7 +124,8 @@ void BeforeRequest(HttpContext context)
   // up the current user so that we know he's there.
   context.Items["db"] = ConnectDb();
   context.Items["user"] = null;
-  context.Session.SetString("flash", "");
+  if (context.Session.GetString("flash") == null)
+    context.Session.SetString("flash", "");
 
   if (context.Session.TryGetValue("user_id", out var userIdBytes))
   {
@@ -463,6 +464,7 @@ app.MapMethods("/login", new[] { "GET", "POST" }, async (HttpRequest request, Ht
     else
     {
       context.Session.SetString("user_id", user["user_id"].ToString());
+      flash("You were logged in", context);
       return Results.Redirect("/");
     }
   }
@@ -474,7 +476,6 @@ app.MapMethods("/login", new[] { "GET", "POST" }, async (HttpRequest request, Ht
 
   };
 
-  flash("You were logged in", context);
 
   var finalRenderedHTML = sendToHtml(data, "login");
   return Results.Content(finalRenderedHTML, "text/html; charset=utf-8");
