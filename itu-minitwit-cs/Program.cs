@@ -314,11 +314,10 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
     };
     if (context.Session.GetString("user_id") != null)
     {
-        data.Add("userIDFromSession",
-        new Dictionary<string, string>
+        data.Add("userIDFromSession", new Dictionary<string, string>
         {
             ["user_id"] = context.Session.GetString("user_id"),
-            ["username"] = (string)context.Items["user"],
+            ["username"] = (string)((List<Dictionary<string, object>>)context.Items["user"])[0]["username"]
         });
 
     }
