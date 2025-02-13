@@ -21,11 +21,9 @@
       {{~ end ~}}
     </div>
 
-    {{~ if flashes ~}}
+    {{~ if flashes && flashes != "" ~}}
       <ul class="flashes">
-        {{~ for message in flashes ~}}
-            <li>{{ message }}</li>
-        {{~ end ~}}
+        <li>{{ flashes }}</li>
       </ul>
     {{~ end ~}}
 
