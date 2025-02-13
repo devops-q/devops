@@ -53,6 +53,19 @@ SqliteConnection ConnectDb()
     return connection;
 }
 
+void InitDb()
+{
+    // Initialize database by executing a schema.sql file against it.
+    const string schemaPath = "schema.sql";
+    var schemaCommandText = File.ReadAllText(schemaPath);
+
+    using var db = ConnectDb();
+    var sqliteCommand = db.CreateCommand();
+
+    sqliteCommand.CommandText = schemaCommandText;
+    sqliteCommand.ExecuteReader();
+}
+
 List<Dictionary<string, object>> QueryDb(SqliteConnection db, string query, object[] args = null, bool one = false)
 {
   using (var command = db.CreateCommand())
