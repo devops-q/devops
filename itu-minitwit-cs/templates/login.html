@@ -1,11 +1,11 @@
-{{ title }}Sign In{{ endblock }}
+{{ title }}{{ endblock }}
 {{ body }}
   <h2>Sign In</h2>
   {{ if error }}<div class=error><strong>Error:</strong> {{ error }}</div>{{ end }}
   <form action="" method=post>
     <dl>
       <dt>Username:
-      <dd><input type=text name=username size=30 value="{{ request.form.username }}">
+      <dd><input type=text name=username size=30 value="{{ username }}">
       <dt>Password:
       <dd><input type=password name=password size=30>
     </dl>

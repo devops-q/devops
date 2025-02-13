@@ -1,20 +1,12 @@
 {{ body }}
   <h2>{{ title }}</h2>
-  
-  {{~ if endpoint == "/public_timeline" ~}}
-    Public Timeline
-  {{~ elsif endpoint == "/user_timeline" ~}}
-    {{ profile_user["username"] }}'s Timeline
-  {{~ else ~}}
-    My Timeline
-  {{~ end ~}}
 
   {{~ if userIDFromSession ~}}
-    {{~ if endpoint == "/user_timeline" ~}}
-      <div class="followstatus">
+  {{~ if endpoint != "/public" && endpoint != "/" ~}}
+  <div class="followstatus">
         {{~ if userIDFromSession["user_id"] == profile_user["user_id"] ~}}
           This is you!
-        {{~ elsif followed ~}}
+        {{~ else if followed ~}}
           You are currently following this user.
           <a class="unfollow" href="{{ "../" + profile_user["username"] + "/unfollow" }}">Unfollow user</a>.
         {{~ else ~}}
@@ -23,7 +15,7 @@
         {{~ end ~}}
       </div>
     {{~ end ~}}
-
+    {{~ if userIDFromSession && endpoint == "/" ~}}
     <div class="twitbox">
       <h3>What's on your mind {{ userIDFromSession["username"] }}?</h3>
       <form action="{{ "/add_message" }}" method="post">
@@ -31,6 +23,8 @@
         <input type="submit" value="Share" />
       </form>
     </div>
+  {{~ end ~}}
+  
   {{~ end ~}}
 
   <ul class="messages">
