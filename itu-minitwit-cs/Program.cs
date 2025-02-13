@@ -535,6 +535,24 @@ async Task<IResult> add_message(HttpRequest request, HttpContext context)
 }
 
 
+void RecreateDatabase()
+{
+    Console.WriteLine("Recreating database");
+    if (File.Exists(DATABASE))
+    {
+        Console.WriteLine("Deleting old database");
+        File.Delete(DATABASE);
+    }
+
+    Console.WriteLine("Creating new database");
+    InitDb();
+}
+
+if (databaseSettings.RecreateDatabase)
+{
+    RecreateDatabase();
+}
+
 app.Run();
 
 static string sendToHtml(Dictionary<string, object> data, string filename)
