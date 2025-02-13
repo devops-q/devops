@@ -95,6 +95,13 @@ long? get_user_id(string username, HttpContext context)
     return (long?)command.ExecuteScalar();
 }
 
+string FormatDatetime(int timestamp)
+{
+  // Convert a unix timestamp (seconds) to a human-readable date string.
+  var datetime = DateTimeOffset.FromUnixTimeSeconds(timestamp);
+  return datetime.ToString("yyyy-MM-dd @ HH:mm");
+}
+
 void BeforeRequest(HttpContext context)
 {
   // Make sure we are connected to the database each request and look
