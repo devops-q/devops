@@ -184,10 +184,7 @@ IResult public_timeline(HttpRequest request, HttpContext context)
 {
 
 
-  var db = new SqliteConnection("Data source=" + DATABASE);
-  db.Open();
-
-  var command = db.CreateCommand();
+  var db = (SqliteConnection)context.Items["db"];
 
 
 
@@ -195,65 +192,54 @@ IResult public_timeline(HttpRequest request, HttpContext context)
         SELECT message.*, user.* from message, 
         user where message.flagged = 0 and 
         message.author_id = user.user_id
-        order by message.pub_date desc limit @PerPage";
+        order by message.pub_date desc limit @p0";
 
 
-  command.CommandText = query;
-  command.Parameters.Add(new SqliteParameter("@PerPage", PER_page));
-
-  List<Dictionary<string, string>> messages = new List<Dictionary<string, string>>();
-
-  using (var reader = command.ExecuteReader())
+  var messages = QueryDb(db, query, [PER_page]);
+  var data = new Dictionary<string, object>();
+  if (context.Session.GetString("user_id") != null)
   {
-    while (reader.Read())
+    var user = QueryDb((SqliteConnection)context.Items["db"], "SELECT * FROM user WHERE user_id = @p0",
+        [context.Session.GetString("user_id"),], one: true);
+    data = new Dictionary<string, object>
     {
-      Dictionary<string, string> dict = new Dictionary<string, string>();
-
-      for (int i = 0; i < reader.FieldCount; i++)
+      ["title"] = "Public timeline",
+      ["messages"] = messages.Select(message => new Dictionary<string, object>
       {
-
-        string key = reader.GetName(i);
-
-        string value = reader.IsDBNull(i) ? "" : reader.GetString(i);
-        if (key.Equals("pub_date"))
-        {
-          var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(long.Parse(value));
-          value = dateTimeOffset.DateTime.ToString("yyyy-MM-dd HH:mm:ss");
-        }
-        dict[key] = value;
-      }
-
-      messages.Add(dict);
-    }
+        ["username"] = message["username"],
+        ["text"] = message["text"],
+        ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
+        ["email"] = message["email"],
+        ["image_url"] = GetGravatarUrl(message["username"].ToString()) // Add a generated image URL
+      }).ToList(),
+      ["endpoint"] = request.Path,
+      ["userIDFromSession"] = new Dictionary<string, string>
+      {
+        ["user_id"] = context.Session.GetString("user_id"),
+        ["username"] = user[0]["username"].ToString(),
+      },
+    };
   }
-
-  var messagesWithImages = messages.Select(message => new Dictionary<string, object>
+  else
   {
-    ["username"] = message["username"],
-    ["text"] = message["text"],
-    ["pub_date"] = message["pub_date"],
-    ["email"] = message["email"],
-    ["image_url"] = GetGravatarUrl(message["username"].ToString()) // Add a generated image URL
-  }).ToList();
-
-
-  var data = new Dictionary<string, object>
-  {
-    ["title"] = "Public timeline",
-    ["messages"] = messagesWithImages,
-    ["endpoint"] = request.Path,
-    ["profile_user"] = new Dictionary<string, string>
+    data = new Dictionary<string, object>
     {
-      ["user_id"] = "2",
-      ["username"] = "AnotherUser"
-    },
-    ["followed"] = false
+      ["title"] = "Public timeline",
+      ["messages"] = messages.Select(message => new Dictionary<string, object>
+      {
+        ["username"] = message["username"],
+        ["text"] = message["text"],
+        ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
+        ["email"] = message["email"],
+        ["image_url"] = GetGravatarUrl(message["username"].ToString()) // Add a generated image URL
+      }).ToList(),
+      ["endpoint"] = request.Path,
+    };
   };
 
+  var render = sendToHtml(data, "timeline");
 
-  var finalRenderedHTML = sendToHtml(data, "timeline");
-
-  return Results.Content(finalRenderedHTML, "text/html; charset=utf-8");
+  return Results.Content(render, "text/html; charset=utf-8");
 }
 // For cases, where we need the username from the url, use the example below.
 app.MapGet("/{username}", (string username, HttpRequest request, HttpContext context) =>
