@@ -279,9 +279,7 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
     var profile_user = QueryDb(db, query, [username], true);
 
     if (profile_user == null)
-    {
         return Results.NotFound();
-    }
 
     var followed = false;
     if (context.Session.GetString("user_id") != null)
@@ -289,7 +287,7 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
         followed = QueryDb(db, @"SELECT 1 FROM follower 
                                  WHERE follower.who_id = @p0 
                                  AND follower.whom_id = @p1", 
-                                 [context.Session.GetString("user_id"), profile_user[0]["username"].ToString()], true) != null;
+                                 [context.Session.GetString("user_id"), profile_user[0]["user_id"]], true) != null;
     }
 
     var queryThree = @"SELECT message.*, user.* FROM message, user 
@@ -299,55 +297,34 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
 
     var data = new Dictionary<string, object>();
 
+    data = new Dictionary<string, object>
+    {
+        ["title"] = $"{profile_user[0]["username"]}'s Timeline",
+        ["messages"] = messages.Select(message => new Dictionary<string, object>
+        {
+            ["username"] = message["username"],
+            ["text"] = message["text"],
+            ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
+            ["email"] = message["email"],
+            ["image_url"] = GetGravatarUrl(message["username"].ToString())
+        }).ToList(),
+        ["endpoint"] = request.Path,
+        ["followed"] = followed,
+        ["profile_user"] = profile_user[0],
+    };
     if (context.Session.GetString("user_id") != null)
     {
-        var user = QueryDb((SqliteConnection)context.Items["db"], 
-                           "SELECT * FROM user WHERE user_id = @p0",
-                           [context.Session.GetString("user_id")], one: true);
+        data.Add("userIDFromSession",
+        new Dictionary<string, string>
+        {
+            ["user_id"] = context.Session.GetString("user_id"),
+            ["username"] = (string)context.Items["user"],
+        });
 
-        // Store the data in a dictionary
-        data = new Dictionary<string, object>
-        {
-            ["title"] = $"{profile_user[0]["username"]}'s Timeline",
-            ["messages"] = messages.Select(message => new Dictionary<string, object>
-            {
-                ["username"] = message["username"],
-                ["text"] = message["text"],
-                ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
-                ["email"] = message["email"],
-                ["image_url"] = GetGravatarUrl(message["username"].ToString())
-            }).ToList(),
-            ["endpoint"] = request.Path,
-            ["followed"] = followed,
-            ["profile_user"] = profile_user[0],
-            ["userIDFromSession"] = new Dictionary<string, string>
-            {
-                ["user_id"] = context.Session.GetString("user_id"),
-                ["username"] = user[0]["username"].ToString(),
-            },
-        };
-    }
-    else
-    {
-        data = new Dictionary<string, object>
-        {
-            ["title"] = $"{profile_user[0]["username"]}'s Timeline",
-            ["messages"] = messages.Select(message => new Dictionary<string, object>
-            {
-                ["username"] = message["username"],
-                ["text"] = message["text"],
-                ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
-                ["email"] = message["email"],
-                ["image_url"] = GetGravatarUrl(message["username"].ToString())
-            }).ToList(),
-            ["endpoint"] = request.Path,
-            ["followed"] = followed,
-            ["profile_user"] = profile_user[0],
-        };
     }
 
     // Ensure the URL is the same without additional layers
-    string render = sendToHtml(data, "timeline");
+        string render = sendToHtml(data, "timeline");
 
     // Return the content with the correct header
     return Results.Content(render, "text/html; charset=utf-8");
