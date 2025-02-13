@@ -1,5 +1,5 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
+USER root
 WORKDIR /app
 EXPOSE 8080
 
@@ -17,6 +17,8 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "itu-minitwit-cs.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
+USER root
+
 WORKDIR /app
 
 COPY --from=publish /app/publish .
