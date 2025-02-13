@@ -13,6 +13,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;
 using Scriban;
 using Scriban.Runtime;
+using System.Web;
 
 int PER_page = 30;
 bool DEBUG = true;
@@ -353,7 +354,7 @@ IResult follow_user(string username, HttpContext context, HttpRequest request)
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
 
-  flash($"You are now following {username}", context);
+  flash($"You are now following &#34;{username}&#34;", context);
 
   return Results.Redirect($"/{username}");
 }
@@ -373,7 +374,7 @@ IResult unfollow_user(string username, HttpContext context, HttpRequest request)
   command.Parameters.AddWithValue("@whoID", context.Session.GetString("user_id"));
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
-  flash($"You are no longer following {username}", context);
+  flash($"You are no longer following &#34;{username}&#34;", context);
 
 
   return Results.Redirect($"/{username}");
@@ -517,7 +518,7 @@ async Task<IResult> add_message(HttpRequest request, HttpContext context)
   }
 
   var form = await request.ReadFormAsync();
-  var messageText = form["text"].ToString();
+  var messageText = HttpUtility.HtmlEncode(form["text"].ToString());
 
   if (!string.IsNullOrEmpty(messageText))
   {
