@@ -1,18 +1,8 @@
-using System.Data.Common;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Primitives;
 using Scriban;
-
-
-using Scriban.Parsing;
 using Scriban.Runtime;
 
 string DATABASE = "../minitwit.db";
@@ -126,7 +116,6 @@ app.Use(async (context, next) =>
   AfterRequest(context);
 });
 
-// Timeline route
 app.MapGet("/", (HttpRequest request, HttpContext context) =>
     timeline(request, context));
 
@@ -250,95 +239,90 @@ app.MapGet("/{username}", (string username, HttpRequest request, HttpContext con
 
 IResult user_timeline(string username, HttpRequest request, HttpContext context)
 {
+    var db = (SqliteConnection)context.Items["db"];
+    
+    // Query the profile user by username
+    var query = @"SELECT * FROM user WHERE username = @p0";
+    var profile_user = QueryDb(db, query, [username], true);
 
-  var db = (SqliteConnection)context.Items["db"];
-
-
-  var query = @"select * from user where username = @p0";
-
-  var profile_user = QueryDb(db, query, [username], true);
-
-  if (profile_user == null)
-  {
-    return Results.NotFound();
-  }
-
-  var followed = false;
-
-  if (context.Session.GetString("user_id") != null)
-  {
-
-    followed = QueryDb(db, @"SELECT 1 FROM follower 
-                      WHERE follower.who_id = @p0 
-                      AND follower.whom_id = @p1", [context.Session.GetString("user_id"), profile_user[0]["username"].ToString()], true) != null;
-  }
-
-
-
-
-
-  var queryThree = @"select message.*, user.* from message, user where
-            user.user_id = message.author_id and user.user_id = @p0
-            order by message.pub_date desc limit @p1";
-
-  var messages = QueryDb(db, queryThree, [profile_user[0]["user_id"].ToString(), PER_page]);
-
-
-
-  var data = new Dictionary<string, object>();
-
-  if (context.Session.GetString("user_id") != null)
-  {
-    var user = QueryDb((SqliteConnection)context.Items["db"], "SELECT * FROM user WHERE user_id = @p0",
-        [context.Session.GetString("user_id"),], one: true);
-    data = new Dictionary<string, object>
+    if (profile_user == null)
     {
-      ["title"] = $"{profile_user[0]["username"]}'s Timeline",
-      ["messages"] = messages.Select(message => new Dictionary<string, object>
-      {
-        ["username"] = message["username"],
-        ["text"] = message["text"],
-        ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
-        ["email"] = message["email"],
-        ["image_url"] = GetGravatarUrl(message["username"].ToString()) // Add a generated image URL
-      }).ToList(),
-      ["endpoint"] = request.Path,
-      ["followed"] = followed,
-      ["profile_user"] = profile_user[0],
-      ["userIDFromSession"] = new Dictionary<string, string>
-      {
-        ["user_id"] = context.Session.GetString("user_id"),
-        ["username"] = user[0]["username"].ToString(),
-      },
-    };
+        return Results.NotFound();
+    }
 
-  }
-  else
-  {
-    data = new Dictionary<string, object>
+    var followed = false;
+    if (context.Session.GetString("user_id") != null)
     {
-      ["title"] = $"{profile_user[0]["username"]}'s Timeline",
-      ["messages"] = messages.Select(message => new Dictionary<string, object>
-      {
-        ["username"] = message["username"],
-        ["text"] = message["text"],
-        ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
-        ["email"] = message["email"],
-        ["image_url"] = GetGravatarUrl(message["username"].ToString()) // Add a generated image URL
-      }).ToList(),
-      ["endpoint"] = request.Path,
-      ["followed"] = followed,
-      ["profile_user"] = profile_user[0],
-    };
-  }
+        followed = QueryDb(db, @"SELECT 1 FROM follower 
+                                 WHERE follower.who_id = @p0 
+                                 AND follower.whom_id = @p1", 
+                                 [context.Session.GetString("user_id"), profile_user[0]["username"].ToString()], true) != null;
+    }
 
-  string render = sendToHtml(data, "timeline");
+    var queryThree = @"SELECT message.*, user.* FROM message, user 
+                       WHERE user.user_id = message.author_id AND user.user_id = @p0
+                       ORDER BY message.pub_date DESC LIMIT @p1";
+    var messages = QueryDb(db, queryThree, [profile_user[0]["user_id"].ToString(), PER_page]);
 
-  return Results.Content(render, "text/html; charset=utf-8");
+    var data = new Dictionary<string, object>();
+
+    if (context.Session.GetString("user_id") != null)
+    {
+        var user = QueryDb((SqliteConnection)context.Items["db"], 
+                           "SELECT * FROM user WHERE user_id = @p0",
+                           [context.Session.GetString("user_id")], one: true);
+
+        // Store the data in a dictionary
+        data = new Dictionary<string, object>
+        {
+            ["title"] = $"{profile_user[0]["username"]}'s Timeline",
+            ["messages"] = messages.Select(message => new Dictionary<string, object>
+            {
+                ["username"] = message["username"],
+                ["text"] = message["text"],
+                ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
+                ["email"] = message["email"],
+                ["image_url"] = GetGravatarUrl(message["username"].ToString())
+            }).ToList(),
+            ["endpoint"] = request.Path,
+            ["followed"] = followed,
+            ["profile_user"] = profile_user[0],
+            ["userIDFromSession"] = new Dictionary<string, string>
+            {
+                ["user_id"] = context.Session.GetString("user_id"),
+                ["username"] = user[0]["username"].ToString(),
+            },
+        };
+    }
+    else
+    {
+        data = new Dictionary<string, object>
+        {
+            ["title"] = $"{profile_user[0]["username"]}'s Timeline",
+            ["messages"] = messages.Select(message => new Dictionary<string, object>
+            {
+                ["username"] = message["username"],
+                ["text"] = message["text"],
+                ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
+                ["email"] = message["email"],
+                ["image_url"] = GetGravatarUrl(message["username"].ToString())
+            }).ToList(),
+            ["endpoint"] = request.Path,
+            ["followed"] = followed,
+            ["profile_user"] = profile_user[0],
+        };
+    }
+
+    // Ensure the URL is the same without additional layers
+    string render = sendToHtml(data, "timeline");
+
+    // Return the content with the correct header
+    return Results.Content(render, "text/html; charset=utf-8");
 }
 
+
 app.MapGet("/{username}/follow", follow_user);
-IResult follow_user(string username, HttpContext context)
+IResult follow_user(string username, HttpContext context, HttpRequest request)
 {
   if (context.Items["user"] == null)
     return Results.Unauthorized();
@@ -352,14 +336,50 @@ IResult follow_user(string username, HttpContext context)
   command.Parameters.AddWithValue("@whoID", context.Session.GetString("user_id"));
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
+  var query = @"select * from user where username = @p0";
 
-  
+  var profile_user = QueryDb(db, query, [username], true);
 
-  return Results.Redirect($"/{username}");
+  var queryThree = @"select message.*, user.* from message, user where
+            user.user_id = message.author_id and user.user_id = @p0
+            order by message.pub_date desc limit @p1";
+
+  var messages = QueryDb(db, queryThree, [profile_user[0]["user_id"].ToString(), PER_page]);
+
+  var user = QueryDb((SqliteConnection)context.Items["db"], "SELECT * FROM user WHERE user_id = @p0",
+          [context.Session.GetString("user_id"),], one: true);
+  var data = new Dictionary<string, object>
+  {
+    ["title"] = $"{profile_user[0]["username"]}'s Timeline",
+    ["messages"] = messages.Select(message => new Dictionary<string, object>
+    {
+      ["username"] = message["username"],
+      ["text"] = message["text"],
+      ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
+      ["email"] = message["email"],
+      ["image_url"] = GetGravatarUrl(message["username"].ToString())
+    }).ToList(),
+    ["flashes"] = "You are now following" + $"{profile_user[0]["username"]}",
+    ["endpoint"] = $"/{username}",
+    ["followed"] = QueryDb(db, @"SELECT 1 FROM follower 
+                      WHERE follower.who_id = @p0 
+                      AND follower.whom_id = @p1", [context.Session.GetString("user_id"), profile_user[0]["username"].ToString()], true) == null,
+    ["profile_user"] = profile_user[0],
+    ["userIDFromSession"] = new Dictionary<string, string>
+    {
+      ["user_id"] = context.Session.GetString("user_id"),
+      ["username"] = user[0]["username"].ToString(),
+    },
+  };
+
+
+  string render = sendToHtml(data, "timeline");
+
+  return Results.Content(render, "text/html; charset=utf-8");
 }
 
 app.MapGet("/{username}/unfollow", unfollow_user);
-IResult unfollow_user(string username, HttpContext context)
+IResult unfollow_user(string username, HttpContext context, HttpRequest request)
 {
   if (context.Items["user"] == null)
     return Results.Unauthorized();
@@ -374,7 +394,49 @@ IResult unfollow_user(string username, HttpContext context)
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
 
-  return Results.Redirect($"/{username}");
+  var query = @"select * from user where username = @p0";
+
+  var profile_user = QueryDb(db, query, [username], true);
+
+  var queryThree = @"select message.*, user.* from message, user where
+            user.user_id = message.author_id and user.user_id = @p0
+            order by message.pub_date desc limit @p1";
+
+  var messages = QueryDb(db, queryThree, [profile_user[0]["user_id"].ToString(), PER_page]);
+
+  var user = QueryDb((SqliteConnection)context.Items["db"], "SELECT * FROM user WHERE user_id = @p0",
+          [context.Session.GetString("user_id"),], one: true);
+  var data = new Dictionary<string, object>
+  {
+    ["title"] = $"{profile_user[0]["username"]}'s Timeline",
+    ["messages"] = messages.Select(message => new Dictionary<string, object>
+    {
+      ["username"] = message["username"],
+      ["text"] = message["text"],
+      ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
+      ["email"] = message["email"],
+      ["image_url"] = GetGravatarUrl(message["username"].ToString())
+    }).ToList(),
+    ["endpoint"] = $"/{username}",
+    ["flashes"] = "You are no longer following" + $"{profile_user[0]["username"]}",
+    ["followed"] = false,
+
+    // ["followed"] = QueryDb(db, @"SELECT 1 FROM follower 
+    //                   WHERE follower.who_id = @p0 
+    //                   AND follower.whom_id = @p1", [context.Session.GetString("user_id"), profile_user[0]["username"].ToString()], true) == null,
+    ["profile_user"] = profile_user[0],
+    ["userIDFromSession"] = new Dictionary<string, string>
+    {
+      ["user_id"] = context.Session.GetString("user_id"),
+      ["username"] = user[0]["username"].ToString(),
+    },
+  };
+
+
+  string render = sendToHtml(data, "timeline");
+
+  return Results.Content(render, "text/html; charset=utf-8");
+
 }
 
 app.MapGet("/register", (HttpRequest request, HttpContext context) =>
@@ -534,3 +596,6 @@ static string FormatDatetime(int timestamp)
   var datetime = DateTimeOffset.FromUnixTimeSeconds((long)timestamp);
   return datetime.ToString("yyyy-MM-dd @ HH:mm");
 }
+
+
+// throw new NotImplementedException();
