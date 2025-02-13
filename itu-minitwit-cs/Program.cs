@@ -2,9 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using Scriban;
 using Scriban.Runtime;
 
@@ -445,7 +443,7 @@ IResult unfollow_user(string username, HttpContext context, HttpRequest request)
       ["image_url"] = GetGravatarUrl(message["username"].ToString())
     }).ToList(),
     ["endpoint"] = $"/{username}",
-    ["flashes"] = "You are no longer following" + $"{profile_user[0]["username"]}",
+    ["flashes"] = new object[] {$"You are no longer following {profile_user[0]["username"]}"},
     ["followed"] = false,
 
     // ["followed"] = QueryDb(db, @"SELECT 1 FROM follower 
