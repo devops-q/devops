@@ -471,6 +471,7 @@ app.MapMethods("/login", new[] { "GET", "POST" }, async (HttpRequest request, Ht
 
   var data = new Dictionary<string, object>
   {
+    ["flashes"] = readFlash(context),
     ["error"] = error,
     ["username"] = username
 
