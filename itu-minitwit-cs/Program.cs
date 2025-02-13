@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Scriban;
 
@@ -15,7 +16,6 @@ using Scriban;
 using Scriban.Parsing;
 using Scriban.Runtime;
 
-string DATABASE = "../minitwit.db";
 int PER_page = 30;
 bool DEBUG = true;
 string SECRET_KEY = "development key";
@@ -31,9 +31,14 @@ builder.Services.AddSession(options =>
   options.Cookie.IsEssential = true;
 });
 
-
+builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("DatabaseSettings"));
 
 var app = builder.Build();
+
+var databaseSettings = app.Services.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+string DATABASE = databaseSettings.Database;
+
+Console.WriteLine(DATABASE);
 
 app.UseSession();
 app.UseStaticFiles(); // Enable serving static files like CSS
