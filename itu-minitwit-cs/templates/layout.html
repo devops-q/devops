@@ -13,7 +13,7 @@
       {{~ if userIDFromSession ~}}
         <a href="{{ "/" }}">my timeline</a> |
         <a href="{{ "/public" }}">public timeline</a> |
-        <a href="{{ "/login" }}">sign out [{{ userIDFromSession["username"] }}]</a>
+        <a href="{{ "/logout" }}">sign out [{{ userIDFromSession["username"] }}]</a>
       {{~ else ~}}
         <a href="{{ "/public" }}">public timeline</a> |
         <a href="{{ "/register" }}">sign up</a> |
@@ -24,7 +24,7 @@
     {{~ if flashes ~}}
       <ul class="flashes">
         {{~ for message in flashes ~}}
-          <li>{{ message }}</li>
+            <li>{{ message }}</li>
         {{~ end ~}}
       </ul>
     {{~ end ~}}
