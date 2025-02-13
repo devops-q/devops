@@ -189,8 +189,8 @@ IResult timeline(HttpRequest request, HttpContext context)
     {
       ["user_id"] = context.Session.GetString("user_id"),
       ["username"] = user[0]["username"].ToString(),
-      ["flashes"] = context.Items["flash"].ToString(),
     },
+    ["flashes"] = context.Items["flash"],
   };
 
 
@@ -241,7 +241,7 @@ IResult public_timeline(HttpRequest request, HttpContext context)
         ["user_id"] = context.Session.GetString("user_id"),
         ["username"] = user[0]["username"].ToString(),
       },
-      ["flashes"] = context.Items["flash"].ToString(),
+      ["flashes"] = context.Items["flash"],
 
     };
   }
@@ -259,6 +259,8 @@ IResult public_timeline(HttpRequest request, HttpContext context)
         ["image_url"] = GetGravatarUrl(message["username"].ToString()) // Add a generated image URL
       }).ToList(),
       ["endpoint"] = request.Path,
+      ["flashes"] = context.Items["flash"],
+
     };
   }
   ;
@@ -313,7 +315,7 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
     ["endpoint"] = request.Path,
     ["followed"] = followed,
     ["profile_user"] = profile_user[0],
-    ["flashes"] = context.Items["flash"].ToString(),
+    ["flashes"] = context.Items["flash"],
 
   };
   if (context.Session.GetString("user_id") != null)
@@ -350,7 +352,7 @@ IResult follow_user(string username, HttpContext context, HttpRequest request)
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
 
-  flash($"You are now following {username}",context);
+  flash($"You are now following {username}", context);
 
   return Results.Redirect($"/{username}");
 }
@@ -370,7 +372,7 @@ IResult unfollow_user(string username, HttpContext context, HttpRequest request)
   command.Parameters.AddWithValue("@whoID", context.Session.GetString("user_id"));
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
-      flash($"You are no longer following {username}", context);
+  flash($"You are no longer following {username}", context);
 
 
   return Results.Redirect($"/{username}");
@@ -492,7 +494,7 @@ app.MapGet("/logout", logout);
 IResult logout(HttpContext context)
 {
   context.Session.Remove("user_id");
-  flash("You were logged out",context);
+  flash("You were logged out", context);
 
   return Results.Redirect("/");
 }
@@ -524,7 +526,7 @@ async Task<IResult> add_message(HttpRequest request, HttpContext context)
     Console.WriteLine("Message added");
   }
 
-   flash("Your message was recorded",context);
+  flash("Your message was recorded", context);
 
   return Results.Redirect("/");
 }
