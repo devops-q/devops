@@ -616,13 +616,3 @@ static string GetGravatarUrl(string email, int size = 48)
   return $"https://www.gravatar.com/avatar/{hash}?s={size}&d=retro";
 }
 
-
-static string FormatDatetime(int timestamp)
-{
-  // Convert a unix timestamp (seconds) to a human-readable date string.
-  var datetime = DateTimeOffset.FromUnixTimeSeconds((long)timestamp);
-  return datetime.ToString("yyyy-MM-dd @ HH:mm");
-}
-
-
-// throw new NotImplementedException();
