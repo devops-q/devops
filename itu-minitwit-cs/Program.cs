@@ -47,9 +47,6 @@ SqliteConnection ConnectDb()
   // Returns a new connection to the database
   var connection = new SqliteConnection("Data Source=" + DATABASE);
   connection.Open();
-  // Returns a new connection to the database
-  var connection = new SqliteConnection("Data Source=" + DATABASE);
-  connection.Open();
 
   return connection;
 }
@@ -139,9 +136,6 @@ void BeforeRequest(HttpContext context)
 
 void AfterRequest(HttpContext context)
 {
-  // Closes the database again at the end of the request.
-  var db = (SqliteConnection)context.Items["db"];
-  db?.Close();
   // Closes the database again at the end of the request.
   var db = (SqliteConnection)context.Items["db"];
   db?.Close();
@@ -565,11 +559,8 @@ app.MapMethods("/login", new[] { "GET", "POST" }, async (HttpRequest request, Ht
 
   var data = new Dictionary<string, object>
   {
-    ["title"] = $"{profile_user["username"]}'s Timeline",
-    ["messages"] = messagesWithImages,
-    ["endpoint"] = request.Path,
-    ["followed"] = followed,
-    ["profile_user"] = profile_user,
+    ["error"] = error,
+    ["username"] = username
 
   };
 
