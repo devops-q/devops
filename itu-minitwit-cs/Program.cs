@@ -124,7 +124,7 @@ void BeforeRequest(HttpContext context)
   // up the current user so that we know he's there.
   context.Items["db"] = ConnectDb();
   context.Items["user"] = null;
-  context.Items["flash"] = new List<string>();
+  context.Session.SetString("flash", "");
 
   if (context.Session.TryGetValue("user_id", out var userIdBytes))
   {
@@ -190,7 +190,7 @@ IResult timeline(HttpRequest request, HttpContext context)
       ["user_id"] = context.Session.GetString("user_id"),
       ["username"] = user[0]["username"].ToString(),
     },
-    ["flashes"] = context.Items["flash"],
+    ["flashes"] = readFlash(context)
   };
 
 
@@ -241,7 +241,7 @@ IResult public_timeline(HttpRequest request, HttpContext context)
         ["user_id"] = context.Session.GetString("user_id"),
         ["username"] = user[0]["username"].ToString(),
       },
-      ["flashes"] = context.Items["flash"],
+      ["flashes"] = readFlash(context)
 
     };
   }
@@ -259,7 +259,7 @@ IResult public_timeline(HttpRequest request, HttpContext context)
         ["image_url"] = GetGravatarUrl(message["username"].ToString()) // Add a generated image URL
       }).ToList(),
       ["endpoint"] = request.Path,
-      ["flashes"] = context.Items["flash"],
+      ["flashes"] = readFlash(context)
 
     };
   }
@@ -315,7 +315,7 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
     ["endpoint"] = request.Path,
     ["followed"] = followed,
     ["profile_user"] = profile_user[0],
-    ["flashes"] = context.Items["flash"],
+    ["flashes"] = readFlash(context)
 
   };
   if (context.Session.GetString("user_id") != null)
@@ -572,6 +572,13 @@ static string GetGravatarUrl(string email, int size = 48)
 
 static void flash(string message, HttpContext context)
 {
-  ((List<string>)context.Items["flashes"]).Add(message);
+    context.Session.SetString("flash", message);
+}
+
+static string readFlash(HttpContext context)
+{
+    var message = context.Session.GetString("flash");
+    context.Session.Remove("flash");
+    return message;
 }
 
