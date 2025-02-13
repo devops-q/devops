@@ -23,7 +23,9 @@
 
     {{~ if flashes ~}}
       <ul class="flashes">
-          <li>{{ flashes }}</li>
+        {{~ for message in flashes ~}}
+            <li>{{ message }}</li>
+        {{~ end ~}}
       </ul>
     {{~ end ~}}
 
