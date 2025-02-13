@@ -2,10 +2,12 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Scriban;
 using Scriban.Runtime;
 
-string DATABASE = "../minitwit.db";
 int PER_page = 30;
 bool DEBUG = true;
 string SECRET_KEY = "development key";
@@ -21,9 +23,14 @@ builder.Services.AddSession(options =>
   options.Cookie.IsEssential = true;
 });
 
-
+builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("DatabaseSettings"));
 
 var app = builder.Build();
+
+var databaseSettings = app.Services.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+string DATABASE = databaseSettings.Database;
+
+Console.WriteLine(DATABASE);
 
 app.UseSession();
 app.UseStaticFiles(); // Enable serving static files like CSS
@@ -36,6 +43,19 @@ SqliteConnection ConnectDb()
   connection.Open();
 
   return connection;
+}
+
+void InitDb()
+{
+    // Initialize database by executing a schema.sql file against it.
+    const string schemaPath = "schema.sql";
+    var schemaCommandText = File.ReadAllText(schemaPath);
+
+    using var db = ConnectDb();
+    var sqliteCommand = db.CreateCommand();
+
+    sqliteCommand.CommandText = schemaCommandText;
+    sqliteCommand.ExecuteReader();
 }
 
 List<Dictionary<string, object>> QueryDb(SqliteConnection db, string query, object[] args = null, bool one = false)
@@ -83,6 +103,13 @@ long? get_user_id(string username, HttpContext context)
   command.Parameters.AddWithValue("@username", username);
 
   return (long?)command.ExecuteScalar();
+}
+
+string FormatDatetime(int timestamp)
+{
+  // Convert a unix timestamp (seconds) to a human-readable date string.
+  var datetime = DateTimeOffset.FromUnixTimeSeconds(timestamp);
+  return datetime.ToString("yyyy-MM-dd @ HH:mm");
 }
 
 void BeforeRequest(HttpContext context)
