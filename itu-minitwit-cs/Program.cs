@@ -345,46 +345,8 @@ IResult follow_user(string username, HttpContext context, HttpRequest request)
   command.Parameters.AddWithValue("@whoID", context.Session.GetString("user_id"));
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
-  var query = @"select * from user where username = @p0";
 
-  var profile_user = QueryDb(db, query, [username], true);
-
-  var queryThree = @"select message.*, user.* from message, user where
-            user.user_id = message.author_id and user.user_id = @p0
-            order by message.pub_date desc limit @p1";
-
-  var messages = QueryDb(db, queryThree, [profile_user[0]["user_id"].ToString(), PER_page]);
-
-  var user = QueryDb((SqliteConnection)context.Items["db"], "SELECT * FROM user WHERE user_id = @p0",
-          [context.Session.GetString("user_id"),], one: true);
-  var data = new Dictionary<string, object>
-  {
-      ["title"] = $"{profile_user[0]["username"]}'s Timeline",
-      ["messages"] = messages.Select(message => new Dictionary<string, object>
-      {
-          ["username"] = message["username"],
-          ["text"] = message["text"],
-          ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
-          ["email"] = message["email"],
-          ["image_url"] = GetGravatarUrl(message["username"].ToString())
-      }).ToList(),
-      ["flashes"] = new[] { $"You are now following {profile_user[0]["username"]}" },
-    ["endpoint"] = $"/{username}",
-    ["followed"] = QueryDb(db, @"SELECT 1 FROM follower 
-                      WHERE follower.who_id = @p0 
-                      AND follower.whom_id = @p1", [context.Session.GetString("user_id"), profile_user[0]["username"].ToString()], true) == null,
-    ["profile_user"] = profile_user[0],
-    ["userIDFromSession"] = new Dictionary<string, string>
-    {
-      ["user_id"] = context.Session.GetString("user_id"),
-      ["username"] = user[0]["username"].ToString(),
-    },
-  };
-
-
-  string render = sendToHtml(data, "timeline");
-
-  return Results.Content(render, "text/html; charset=utf-8");
+    return Results.Redirect($"/{username}");
 }
 
 app.MapGet("/{username}/unfollow", unfollow_user);
@@ -403,48 +365,7 @@ IResult unfollow_user(string username, HttpContext context, HttpRequest request)
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
 
-  var query = @"select * from user where username = @p0";
-
-  var profile_user = QueryDb(db, query, [username], true);
-
-  var queryThree = @"select message.*, user.* from message, user where
-            user.user_id = message.author_id and user.user_id = @p0
-            order by message.pub_date desc limit @p1";
-
-  var messages = QueryDb(db, queryThree, [profile_user[0]["user_id"].ToString(), PER_page]);
-
-  var user = QueryDb((SqliteConnection)context.Items["db"], "SELECT * FROM user WHERE user_id = @p0",
-          [context.Session.GetString("user_id"),], one: true);
-  var data = new Dictionary<string, object>
-  {
-    ["title"] = $"{profile_user[0]["username"]}'s Timeline",
-    ["messages"] = messages.Select(message => new Dictionary<string, object>
-    {
-      ["username"] = message["username"],
-      ["text"] = message["text"],
-      ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
-      ["email"] = message["email"],
-      ["image_url"] = GetGravatarUrl(message["username"].ToString())
-    }).ToList(),
-    ["endpoint"] = $"/{username}",
-    ["flashes"] = new object[] {$"You are no longer following {profile_user[0]["username"]}"},
-    ["followed"] = false,
-
-    // ["followed"] = QueryDb(db, @"SELECT 1 FROM follower 
-    //                   WHERE follower.who_id = @p0 
-    //                   AND follower.whom_id = @p1", [context.Session.GetString("user_id"), profile_user[0]["username"].ToString()], true) == null,
-    ["profile_user"] = profile_user[0],
-    ["userIDFromSession"] = new Dictionary<string, string>
-    {
-      ["user_id"] = context.Session.GetString("user_id"),
-      ["username"] = user[0]["username"].ToString(),
-    },
-  };
-
-
-  string render = sendToHtml(data, "timeline");
-
-  return Results.Content(render, "text/html; charset=utf-8");
+    return Results.Redirect($"/{username}");
 
 }
 
