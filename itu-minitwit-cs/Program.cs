@@ -1,5 +1,13 @@
+using System.Data.Common;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;
@@ -553,6 +561,7 @@ app.MapMethods("/login", new[] { "GET", "POST" }, async (HttpRequest request, Ht
   {
     ["error"] = error,
     ["username"] = username
+
   };
 
   var finalRenderedHTML = sendToHtml(data, "login");
@@ -575,6 +584,37 @@ IResult logout(HttpContext context)
   context.Session.Remove("user_id");
   return Results.Redirect("/");
 }
+app.MapPost("/add_message", (HttpRequest request, HttpContext context) =>
+  add_message(request, context)
+);
+
+async Task<IResult> add_message(HttpRequest request, HttpContext context)
+{
+    var db = context.Items["db"] as SqliteConnection;
+
+    var userIDFromSession = context.Session.GetString("user_id"); 
+
+    if (string.IsNullOrEmpty(userIDFromSession))
+    {
+        Console.WriteLine("No id found.");
+        return Results.NotFound();
+    }
+
+    var form = await request.ReadFormAsync();
+    var messageText = form["text"].ToString();
+
+    if (!string.IsNullOrEmpty(messageText))
+    {
+        var query = @"insert into message (author_id, text, pub_date, flagged) values (@p0, @p1, @p2, 0)";
+
+        QueryDb(db, query, new object[] { userIDFromSession, messageText, DateTimeOffset.UtcNow.ToUnixTimeSeconds() });
+
+        Console.WriteLine("Message added");
+    }
+
+    return Results.Redirect("/");
+}
+
 
 app.Run();
 
