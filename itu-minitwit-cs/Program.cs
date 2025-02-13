@@ -53,15 +53,15 @@ SqliteConnection ConnectDb()
 
 void InitDb()
 {
-    // Initialize database by executing a schema.sql file against it.
-    const string schemaPath = "schema.sql";
-    var schemaCommandText = File.ReadAllText(schemaPath);
+  // Initialize database by executing a schema.sql file against it.
+  const string schemaPath = "schema.sql";
+  var schemaCommandText = File.ReadAllText(schemaPath);
 
-    using var db = ConnectDb();
-    var sqliteCommand = db.CreateCommand();
+  using var db = ConnectDb();
+  var sqliteCommand = db.CreateCommand();
 
-    sqliteCommand.CommandText = schemaCommandText;
-    sqliteCommand.ExecuteReader();
+  sqliteCommand.CommandText = schemaCommandText;
+  sqliteCommand.ExecuteReader();
 }
 
 List<Dictionary<string, object>> QueryDb(SqliteConnection db, string query, object[] args = null, bool one = false)
@@ -124,6 +124,7 @@ void BeforeRequest(HttpContext context)
   // up the current user so that we know he's there.
   context.Items["db"] = ConnectDb();
   context.Items["user"] = null;
+  context.Items["flash"] = new List<string>();
 
   if (context.Session.TryGetValue("user_id", out var userIdBytes))
   {
@@ -172,7 +173,6 @@ IResult timeline(HttpRequest request, HttpContext context)
   var user = QueryDb((SqliteConnection)context.Items["db"], "SELECT * FROM user WHERE user_id = @p0",
      [context.Session.GetString("user_id"),], one: true);
 
-  // Data dictionary for template
   var data = new Dictionary<string, object>
   {
     ["title"] = "My Timeline",
@@ -182,13 +182,14 @@ IResult timeline(HttpRequest request, HttpContext context)
       ["text"] = message["text"],
       ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
       ["email"] = message["email"],
-      ["image_url"] = GetGravatarUrl(message["username"].ToString()) // Add a generated image URL
+      ["image_url"] = GetGravatarUrl(message["username"].ToString())
     }).ToList(),
     ["endpoint"] = request.Path,
     ["userIDFromSession"] = new Dictionary<string, string>
     {
       ["user_id"] = context.Session.GetString("user_id"),
       ["username"] = user[0]["username"].ToString(),
+      ["flashes"] = context.Items["flash"].ToString(),
     },
   };
 
@@ -240,6 +241,8 @@ IResult public_timeline(HttpRequest request, HttpContext context)
         ["user_id"] = context.Session.GetString("user_id"),
         ["username"] = user[0]["username"].ToString(),
       },
+      ["flashes"] = context.Items["flash"].ToString(),
+
     };
   }
   else
@@ -272,61 +275,62 @@ app.MapGet("/{username}", (string username, HttpRequest request, HttpContext con
 
 IResult user_timeline(string username, HttpRequest request, HttpContext context)
 {
-    var db = (SqliteConnection)context.Items["db"];
-    
-    // Query the profile user by username
-    var query = @"SELECT * FROM user WHERE username = @p0";
-    var profile_user = QueryDb(db, query, [username], true);
+  var db = (SqliteConnection)context.Items["db"];
 
-    if (profile_user == null)
-        return Results.NotFound();
+  var query = @"SELECT * FROM user WHERE username = @p0";
+  var profile_user = QueryDb(db, query, [username], true);
 
-    var followed = false;
-    if (context.Session.GetString("user_id") != null)
-    {
-        followed = QueryDb(db, @"SELECT 1 FROM follower 
+  if (profile_user == null)
+    return Results.NotFound();
+
+  var followed = false;
+  if (context.Session.GetString("user_id") != null)
+  {
+    followed = QueryDb(db, @"SELECT 1 FROM follower 
                                  WHERE follower.who_id = @p0 
-                                 AND follower.whom_id = @p1", 
-                                 [context.Session.GetString("user_id"), profile_user[0]["user_id"]], true) != null;
-    }
+                                 AND follower.whom_id = @p1",
+                             [context.Session.GetString("user_id"), profile_user[0]["user_id"]], true) != null;
+  }
 
-    var queryThree = @"SELECT message.*, user.* FROM message, user 
+  var queryThree = @"SELECT message.*, user.* FROM message, user 
                        WHERE user.user_id = message.author_id AND user.user_id = @p0
                        ORDER BY message.pub_date DESC LIMIT @p1";
-    var messages = QueryDb(db, queryThree, [profile_user[0]["user_id"].ToString(), PER_page]);
+  var messages = QueryDb(db, queryThree, [profile_user[0]["user_id"].ToString(), PER_page]);
 
-    var data = new Dictionary<string, object>();
+  var data = new Dictionary<string, object>();
 
-    data = new Dictionary<string, object>
+  data = new Dictionary<string, object>
+  {
+    ["title"] = $"{profile_user[0]["username"]}'s Timeline",
+    ["messages"] = messages.Select(message => new Dictionary<string, object>
     {
-        ["title"] = $"{profile_user[0]["username"]}'s Timeline",
-        ["messages"] = messages.Select(message => new Dictionary<string, object>
-        {
-            ["username"] = message["username"],
-            ["text"] = message["text"],
-            ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
-            ["email"] = message["email"],
-            ["image_url"] = GetGravatarUrl(message["username"].ToString())
-        }).ToList(),
-        ["endpoint"] = request.Path,
-        ["followed"] = followed,
-        ["profile_user"] = profile_user[0],
-    };
-    if (context.Session.GetString("user_id") != null)
+      ["username"] = message["username"],
+      ["text"] = message["text"],
+      ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
+      ["email"] = message["email"],
+      ["image_url"] = GetGravatarUrl(message["username"].ToString())
+    }).ToList(),
+    ["endpoint"] = request.Path,
+    ["followed"] = followed,
+    ["profile_user"] = profile_user[0],
+    ["flashes"] = context.Items["flash"].ToString(),
+
+  };
+  if (context.Session.GetString("user_id") != null)
+  {
+    data.Add("userIDFromSession", new Dictionary<string, string>
     {
-        data.Add("userIDFromSession", new Dictionary<string, string>
-        {
-            ["user_id"] = context.Session.GetString("user_id"),
-            ["username"] = (string)((List<Dictionary<string, object>>)context.Items["user"])[0]["username"]
-        });
+      ["user_id"] = context.Session.GetString("user_id"),
+      ["username"] = (string)((List<Dictionary<string, object>>)context.Items["user"])[0]["username"]
+    });
 
-    }
+  }
 
-    // Ensure the URL is the same without additional layers
-        string render = sendToHtml(data, "timeline");
+  // Ensure the URL is the same without additional layers
+  string render = sendToHtml(data, "timeline");
 
-    // Return the content with the correct header
-    return Results.Content(render, "text/html; charset=utf-8");
+  // Return the content with the correct header
+  return Results.Content(render, "text/html; charset=utf-8");
 }
 
 
@@ -346,7 +350,9 @@ IResult follow_user(string username, HttpContext context, HttpRequest request)
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
 
-    return Results.Redirect($"/{username}");
+  flash($"You are now following {username}",context);
+
+  return Results.Redirect($"/{username}");
 }
 
 app.MapGet("/{username}/unfollow", unfollow_user);
@@ -364,8 +370,10 @@ IResult unfollow_user(string username, HttpContext context, HttpRequest request)
   command.Parameters.AddWithValue("@whoID", context.Session.GetString("user_id"));
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
+      flash($"You are no longer following {username}", context);
 
-    return Results.Redirect($"/{username}");
+
+  return Results.Redirect($"/{username}");
 
 }
 
@@ -409,6 +417,9 @@ IResult register(string method, HttpRequest request, HttpContext context)
       var pwHasher = new PasswordHasher<string>();
       command.Parameters.AddWithValue("@pw_hash", pwHasher.HashPassword((string)request.Form["username"], (string)request.Form["password"]));
       command.ExecuteScalar();
+
+      flash("You were successfully registered and can login now", context);
+
       return Results.Redirect("/login");
     }
 
@@ -461,6 +472,8 @@ app.MapMethods("/login", new[] { "GET", "POST" }, async (HttpRequest request, Ht
 
   };
 
+  flash("You were logged in", context);
+
   var finalRenderedHTML = sendToHtml(data, "login");
   return Results.Content(finalRenderedHTML, "text/html; charset=utf-8");
 });
@@ -479,6 +492,8 @@ app.MapGet("/logout", logout);
 IResult logout(HttpContext context)
 {
   context.Session.Remove("user_id");
+  flash("You were logged out",context);
+
   return Results.Redirect("/");
 }
 app.MapPost("/add_message", (HttpRequest request, HttpContext context) =>
@@ -487,29 +502,31 @@ app.MapPost("/add_message", (HttpRequest request, HttpContext context) =>
 
 async Task<IResult> add_message(HttpRequest request, HttpContext context)
 {
-    var db = context.Items["db"] as SqliteConnection;
+  var db = context.Items["db"] as SqliteConnection;
 
-    var userIDFromSession = context.Session.GetString("user_id"); 
+  var userIDFromSession = context.Session.GetString("user_id");
 
-    if (string.IsNullOrEmpty(userIDFromSession))
-    {
-        Console.WriteLine("No id found.");
-        return Results.NotFound();
-    }
+  if (string.IsNullOrEmpty(userIDFromSession))
+  {
+    Console.WriteLine("No id found.");
+    return Results.NotFound();
+  }
 
-    var form = await request.ReadFormAsync();
-    var messageText = form["text"].ToString();
+  var form = await request.ReadFormAsync();
+  var messageText = form["text"].ToString();
 
-    if (!string.IsNullOrEmpty(messageText))
-    {
-        var query = @"insert into message (author_id, text, pub_date, flagged) values (@p0, @p1, @p2, 0)";
+  if (!string.IsNullOrEmpty(messageText))
+  {
+    var query = @"insert into message (author_id, text, pub_date, flagged) values (@p0, @p1, @p2, 0)";
 
-        QueryDb(db, query, new object[] { userIDFromSession, messageText, DateTimeOffset.UtcNow.ToUnixTimeSeconds() });
+    QueryDb(db, query, new object[] { userIDFromSession, messageText, DateTimeOffset.UtcNow.ToUnixTimeSeconds() });
 
-        Console.WriteLine("Message added");
-    }
+    Console.WriteLine("Message added");
+  }
 
-    return Results.Redirect("/");
+   flash("Your message was recorded",context);
+
+  return Results.Redirect("/");
 }
 
 
@@ -549,5 +566,10 @@ static string GetGravatarUrl(string email, int size = 48)
   var hash = BitConverter.ToString(MD5.HashData(Encoding.UTF8.GetBytes(email.Trim().ToLower())))
       .Replace("-", "").ToLower();
   return $"https://www.gravatar.com/avatar/{hash}?s={size}&d=retro";
+}
+
+static void flash(string message, HttpContext context)
+{
+  ((List<string>)context.Items["flashes"]).Add(message);
 }
 
