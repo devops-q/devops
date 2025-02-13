@@ -354,7 +354,7 @@ IResult follow_user(string username, HttpContext context, HttpRequest request)
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
 
-  flash($"You are now following \"{username}\"", context);
+  flash($"You are now following &#34;{username}&#34;", context);
 
   return Results.Redirect($"/{username}");
 }
@@ -374,7 +374,7 @@ IResult unfollow_user(string username, HttpContext context, HttpRequest request)
   command.Parameters.AddWithValue("@whoID", context.Session.GetString("user_id"));
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
-  flash($"You are no longer following \"{username}\"", context);
+  flash($"You are no longer following &#34;{username}&#34;", context);
 
 
   return Results.Redirect($"/{username}");
