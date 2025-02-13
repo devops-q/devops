@@ -132,11 +132,7 @@ app.MapGet("/", (HttpRequest request, HttpContext context) =>
 
 IResult timeline(HttpRequest request, HttpContext context)
 {
-  var db = new SqliteConnection("Data source=" + DATABASE);
-  db.Open();
-
-
-  var command = db.CreateCommand();
+  var db = (SqliteConnection)context.Items["db"];
   Console.WriteLine("We got a visitor from: " + request.HttpContext.Connection.RemoteIpAddress?.ToString());
 
   if (string.IsNullOrEmpty(context.Session.GetString("user_id")))
