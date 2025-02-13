@@ -350,16 +350,16 @@ IResult follow_user(string username, HttpContext context, HttpRequest request)
           [context.Session.GetString("user_id"),], one: true);
   var data = new Dictionary<string, object>
   {
-    ["title"] = $"{profile_user[0]["username"]}'s Timeline",
-    ["messages"] = messages.Select(message => new Dictionary<string, object>
-    {
-      ["username"] = message["username"],
-      ["text"] = message["text"],
-      ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
-      ["email"] = message["email"],
-      ["image_url"] = GetGravatarUrl(message["username"].ToString())
-    }).ToList(),
-    ["flashes"] = "You are now following" + $"{profile_user[0]["username"]}",
+      ["title"] = $"{profile_user[0]["username"]}'s Timeline",
+      ["messages"] = messages.Select(message => new Dictionary<string, object>
+      {
+          ["username"] = message["username"],
+          ["text"] = message["text"],
+          ["pub_date"] = FormatDatetime(Convert.ToInt32(message["pub_date"])),
+          ["email"] = message["email"],
+          ["image_url"] = GetGravatarUrl(message["username"].ToString())
+      }).ToList(),
+      ["flashes"] = new[] { $"You are now following {profile_user[0]["username"]}" },
     ["endpoint"] = $"/{username}",
     ["followed"] = QueryDb(db, @"SELECT 1 FROM follower 
                       WHERE follower.who_id = @p0 
