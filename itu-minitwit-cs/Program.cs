@@ -273,27 +273,7 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
                       AND follower.whom_id = @p1", [context.Session.GetString("user_id"), profile_user[0]["username"].ToString()], true) != null;
   }
 
-  // var queryFollowed = @"SELECT 1 FROM follower 
-  //                     WHERE follower.who_id = @p0 
-  //                     AND follower.whom_id = @p1";
 
-
-
-
-  // command.CommandText = queryFollowed;
-  // command.Parameters.Clear();
-  // command.Parameters.Add(new SqliteParameter("@currentUserID", userIDFromSession));
-  // command.Parameters.Add(new SqliteParameter("@profileUserID", profile_user["user_id"]));
-
-  // var followed = false;
-
-  // using (var reader = command.ExecuteReader())
-  // {
-  //   if (reader.Read())
-  //   {
-  //     followed = true;
-  //   }
-  // }
 
 
 
@@ -348,7 +328,7 @@ IResult user_timeline(string username, HttpRequest request, HttpContext context)
       }).ToList(),
       ["endpoint"] = request.Path,
       ["followed"] = followed,
-      ["profile_user"] = profile_user,
+      ["profile_user"] = profile_user[0],
     };
   }
 
@@ -372,6 +352,8 @@ IResult follow_user(string username, HttpContext context)
   command.Parameters.AddWithValue("@whoID", context.Session.GetString("user_id"));
   command.Parameters.AddWithValue("@whomID", whomID);
   command.ExecuteScalar();
+
+  
 
   return Results.Redirect($"/{username}");
 }
