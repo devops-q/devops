@@ -13,6 +13,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;
 using Scriban;
 using Scriban.Runtime;
+using System.Web;
 
 int PER_page = 30;
 bool DEBUG = true;
@@ -517,7 +518,7 @@ async Task<IResult> add_message(HttpRequest request, HttpContext context)
   }
 
   var form = await request.ReadFormAsync();
-  var messageText = form["text"].ToString();
+  var messageText = HttpUtility.HtmlEncode(form["text"].ToString());
 
   if (!string.IsNullOrEmpty(messageText))
   {
