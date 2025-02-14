@@ -1,15 +1,29 @@
 # ITU MiniTwit Golang
 
-### Starting the application
+## Setting up
+
+1. Install Go: https://golang.org/doc/install (version 1.24 was used).
+2. Install project dependencies:
+
+```shell
+go mod tidy
+```
+
+> [!NOTE]
+> TODO: Add instructions for setting up the database.
+
+## Starting the application
 
 1. Set up `.env` following the example in `.env.example`.
 2. Run the following command to start the application:
 
-```
+```shell
 go run cmd/server/main.go
 ```
 
-### Project structure
+3. The application should now be running on `http://localhost:<PORT>`.
+
+## Project structure
 
 * `cmd/`: Contains the application entry points.
     * `server/`: The main application.
