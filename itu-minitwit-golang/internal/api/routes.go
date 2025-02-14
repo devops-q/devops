@@ -7,6 +7,7 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, cfg *config.Config) {
+	r.Static("/static", "./web/static")
 	r.LoadHTMLGlob("web/templates/*")
 
 	r.GET("/ping", handlers.PingHandler)
