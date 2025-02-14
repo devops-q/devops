@@ -21,6 +21,12 @@ go mod tidy
 go run cmd/server/main.go
 ```
 
+> [!NOTE]
+> To start the application in watch mode (changes are automatically reloaded), use the following command:
+> ```shell
+> go tool air
+> ```
+
 3. The application should now be running on `http://localhost:<PORT>`.
 
 ## Project structure
