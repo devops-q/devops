@@ -7,7 +7,10 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, cfg *config.Config) {
+	r.LoadHTMLGlob("web/templates/*")
+
 	r.GET("/ping", handlers.PingHandler)
+	r.GET("/hello/:name", handlers.HelloHandler)
 
 	// Add more routes here
 }
