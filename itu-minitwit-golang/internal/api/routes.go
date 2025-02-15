@@ -1,9 +1,10 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/api/handlers"
+
+	"github.com/gin-gonic/gin"
 )
 
 func SetupRoutes(r *gin.Engine, cfg *config.Config) {
@@ -12,6 +13,10 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 
 	r.GET("/ping", handlers.PingHandler)
 	r.GET("/hello/:name", handlers.HelloHandler)
+
+	r.GET("/users", handlers.GetUsersHandler)
+	r.GET("/user/create/:name", handlers.CreateUserHandler)
+	r.GET("/user/find/:name", handlers.FindUserWithName)
 
 	// Add more routes here
 }
