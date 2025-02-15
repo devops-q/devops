@@ -6,9 +6,9 @@ import (
 
 type User struct {
 	gorm.Model
-	Username  string
-	Email     string
-	PwHash    string
-	Following []*User   `gorm:"many2many:follower"`
+	Username  string    `gorm:"not null"`
+	Email     string    `gorm:"not null"`
+	PwHash    string    `gorm:"not null"`
+	Following []User    `gorm:"many2many:follower"`
 	Messages  []Message `gorm:"foreignKey:AuthorID"`
 }
