@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/api"
-	"itu-minitwit/internal/models"
+	"itu-minitwit/internal/api/middlewares"
+	"itu-minitwit/pkg/database"
 	"log"
-	"os"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,6 +24,7 @@ func main() {
 	}
 
 	r := gin.Default()
+	r.Use(middlewares.SetDbMiddleware())
 
 	api.SetupRoutes(r, cfg)
 
