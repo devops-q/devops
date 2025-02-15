@@ -10,7 +10,7 @@ go mod tidy
 ```
 
 > [!NOTE]
-> TODO: Add instructions for setting up the database.
+> To setup the database make sure you have your env variable DB_PATH set. If a database-file does not already exist at that location a new DB file will be created and relevant migrations will be applied
 
 ## Starting the application
 
