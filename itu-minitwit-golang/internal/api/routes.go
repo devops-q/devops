@@ -20,5 +20,8 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/user/find/:name", handlers.FindUserWithName)
 	r.GET("/users/messages", handlers.GetAllUsersWithNonFlaggedMessages)
 
+	r.GET("/user/current", handlers.GetUserInSession)
+	r.GET("/user/force-login/:id", handlers.ForceSetUserId)
+
 	// Add more routes here
 }
