@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/api"
+	"itu-minitwit/internal/api/middlewares"
+	"itu-minitwit/pkg/database"
 	"log"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -14,14 +17,17 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
+	database.InitDb(cfg)
+
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	r := gin.Default()
+	r.Use(middlewares.SetDbMiddleware())
 
 	api.SetupRoutes(r, cfg)
 
 	log.Printf("Server starting on port %d", cfg.Port)
-	r.Run(fmt.Sprintf(":%d", cfg.Port))
+	r.Run(fmt.Sprintf("localhost:%d", cfg.Port))
 }
