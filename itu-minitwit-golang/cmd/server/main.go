@@ -8,6 +8,8 @@ import (
 	"itu-minitwit/pkg/database"
 	"log"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,7 +26,13 @@ func main() {
 	}
 
 	r := gin.Default()
+
+	store := cookie.NewStore([]byte("secret"))            // TODO this should be an actual secret if we dont want people to read our sessions
+	store.Options(sessions.Options{MaxAge: 60 * 60 * 12}) // Cookie will last max 12 hours
+	r.Use(sessions.Sessions("itu-minitwit-session", store))
+
 	r.Use(middlewares.SetDbMiddleware())
+	r.Use(middlewares.SetUserContext())
 
 	api.SetupRoutes(r, cfg)
 
