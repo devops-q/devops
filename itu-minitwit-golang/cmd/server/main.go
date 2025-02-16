@@ -32,6 +32,7 @@ func main() {
 	r.Use(sessions.Sessions("itu-minitwit-session", store))
 
 	r.Use(middlewares.SetDbMiddleware())
+	r.Use(middlewares.SetUserContext())
 
 	api.SetupRoutes(r, cfg)
 
