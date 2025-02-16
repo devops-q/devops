@@ -9,17 +9,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 func RegisterHandler(c *gin.Context) {
-	// currently assumes that the user is not logged in.
+	var user *models.User = utils.GetUserFomContext(c)
+
+	if user != nil {
+		// Already logged in ! 
+		c.Redirect(http.StatusFound, "/")
+	}
 
 	var err string
-
-	if user, exists := c.Get("user"); exists && user != nil {
-		c.Redirect(http.StatusFound, "/timeline")
-	}
 
 	if c.Request.Method == http.MethodPost {
 		username := c.PostForm("username")
@@ -45,24 +45,12 @@ func RegisterHandler(c *gin.Context) {
 				return
 			}
 
-			user := &models.User{
-				Username: username,
-				Email:    email,
-				PwHash:   string(hashed),
-			}
+			utils.CreateUser(c, username, email, string(hashed))
 
-            db := c.MustGet("DB").(*gorm.DB)
-
-            if error := db.Create(user).Error; error != nil {
-                fmt.Println("Error creating user:", error)
-                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
-                return
-            }
-
-            c.Set("flash", "You were successfully registered and can log in now")
-            c.Redirect(http.StatusFound, "/login")
-            return
-        }
+			c.Set("flash", "You were successfully registered and can log in now")
+			c.Redirect(http.StatusFound, "/login")
+			return
+		}
 	}
 
 	c.HTML(http.StatusOK, "layout.html", gin.H{
