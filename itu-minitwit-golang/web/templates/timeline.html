@@ -16,7 +16,7 @@
 
     {{ if and .UserID (eq .Endpoint "/") }} 
         <div class="twitbox">
-            <h3>What's on your mind {{ .UserID.Username }}?</h3> 
+            <h3>What's on your mind {{ .Username }}?</h3> 
             <form action="/add_message" method="post">
                 <p><input type="text" name="text" size="60" /></p>
                 <input type="submit" value="Share" />
