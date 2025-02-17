@@ -1,16 +1,14 @@
 package handlers
 
 import (
+	"itu-minitwit/internal/service"
 	"net/http"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
 func LogoutHandler(c *gin.Context) {
-	session := sessions.Default(c)
-	session.AddFlash("You were logged out") 
-	session.Save()                     
+	service.LogOutHandler(c)
 	c.Redirect(http.StatusFound, "/public")
 
 }
