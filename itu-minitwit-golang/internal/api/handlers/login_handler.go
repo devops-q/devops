@@ -37,7 +37,6 @@ func LoginHandler(c *gin.Context) {
 			// Login successful, set session
 			session := sessions.Default(c)
 			session.Set("user_id", user.ID)
-			session.Save() // Save session
 
 			c.Set("flash", "You were successfully logged in")
 			c.Redirect(http.StatusFound, "/")
