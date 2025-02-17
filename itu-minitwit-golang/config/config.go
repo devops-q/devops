@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
 	"os"
 	"strconv"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -12,9 +13,17 @@ type Config struct {
 	Environment string
 }
 
-func LoadConfig() (*Config, error) {
+func LoadConfig(testing bool) (*Config, error) {
 	// Load .env file if it exists
-	godotenv.Load()
+
+	if testing {
+		err := godotenv.Load(".env.test")
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		godotenv.Load()
+	}
 
 	config := &Config{}
 
