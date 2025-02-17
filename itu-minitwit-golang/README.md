@@ -29,6 +29,12 @@ go run cmd/server/main.go
 
 3. The application should now be running on `http://localhost:<PORT>`.
 
+## Running the tests
+Run the following command to execute all tests with the .env.test environment
+```shell
+go test ./...
+```
+
 ## Project structure
 
 * `cmd/`: Contains the application entry points.
