@@ -10,22 +10,26 @@ import (
 	"gorm.io/gorm"
 )
 
-
-func CreateUser(c *gin.Context, username string, email string, password string)  {
+// Creates a user and adds the user to the database.
+// It returns a boolean value, that determines if the value insertion is done correctly
+func CreateUser(c *gin.Context, username string, email string, password string) {
 	db := c.MustGet("DB").(*gorm.DB)
 
 	hashed, error := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-			if error != nil {
-				fmt.Println("Error hashing password: ", error)
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error"})
-				return
-			}
+	if error != nil {
+		fmt.Println("Error hashing password: ", error)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error"})
+		return
+	}
 
 	var newUser = &models.User{
 		Username: username,
 		Email:    email,
 		PwHash:   string(hashed),
 	}
-	db.Create(newUser)
-	return
+	if db.Create(newUser).Error == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to make user!"})
+
+	}
+
 }
