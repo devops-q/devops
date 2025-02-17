@@ -37,5 +37,5 @@ func main() {
 	api.SetupRoutes(r, cfg)
 
 	log.Printf("Server starting on port %d", cfg.Port)
-	r.Run(fmt.Sprintf("localhost:%d", cfg.Port))
+	r.Run(fmt.Sprintf(":%d", cfg.Port))
 }
