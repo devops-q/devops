@@ -79,7 +79,8 @@ docker buildx build --platform linux/amd64 -t ghcr.io/alin-plamadeala/itu-minitw
 > [!NOTE]
 > First time setup
 > 1. Create docker context: `docker context create digitalocean --docker "host=ssh://root@<vm-public-ip>"`
-> 2. Init docker swarm: `docker swarm init --advertise-addr <vm-public-ip>`
+> 2. Use the context: `docker context use digitalocean`
+> 3. Init docker swarm: `docker swarm init --advertise-addr <vm-public-ip>`
 
 1. Set docker context:
 
