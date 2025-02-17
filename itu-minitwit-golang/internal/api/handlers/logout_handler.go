@@ -10,7 +10,6 @@ import (
 func LogoutHandler(c *gin.Context) {
 	session := sessions.Default(c)
 	session.AddFlash("You were logged out") 
-	session.Clear()                        
 	session.Save()                     
 	c.Redirect(http.StatusFound, "/public")
 
