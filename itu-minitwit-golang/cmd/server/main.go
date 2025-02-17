@@ -14,13 +14,20 @@ import (
 )
 
 func main() {
-	cfg, err := config.LoadConfig()
+	cfg, err := config.LoadConfig(false)
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
 	database.InitDb(cfg)
 
+	r := SetupRouter(cfg)
+
+	log.Printf("Server starting on port %d", cfg.Port)
+	r.Run(fmt.Sprintf("localhost:%d", cfg.Port))
+}
+
+func SetupRouter(cfg *config.Config) *gin.Engine {
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -35,7 +42,5 @@ func main() {
 	r.Use(middlewares.SetUserContext())
 
 	api.SetupRoutes(r, cfg)
-
-	log.Printf("Server starting on port %d", cfg.Port)
-	r.Run(fmt.Sprintf("localhost:%d", cfg.Port))
+	return r
 }
