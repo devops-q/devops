@@ -1,7 +1,7 @@
 resource "digitalocean_droplet" "minitwit-vm" {
   image  = "docker-20-04"
   name   = "minitwit-vm"
-  region = "ams3"
+  region = "fra1"
   size   = "s-2vcpu-4gb-120gb-intel"
   ssh_keys = [
     data.digitalocean_ssh_key.terraform.id

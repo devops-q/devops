@@ -15,5 +15,5 @@ provider "digitalocean" {
 }
 
 data "digitalocean_ssh_key" "terraform" {
-  name = "ssh-key-tf"
+  name = "mac-ssh-1pass"
 }
