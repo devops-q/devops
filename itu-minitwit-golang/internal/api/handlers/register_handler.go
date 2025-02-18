@@ -7,7 +7,6 @@ import (
 	"itu-minitwit/internal/utils"
 	"net/http"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,7 +29,7 @@ func RegisterHandler(c *gin.Context) {
 		password2 := c.PostForm("password2")
 		success, err := service.HandleRegister(c, username, email, password, password2)
 		if success {
-			sessions.Default(c).AddFlash("You were successfully registered and can log in now")
+			utils.SetFlashes(c, "You were successfully registered and can log in now")
 			c.Redirect(http.StatusFound, "/login")
 			return
 
