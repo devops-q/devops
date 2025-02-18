@@ -30,10 +30,18 @@ func CreateUser(db *gorm.DB, username string, email string, password string) (bo
 
 func UserExists(db *gorm.DB, username string) bool {
 	var user models.User
-	if err := db.Where("username = ?", username).First(&user).Error; err == nil {
+	if err := db.Select("id").Where("username = ?", username).First(&user).Error; err == nil {
 		return true
 	}
 	return false
+}
+
+func GetUserIdByUsername(db *gorm.DB, username string) (int, error) {
+	var user models.User
+	if err := db.Select("id").Where("username = ?", username).First(&user).Error; err == nil {
+		return int(user.ID), nil
+	}
+	return -1, gorm.ErrRecordNotFound
 }
 
 func RegisterUser(db *gorm.DB, username string, email string, password string, password2 string) (success bool, message string) {

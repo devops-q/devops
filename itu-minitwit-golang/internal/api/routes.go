@@ -41,6 +41,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	{
 		apiV1.POST("/register", handlers.RegisterHandlerAPI)
 		apiV1.GET("/msgs", handlers.MessagesHandlerAPI)
+		apiV1.GET("/msgs/:username", handlers.MessagesPerUserHandlerAPI)
 	}
 
 }
