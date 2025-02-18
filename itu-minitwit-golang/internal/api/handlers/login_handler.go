@@ -23,10 +23,19 @@ func LoginHandler(c *gin.Context) {
 		password := c.PostForm("password")
 
 		// Find user in DB
-		error = service.HandleLogin(c, username, password)
+
+		msg, error2 := service.HandleLogin(c, username, password)
+
+		if msg != "" {
+			error = error2.Error()
+		} else {
+			c.Set("flash", "You were successfully logged in")
+			c.Redirect(http.StatusFound, "/")
+			return
+		}
+
 	}
 
-	// Render login page (moved outside the if block)
 	c.HTML(http.StatusOK, "layout.html", gin.H{
 		"Title":    "Sign In",
 		"body":     "login",
