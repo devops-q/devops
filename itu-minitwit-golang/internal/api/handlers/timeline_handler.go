@@ -70,3 +70,49 @@ func TimelineHandler(c *gin.Context) {
 		"Endpoint": "/",
 	})
 }
+
+func UserTimelineHandler(c *gin.Context) {
+	db := c.MustGet("DB").(*gorm.DB)
+	cfg := c.MustGet("Config").(*config.Config)
+	username := c.Param("username")
+
+	// Get profile user
+	var profileUser models.User
+	if err := db.Where("username = ?", username).First(&profileUser).Error; err != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	// Check if current user is following profile user
+	value, userLoggedIn := c.Get("user")
+	var currentUser *models.User
+	followed := false
+
+	if userLoggedIn {
+		currentUser = value.(*models.User)
+		var count int64
+		db.Table("follower").
+			Where("user_id = ? AND following_id = ?", currentUser.ID, profileUser.ID).
+			Count(&count)
+		followed = count > 0
+	}
+
+	// Get messages for profile user
+	var messages []models.Message
+	db.Model(&models.Message{}).
+		Preload("Author").
+		Where("author_id = ? AND flagged = ?", profileUser.ID, false).
+		Order("created_at desc").
+		Limit(cfg.PerPage).
+		Find(&messages)
+
+	c.HTML(http.StatusOK, "layout.html", gin.H{
+		"Title":       profileUser.Username + "'s Timeline",
+		"body":        "timeline",
+		"User":        currentUser,
+		"Messages":    messages,
+		"ProfileUser": profileUser,
+		"Followed":    followed,
+		"Endpoint":    "/" + username,
+	})
+}
