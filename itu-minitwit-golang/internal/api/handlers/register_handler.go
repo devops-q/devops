@@ -20,27 +20,31 @@ func RegisterHandler(c *gin.Context) {
 	}
 
 	var err string
+	username := ""
+	email := ""
 
 	if c.Request.Method == http.MethodPost {
-		err = service.HandleRegister(c)
+		username := c.PostForm("username")
+		email := c.PostForm("email")
+		password := c.PostForm("password")
+		password2 := c.PostForm("password2")
+		err = service.HandleRegister(c, username, email, password, password2)
 		if err == "" { // If there is no returned error string.
 			sessions.Default(c).AddFlash("You were successfully registered and can log in now")
 			c.Redirect(http.StatusFound, "/login")
 			return
 
 		} else {
-			fmt.Println(err) 
+			fmt.Println(err)
 		}
 	}
-
-	
 
 	c.HTML(http.StatusOK, "layout.html", gin.H{
 		"Title":    "Sign Up",
 		"body":     "register",
 		"Error":    err,
-		"Username": "",
-		"Email":    "",
+		"Username": username,
+		"Email":    email,
 		"Endpoint": "/register",
 		"Flashes":  utils.RetrieveFlashes(c),
 	})

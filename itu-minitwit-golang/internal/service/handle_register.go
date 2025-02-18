@@ -8,13 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-
-
-func HandleRegister(c *gin.Context) string {
-	username := c.PostForm("username")
-	email := c.PostForm("email")
-	password := c.PostForm("password")
-	password2 := c.PostForm("password2")
+func HandleRegister(c *gin.Context, username string, email string, password string, password2 string) (message string) {
 
 	if username == "" {
 		return "You have to enter a username"
@@ -45,4 +39,3 @@ func HandleRegister(c *gin.Context) string {
 
 	return "Unexpected error occurred"
 }
-
