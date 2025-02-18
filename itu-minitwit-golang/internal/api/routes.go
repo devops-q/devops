@@ -19,8 +19,10 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 
 
 	r.GET("/login", handlers.LoginHandler)
-	r.GET("/public", handlers.PublicHandler)
+
 	r.GET("/", handlers.TimelineHandler)
+	r.GET("/public", handlers.PublicTimelineHandler)
+
 	r.GET("/:username/unfollow", handlers.UnfollowHandler)
 
 	r.GET("/logout", handlers.LogoutHandler)
