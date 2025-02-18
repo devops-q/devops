@@ -5,7 +5,6 @@ import (
 	"gorm.io/gorm"
 	"itu-minitwit/internal/api/json_models"
 	"itu-minitwit/internal/service"
-	"itu-minitwit/internal/utils"
 	"net/http"
 	"strconv"
 )
@@ -17,7 +16,7 @@ func MessagesHandlerAPI(c *gin.Context) {
 	nrOfMessages, err := strconv.Atoi(nrOfMessagesParam)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, utils.ErrorCodeMessageResponse{
+		c.JSON(http.StatusBadRequest, json_models.ErrorResponse{
 			Code:         http.StatusInternalServerError,
 			ErrorMessage: "Invalid number of messages provided in param\"no\"",
 		})
@@ -27,7 +26,7 @@ func MessagesHandlerAPI(c *gin.Context) {
 	messages, err := service.GetAllMessagesWithAuthors(db, nrOfMessages)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.ErrorCodeMessageResponse{
+		c.JSON(http.StatusInternalServerError, json_models.ErrorResponse{
 			Code:         http.StatusInternalServerError,
 			ErrorMessage: "Error fetching messages",
 		})
