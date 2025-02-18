@@ -14,14 +14,7 @@ func PublicTimelineHandler(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
 	cfg := c.MustGet("Config").(*config.Config)
 
-	value, userLoggedIn := c.Get("user")
-	var user *models.User
-
-	if userLoggedIn {
-		user = value.(*models.User)
-	} else {
-		user = nil
-	}
+	user := utils.GetUserFomContext(c)
 
 	var messages []models.Message
 	db.Model(&models.Message{}).
@@ -48,14 +41,12 @@ func TimelineHandler(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
 	cfg := c.MustGet("Config").(*config.Config)
 
-	value, userLoggedIn := c.Get("user")
-	var user *models.User
+	user := utils.GetUserFomContext(c)
 
-	if !userLoggedIn {
+	if user == nil {
 		c.Redirect(http.StatusFound, "/public")
+		return
 	}
-
-	user = value.(*models.User)
 
 	var messages []models.Message
 	db.
@@ -92,12 +83,10 @@ func UserTimelineHandler(c *gin.Context) {
 	}
 
 	// Check if current user is following profile user
-	value, userLoggedIn := c.Get("user")
-	var currentUser *models.User
+	currentUser := utils.GetUserFomContext(c)
 	followed := false
 
-	if userLoggedIn {
-		currentUser = value.(*models.User)
+	if currentUser != nil {
 		var count int64
 		db.Table("follower").
 			Where("user_id = ? AND following_id = ?", currentUser.ID, profileUser.ID).
