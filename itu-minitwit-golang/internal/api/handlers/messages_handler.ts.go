@@ -17,7 +17,7 @@ func MessagesHandlerAPI(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, json_models.ErrorResponse{
-			Code:         http.StatusInternalServerError,
+			Code:         http.StatusBadRequest,
 			ErrorMessage: "Invalid number of messages provided in param\"no\"",
 		})
 		return
