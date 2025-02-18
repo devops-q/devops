@@ -1,8 +1,8 @@
 {{ define "timeline" }}
-{{ if .UserID }}
+{{ if .User }}
     {{ if and (ne .Endpoint "/public") (ne .Endpoint "/") }}
         <div class="followstatus">
-            {{ if eq .UserID.UserID .ProfileUser.UserID }}
+            {{ if eq .User.ID .ProfileUser.ID }}
                 This is you!
             {{ else if .Followed }}
                 You are currently following this user.
@@ -14,9 +14,9 @@
         </div>
     {{ end }}
 
-    {{ if and .UserID (eq .Endpoint "/") }}
+    {{ if and .User (eq .Endpoint "/") }}
         <div class="twitbox">
-            <h3>What's on your mind {{ .UserID.Username }}?</h3>
+            <h3>What's on your mind {{ .User.Username }}?</h3>
             <form action="/add_message" method="post">
                 <p><input type="text" name="text" size="60" /></p>
                 <input type="submit" value="Share" />
