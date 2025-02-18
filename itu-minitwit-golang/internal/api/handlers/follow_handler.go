@@ -3,6 +3,7 @@ package handlers
 import (
 	"gorm.io/gorm"
 	"itu-minitwit/internal/models"
+	"itu-minitwit/internal/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -31,6 +32,8 @@ func UnfollowHandler(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("flash", "You are no longer following "+username, 3600, "/", "", false, true)
-	c.Redirect(http.StatusFound, "/"+username)
+	utils.SetFlashes(c, "You are no longer following "+username)
+
+	c.Redirect(http.StatusTemporaryRedirect, "/"+username)
+	return
 }

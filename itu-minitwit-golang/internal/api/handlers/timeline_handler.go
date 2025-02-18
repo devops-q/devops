@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/models"
+	"itu-minitwit/internal/utils"
 	"log"
 	"net/http"
 )
@@ -29,12 +30,15 @@ func PublicTimelineHandler(c *gin.Context) {
 		Order("created_at desc").Limit(cfg.PerPage).
 		Find(&messages)
 
+	flashes := utils.GetFlashes(c)
+
 	c.HTML(http.StatusOK, "layout.html", gin.H{
 		"Title":    "Public Timeline",
 		"Endpoint": "/public",
 		"body":     "timeline",
 		"User":     user,
 		"Messages": messages,
+		"Flashes":  flashes,
 	})
 }
 
@@ -62,13 +66,17 @@ func TimelineHandler(c *gin.Context) {
 		Order("messages.created_at desc").Limit(cfg.PerPage).
 		Find(&messages)
 
+	flashes := utils.GetFlashes(c)
+
 	c.HTML(http.StatusOK, "layout.html", gin.H{
 		"Title":    "My Timeline",
 		"body":     "timeline",
 		"User":     user,
 		"Messages": messages,
 		"Endpoint": "/",
+		"Flashes":  flashes,
 	})
+	return
 }
 
 func UserTimelineHandler(c *gin.Context) {
@@ -106,6 +114,8 @@ func UserTimelineHandler(c *gin.Context) {
 		Limit(cfg.PerPage).
 		Find(&messages)
 
+	flashes := utils.GetFlashes(c)
+
 	c.HTML(http.StatusOK, "layout.html", gin.H{
 		"Title":       profileUser.Username + "'s Timeline",
 		"body":        "timeline",
@@ -114,5 +124,8 @@ func UserTimelineHandler(c *gin.Context) {
 		"ProfileUser": profileUser,
 		"Followed":    followed,
 		"Endpoint":    "/" + username,
+		"Flashes":     flashes,
 	})
+
+	return
 }
