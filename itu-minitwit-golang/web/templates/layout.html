@@ -31,7 +31,7 @@
         <!-- This code block ensures that the correct content is shown on the correct sites. -->
         {{ if eq .body "login" }} {{ template "login" . }} {{ else if eq .body
         "register" }} {{ template "register" .}} {{ else if eq .body
-        "timeline"}} {{ template "timeline"}} {{ end }}
+        "timeline"}} {{ template "timeline" . }} {{ end }}
       </div>
 
       <div class="footer">MiniTwit &mdash; A Gin Application</div>
