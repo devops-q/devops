@@ -40,6 +40,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	apiV1 := r.Group("/api/v1")
 	{
 		apiV1.POST("/register", handlers.RegisterHandlerAPI)
+		apiV1.GET("/msgs", handlers.MessagesHandlerAPI)
 	}
 
 }
