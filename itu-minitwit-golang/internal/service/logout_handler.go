@@ -5,10 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
 func LogOutHandler(c *gin.Context) {
-session := sessions.Default(c)
-session.Clear()
-session.AddFlash("You were logged out") 
-session.Save()
+	session := sessions.Default(c)
+	session.Delete("user_id")
+	session.AddFlash("You were logged out")
+	session.Save()
 }
