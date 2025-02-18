@@ -18,6 +18,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 
 	r.GET("/", handlers.TimelineHandler)
 	r.GET("/public", handlers.PublicTimelineHandler)
+	r.GET("/:username", handlers.UserTimelineHandler)
 
 	r.GET("/:username/unfollow", handlers.UnfollowHandler)
 
