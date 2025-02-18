@@ -14,7 +14,7 @@ func UnfollowHandler(c *gin.Context) {
 
 	value, userLoggedIn := c.Get("user")
 	if !userLoggedIn {
-		c.Redirect(http.StatusUnauthorized, "/public")
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
@@ -22,12 +22,12 @@ func UnfollowHandler(c *gin.Context) {
 
 	var userToUnfollow models.User
 	if err := db.Where("username = ?", username).First(&userToUnfollow).Error; err != nil {
-		c.Redirect(http.StatusNotFound, "/public")
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
 	if err := db.Model(currentUser).Association("Following").Delete(&userToUnfollow); err != nil {
-		c.Redirect(http.StatusInternalServerError, "/public")
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
