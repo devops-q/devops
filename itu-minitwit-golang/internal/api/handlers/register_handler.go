@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"gorm.io/gorm"
+	"itu-minitwit/internal/api/json_models"
 	"itu-minitwit/internal/models"
 	"itu-minitwit/internal/service"
 	"itu-minitwit/internal/utils"
@@ -54,13 +55,16 @@ func RegisterHandler(c *gin.Context) {
 
 func RegisterHandlerAPI(c *gin.Context) {
 	var db = c.MustGet("DB").(*gorm.DB)
+	var body json_models.RegisterUserBody
 
-	username := c.PostForm("username")
-	email := c.PostForm("email")
-	password := c.PostForm("password")
-	password2 := c.PostForm("password2")
+	if err := c.ShouldBindJSON(&body); err != nil {
+		fmt.Println("Error binding json", err)
+		_ = c.Error(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
 
-	success, err := service.RegisterUser(db, username, email, password, password2)
+	success, err := service.RegisterUser(db, body.Username, body.Email, body.Pwd, body.Pwd)
 	if success {
 		c.JSON(http.StatusNoContent, nil)
 		return
