@@ -13,6 +13,15 @@ func PublicHandler(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
 	cfg := c.MustGet("Config").(*config.Config)
 
+	value, userLoggedIn := c.Get("user")
+	var user *models.User
+
+	if userLoggedIn {
+		user = value.(*models.User)
+	} else {
+		user = nil
+	}
+
 	var messages []models.Message
 	db.Model(&models.Message{}).
 		Preload("Author").
@@ -22,10 +31,9 @@ func PublicHandler(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "layout.html", gin.H{
 		"Title":    "Public Timeline",
+		"Endpoint": "/public",
 		"body":     "timeline",
-		"Error":    "",
-		"Username": "",
-		"Email":    "",
+		"User":     user,
 		"Messages": messages,
 	})
 }
