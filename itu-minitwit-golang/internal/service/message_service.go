@@ -2,6 +2,7 @@ package service
 
 import (
 	"gorm.io/gorm"
+	"itu-minitwit/internal/api/json_models"
 	"itu-minitwit/internal/models"
 )
 
@@ -37,4 +38,20 @@ func GetAllMessagesWithAuthors(db *gorm.DB, limit int) ([]models.Message, error)
 	}
 
 	return messages, nil
+}
+
+func MapMessage(message models.Message) json_models.Message {
+	return json_models.Message{
+		Content: message.Text,
+		PubDate: message.CreatedAt,
+		User:    message.Author.Username,
+	}
+}
+
+func MapMessages(messages []models.Message) []json_models.Message {
+	var formattedMessages = make([]json_models.Message, 0)
+	for _, message := range messages {
+		formattedMessages = append(formattedMessages, MapMessage(message))
+	}
+	return formattedMessages
 }

@@ -33,14 +33,7 @@ func MessagesHandlerAPI(c *gin.Context) {
 		return
 	}
 
-	var formattedMessages = make([]json_models.Message, 0)
-	for _, message := range messages {
-		formattedMessages = append(formattedMessages, json_models.Message{
-			Content: message.Text,
-			PubDate: message.CreatedAt,
-			User:    message.Author.Username,
-		})
-	}
+	var formattedMessages = service.MapMessages(messages)
 
 	c.JSON(http.StatusOK, formattedMessages)
 }
