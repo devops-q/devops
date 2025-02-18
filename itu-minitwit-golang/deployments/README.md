@@ -17,7 +17,7 @@ We use terraform to initialize the infrastructure. So far the infrastructure inc
 
 #### Steps:
 
-1. Cd into the terraform directory:
+1. cd into the terraform directory:
 
 ```shell
 cd deployments/terraform
@@ -29,7 +29,13 @@ cd deployments/terraform
 terraform init
 ```
 
-3. Run Terraform plan (you will be prompted to enter your DigitalOcean API token):
+3. Run Terraform plan (you will be prompted to enter your DigitalOcean API token and the ssh key name):
+
+
+![img.png](img/img.png)
+![img_1.png](img/img_1.png)
+![img_2.png](img/img_2.png)
+
 
 ```shell
 terraform plan
@@ -50,7 +56,9 @@ gh auth token | docker login ghcr.io --username $(gh api user --jq '.login') --p
 ```
 
 > [!NOTE]
-> If you dont have gh cli installed, you can use a personal access token instead.
+> If you don't have gh cli installed, you can use a personal access token instead.
+> `echo "<your_token>" | docker login ghcr.io --username "<your_username>" --password-stdin
+
 
 2. Build & push
 
@@ -71,8 +79,8 @@ docker buildx build --platform linux/amd64 -t ghcr.io/alin-plamadeala/itu-minitw
 
 * Public docker image repository
 * SSH access to the VM
-* Docker installed on the VM
-* Docker-compose installed on the VM
+* Docker installed on the VM (we are using an image with docker pre-installed, so it should be there if you followed the terraform deployment)
+* Docker-compose installed on the VM (we are using an image with docker pre-installed, so it should be there if you followed the terraform deployment)
 
 ### Steps
 
