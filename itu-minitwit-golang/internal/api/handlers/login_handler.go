@@ -1,12 +1,11 @@
 package handlers
 
 import (
+	"itu-minitwit/internal/service"
 	"itu-minitwit/internal/utils"
 	"net/http"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 func LoginHandler(c *gin.Context) {
@@ -24,27 +23,19 @@ func LoginHandler(c *gin.Context) {
 		password := c.PostForm("password")
 
 		// Find user in DB
-		user, err := utils.FindUserWithName(c, username)
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				error = "Invalid username"
-			} else {
-				error = "Database error"
-			}
-		} else if !utils.CheckPassword(user.PwHash, password) {
-			error = "Invalid password"
-		} else {
-			// Login successful, set session
-			session := sessions.Default(c)
-			session.Set("user_id", user.ID)
 
+		msg, error2 := service.HandleLogin(c, username, password)
+
+		if msg != "" {
+			error = error2.Error()
+		} else {
 			c.Set("flash", "You were successfully logged in")
 			c.Redirect(http.StatusFound, "/")
 			return
 		}
+
 	}
 
-	// Render login page (moved outside the if block)
 	c.HTML(http.StatusOK, "layout.html", gin.H{
 		"Title":    "Sign In",
 		"body":     "login",

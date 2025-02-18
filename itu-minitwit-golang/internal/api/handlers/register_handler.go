@@ -3,53 +3,39 @@ package handlers
 import (
 	"fmt"
 	"itu-minitwit/internal/models"
+	"itu-minitwit/internal/service"
 	"itu-minitwit/internal/utils"
 	"net/http"
-	"strings"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func RegisterHandler(c *gin.Context) {
 	var user *models.User = utils.GetUserFomContext(c)
 
 	if user != nil {
-		// Already logged in ! 
+		// Already logged in !
 		c.Redirect(http.StatusFound, "/")
 	}
 
 	var err string
+	username := ""
+	email := ""
 
 	if c.Request.Method == http.MethodPost {
 		username := c.PostForm("username")
 		email := c.PostForm("email")
 		password := c.PostForm("password")
 		password2 := c.PostForm("password2")
-
-		if username == "" {
-			err = "You have to eneter a username"
-		} else if email == "" || !strings.Contains(email, "@") {
-			err = "You have to enter a valid email address"
-		} else if password == "" {
-			err = "You have to enter a password"
-		} else if password2 != password {
-			err = "The two passwords do not match"
-		} else if utils.UserExists(c, username) {
-			err = "The username is already taken"
-		} else {
-			hashed, error := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-			if error != nil {
-				fmt.Println("Error hashing password: ", error)
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error"})
-				return
-			}
-
-			utils.CreateUser(c, username, email, string(hashed))
-
-			c.Set("flash", "You were successfully registered and can log in now")
+		success, err := service.HandleRegister(c, username, email, password, password2)
+		if success {
+			sessions.Default(c).AddFlash("You were successfully registered and can log in now")
 			c.Redirect(http.StatusFound, "/login")
 			return
+
+		} else {
+			fmt.Println(err)
 		}
 	}
 
@@ -57,7 +43,10 @@ func RegisterHandler(c *gin.Context) {
 		"Title":    "Sign Up",
 		"body":     "register",
 		"Error":    err,
-		"Username": "",
-		"Email":    "",
+		"Username": username,
+		"Email":    email,
+		"Endpoint": "/register",
+		"Flashes":  utils.RetrieveFlashes(c),
 	})
+
 }

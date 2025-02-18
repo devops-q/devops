@@ -3,22 +3,28 @@ package utils
 import (
 	"itu-minitwit/internal/models"
 
-	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
-
-func CreateUser(c *gin.Context, username string, email string, password string)  {
-	db := c.MustGet("DB").(*gorm.DB)
-
-
-	var newUser = &models.User{
-		Username: username,
-		Email:    email,
-		PwHash:   password,
+// Creates a user and adds the user to the database.
+// It returns a boolean value, that determines if the value insertion is done correctly
+func CreateUser(db *gorm.DB, username string, email string, password string) (bool, error) {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return false, err 
 	}
 
+	newUser := &models.User{
+		Username: username,
+		Email:    email,
+		PwHash:   string(hashed),
+	}
 
-	db.Create(newUser)
-	return
+	if err := db.Create(newUser).Error; err != nil {
+		return false, err 
+	}
+
+	return true, nil 
 }
+
