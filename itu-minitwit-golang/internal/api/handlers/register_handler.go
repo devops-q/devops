@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"fmt"
 	"itu-minitwit/internal/models"
 	"itu-minitwit/internal/service"
 	"itu-minitwit/internal/utils"
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,22 +15,25 @@ func RegisterHandler(c *gin.Context) {
 	var user *models.User = utils.GetUserFomContext(c)
 
 	if user != nil {
-		// Already logged in ! 
+		// Already logged in !
 		c.Redirect(http.StatusFound, "/")
 	}
 
 	var err string
 
 	if c.Request.Method == http.MethodPost {
-		username := c.PostForm("username")
-		email := c.PostForm("email")
-		password := c.PostForm("password")
-		password2 := c.PostForm("password2")
+		err = service.HandleRegister(c)
+		if err == "" { // If there is no returned error string.
+			sessions.Default(c).AddFlash("You were successfully registered and can log in now")
+			c.Redirect(http.StatusFound, "/login")
+			return
 
-		err = service.HandleRegister(c,username,email,password,password2)
+		} else {
+			fmt.Println(err) 
+		}
 	}
 
-
+	
 
 	c.HTML(http.StatusOK, "layout.html", gin.H{
 		"Title":    "Sign Up",
@@ -37,5 +42,7 @@ func RegisterHandler(c *gin.Context) {
 		"Username": "",
 		"Email":    "",
 		"Endpoint": "/register",
+		"Flashes":  utils.RetrieveFlashes(c),
 	})
+
 }
