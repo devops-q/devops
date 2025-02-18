@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/models"
@@ -15,8 +14,11 @@ func PublicHandler(c *gin.Context) {
 	cfg := c.MustGet("Config").(*config.Config)
 
 	var messages []models.Message
-	db.Model(&models.Message{}).Preload("Author").Find(&messages).Where("flagged = ?", false).Order("created_at desc").Limit(cfg.PerPage)
-	fmt.Printf("Messages: %v\n", messages)
+	db.Model(&models.Message{}).
+		Preload("Author").
+		Where(map[string]interface{}{"flagged": false}).
+		Order("created_at desc").Limit(cfg.PerPage).
+		Find(&messages)
 
 	c.HTML(http.StatusOK, "layout.html", gin.H{
 		"Title":    "Public Timeline",
