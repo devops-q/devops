@@ -17,6 +17,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/login", handlers.LoginHandler)
 	r.GET("/public", handlers.PublicHandler)
 	r.GET("/", handlers.TimelineHandler)
+	r.GET("/:username/unfollow", handlers.UnfollowHandler)
 
 	// Examples of how to use the ORM in endpoints
 	r.GET("/users", handlers.GetUsersHandler)
