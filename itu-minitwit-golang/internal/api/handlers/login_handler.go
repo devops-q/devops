@@ -16,31 +16,29 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	var error string
-
 	if c.Request.Method == http.MethodPost {
 		username := c.PostForm("username")
 		password := c.PostForm("password")
 
 		// Find user in DB
 
-		msg, error2 := service.HandleLogin(c, username, password)
+		msg, _ := service.HandleLogin(c, username, password)
 
 		if msg != "" {
-			error = error2.Error()
+			utils.SetFlashes(c, msg)
 		} else {
-			c.Set("flash", "You were successfully logged in")
+			utils.SetFlashes(c, "You were successfully logged in")
 			c.Redirect(http.StatusFound, "/")
 			return
 		}
 
 	}
 
+	flashes := utils.GetFlashes(c)
+
 	c.HTML(http.StatusOK, "layout.html", gin.H{
-		"Title":    "Sign In",
-		"body":     "login",
-		"Error":    error,
-		"Username": "",
-		"Email":    "",
+		"Title":   "Sign In",
+		"body":    "login",
+		"Flashes": flashes,
 	})
 }
