@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"gorm.io/gorm/logger"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/models"
 	"log"
@@ -25,7 +26,13 @@ func InitDb(cfg *config.Config) {
 		os.Create(cfg.DBPath)
 	}
 
-	db, dbErr := gorm.Open(sqlite.Open(cfg.DBPath), &gorm.Config{})
+	gormConfig := &gorm.Config{}
+
+	if cfg.Environment == "development" {
+		gormConfig.Logger = logger.Default.LogMode(logger.Info)
+	}
+
+	db, dbErr := gorm.Open(sqlite.Open(cfg.DBPath), gormConfig)
 	if dbErr != nil {
 		log.Fatalf("Could not connect to database: %v", dbErr)
 	}
