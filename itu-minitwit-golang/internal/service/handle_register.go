@@ -8,34 +8,34 @@ import (
 	"gorm.io/gorm"
 )
 
-func HandleRegister(c *gin.Context, username string, email string, password string, password2 string) (message string) {
+func HandleRegister(c *gin.Context, username string, email string, password string, password2 string) (success bool, message string) {
 
 	if username == "" {
-		return "You have to enter a username"
+		return false, "You have to enter a username"
 	} else if email == "" || !strings.Contains(email, "@") {
-		return "You have to enter a valid email address"
+		return false, "You have to enter a valid email address"
 	} else if password == "" {
-		return "You have to enter a password"
+		return false, "You have to enter a password"
 	} else if password2 != password {
-		return "The two passwords do not match"
+		return false, "The two passwords do not match"
 	} else if utils.UserExists(c, username) {
-		return "The username is already taken"
+		return false, "The username is already taken"
 	}
 
 	db := c.MustGet("DB").(*gorm.DB)
 
 	if utils.UserExists(c, username) {
-		return "The username is already taken"
+		return false, "The username is already taken"
 	}
 
 	userMade, err := utils.CreateUser(db, username, email, password)
 	if err != nil {
-		return "Failed to create user: " + err.Error()
+		return false, "Failed to create user: " + err.Error()
 	}
 
 	if userMade {
-		return ""
+		return true, ""
 	}
 
-	return "Unexpected error occurred"
+	return false, "Unexpected error occurred"
 }

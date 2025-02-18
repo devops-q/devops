@@ -28,8 +28,8 @@ func RegisterHandler(c *gin.Context) {
 		email := c.PostForm("email")
 		password := c.PostForm("password")
 		password2 := c.PostForm("password2")
-		err = service.HandleRegister(c, username, email, password, password2)
-		if err == "" { // If there is no returned error string.
+		success, err := service.HandleRegister(c, username, email, password, password2)
+		if success {
 			sessions.Default(c).AddFlash("You were successfully registered and can log in now")
 			c.Redirect(http.StatusFound, "/login")
 			return
