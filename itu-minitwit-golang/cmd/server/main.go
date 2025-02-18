@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/api"
 	"itu-minitwit/internal/api/middlewares"
+	"itu-minitwit/internal/utils"
 	"itu-minitwit/pkg/database"
 	"log"
 
@@ -31,6 +33,12 @@ func main() {
 	store.Options(sessions.Options{MaxAge: 60 * 60 * 12}) // Cookie will last max 12 hours
 	r.Use(sessions.Sessions("itu-minitwit-session", store))
 
+	r.SetFuncMap(template.FuncMap{
+		"GravatarURL":    utils.GravatarURL,
+		"FormatDateTime": utils.FormatDateTime,
+	})
+
+	r.Use(middlewares.SetConfigMiddleware(cfg))
 	r.Use(middlewares.SetDbMiddleware())
 	r.Use(middlewares.SetUserContext())
 
