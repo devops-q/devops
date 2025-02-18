@@ -8,6 +8,7 @@ import (
 
 func LogOutHandler(c *gin.Context) {
 session := sessions.Default(c)
+session.Clear()
 session.AddFlash("You were logged out") 
-session.Save()        
+session.Save()
 }
