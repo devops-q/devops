@@ -1,6 +1,6 @@
-package utils
+package json_models
 
-type ErrorCodeMessageResponse struct {
+type ErrorResponse struct {
 	Code         int    `json:"code"`
 	ErrorMessage string `json:"error_msg"`
 }

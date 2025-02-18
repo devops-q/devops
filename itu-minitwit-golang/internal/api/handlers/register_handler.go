@@ -69,6 +69,6 @@ func RegisterHandlerAPI(c *gin.Context) {
 		c.JSON(http.StatusNoContent, nil)
 		return
 	} else {
-		c.JSON(http.StatusBadRequest, utils.ErrorCodeMessageResponse{Code: http.StatusBadRequest, ErrorMessage: err})
+		c.JSON(http.StatusBadRequest, json_models.ErrorResponse{Code: http.StatusBadRequest, ErrorMessage: err})
 	}
 }
