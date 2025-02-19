@@ -20,7 +20,6 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 
 
 	r.GET("/login", handlers.LoginHandler)
-	r.GET("/public", handlers.TimelineHandler)
 	r.GET("/", handlers.TimelineHandler)
 	r.GET("/public", handlers.PublicTimelineHandler)
 	r.GET("/:username", handlers.UserTimelineHandler)
@@ -38,7 +37,6 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/user/current", handlers.GetUserInSession)
 	
 	r.POST("/add_message", service.MessageHandler)
-	r.GET("/add_message", service.MessageHandler)
 
 
 	// Add more routes here
