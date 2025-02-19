@@ -3,7 +3,6 @@ package api
 import (
 	"itu-minitwit/config"
 	"itu-minitwit/internal/api/handlers"
-	"itu-minitwit/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,7 +35,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 
 	r.GET("/user/current", handlers.GetUserInSession)
 	
-	r.POST("/add_message", service.MessageHandler)
+	r.POST("/add_message", handlers.MessageHandler)
 
 
 	// Add more routes here
