@@ -36,6 +36,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 
 	r.GET("/user/current", handlers.GetUserInSession)
 	r.GET("/user/force-login/:id", handlers.ForceSetUserId)
+	r.GET("/latest", handlers.GetLatest)
 
 	// Add more routes here
 }
