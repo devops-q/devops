@@ -85,3 +85,11 @@ func GetUserFollows(db *gorm.DB, userId uint, limit int) ([]models.User, error) 
 
 	return followers, nil
 }
+
+func UnfollowUser(db *gorm.DB, whoId, whomId uint) error {
+	return db.Exec("DELETE FROM follower WHERE user_id = ? AND following_id = ?", whoId, whomId).Error
+}
+
+func FollowUser(db *gorm.DB, whoId, whomId uint) error {
+	return db.Exec("INSERT INTO follower (user_id, following_id) VALUES (?, ?)", whoId, whomId).Error
+}
