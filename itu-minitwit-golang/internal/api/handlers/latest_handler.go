@@ -10,8 +10,8 @@ import (
 )
 
 func GetLatest(ctx *gin.Context) {
-	// Attempt to read the file
-	content, err := os.ReadFile("/Users/philipblomholt/devops/itu-minitwit-golang/internal/api/handlers/latest_processed_sim_action_id.txt")
+
+	content, err := os.ReadFile("internal/api/handlers/latest_processed_sim_action_id.txt")
 	if err != nil {
 		log.Printf("Failed to read file: %v\n", err)
 		ctx.JSON(http.StatusOK, gin.H{"latest": -1})
