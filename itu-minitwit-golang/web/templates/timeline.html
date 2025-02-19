@@ -1,8 +1,8 @@
 {{ define "timeline" }}
-{{ if .UserID }} 
+{{ if .User }}
     {{ if and (ne .Endpoint "/public") (ne .Endpoint "/") }}
         <div class="followstatus">
-            {{ if eq .UserID.UserID .ProfileUser.UserID }}
+            {{ if eq .User.ID .ProfileUser.ID }}
                 This is you!
             {{ else if .Followed }}
                 You are currently following this user.
@@ -14,9 +14,9 @@
         </div>
     {{ end }}
 
-    {{ if and .UserID (eq .Endpoint "/") }} 
+    {{ if and .User (eq .Endpoint "/") }}
         <div class="twitbox">
-            <h3>What's on your mind {{ .Username }}?</h3> 
+            <h3>What's on your mind {{ .User.Username }}?</h3>
             <form action="/add_message" method="post">
                 <p><input type="text" name="text" size="60" /></p>
                 <input type="submit" value="Share" />
@@ -26,19 +26,20 @@
 {{ end }}
 
 <ul class="messages">
+
     {{ range .Messages }}
-        <li>
-            <img src="{{ .ImageURL }}" width="48" height="48">
-            <p>
-                <strong>
-                    <a href="{{ .Username }}">{{ .Username }}</a>
-                </strong>
-                {{ .Text }}
-                <small> Written @ {{ .PubDate }}</small>
-            </p>
-        </li>
+    <li>
+        <img src="{{ GravatarURL .Author.Email 48 }}" width="48" height="48">
+        <p><strong>
+            <a href="{{ .Author.Username }}">{{ .Author.Username }}</a>
+        </strong>
+            {{ .Text }}
+            <small> Written @ {{ .CreatedAt | FormatDateTime }}</small>
+        </p>
+    </li>
     {{ else }}
-        <li><em>There's no message so far.</em></li>
+    <li><em>There's no message so far.</em></li>
     {{ end }}
 </ul>
+
 {{ end }}
