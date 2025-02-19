@@ -5,3 +5,7 @@ type RegisterUserBody struct {
 	Email    string `json:"email"`
 	Pwd      string `json:"pwd"`
 }
+
+type GetFollowsResponse struct {
+	Follows []string `json:"follows"`
+}
