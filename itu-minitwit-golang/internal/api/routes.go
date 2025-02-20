@@ -18,7 +18,6 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.POST("/login", handlers.LoginHandler)
 
 	r.GET("/login", handlers.LoginHandler)
-
 	r.GET("/", handlers.TimelineHandler)
 	r.GET("/public", handlers.PublicTimelineHandler)
 	r.GET("/:username", handlers.UserTimelineHandler)
@@ -34,7 +33,9 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/users/messages", handlers.GetAllUsersWithNonFlaggedMessages)
 
 	r.GET("/user/current", handlers.GetUserInSession)
-	r.GET("/user/force-login/:id", handlers.ForceSetUserId)
+	
+	r.POST("/add_message", handlers.MessageHandler)
+
 
 	// API endpoints
 	apiV1 := r.Group("/api/v1")
