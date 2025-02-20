@@ -12,7 +12,7 @@ import (
 func MessagesHandlerAPI(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
 
-	nrOfMessagesParam := c.DefaultQuery("no", "10")
+	nrOfMessagesParam := c.DefaultQuery("no", "100")
 	nrOfMessages, err := strconv.Atoi(nrOfMessagesParam)
 
 	if err != nil {
