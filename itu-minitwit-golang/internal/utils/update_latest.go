@@ -4,14 +4,10 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
 
-func UpdateLatest(ctx *gin.Context) {
-
-	parsed_command_id := ctx.DefaultQuery("latest", "-1")	
+func UpdateLatest(parsed_command_id string) {
 
 	if parsed_command_id_int, err := strconv.Atoi(parsed_command_id); err != nil {
 		fmt.Println("Couldn't convert value to Integer")

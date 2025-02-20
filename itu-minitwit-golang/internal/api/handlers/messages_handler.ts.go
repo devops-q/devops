@@ -2,16 +2,20 @@ package handlers
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"itu-minitwit/internal/api/json_models"
 	"itu-minitwit/internal/service"
+	"itu-minitwit/internal/utils"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func MessagesHandlerAPI(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
+
+	utils.UpdateLatest(c.DefaultQuery("latest", "-1"))
 
 	nrOfMessagesParam := c.DefaultQuery("no", "100")
 	nrOfMessages, err := strconv.Atoi(nrOfMessagesParam)
@@ -41,6 +45,8 @@ func MessagesHandlerAPI(c *gin.Context) {
 
 func MessagesPerUserHandlerAPI(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
+
+	utils.UpdateLatest(c.DefaultQuery("latest", "-1"))
 
 	nrOfMessagesParam := c.DefaultQuery("no", "100")
 	nrOfMessages, err := strconv.Atoi(nrOfMessagesParam)

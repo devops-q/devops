@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"itu-minitwit/internal/api/json_models"
 	"itu-minitwit/internal/models"
 	"itu-minitwit/internal/service"
@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
@@ -94,6 +96,8 @@ func GetUserFollowersAPI(c *gin.Context) {
 
 func FollowUnfollowHandlerAPI(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
+
+	utils.UpdateLatest(c.DefaultQuery("latest", "-1"))
 	username := c.Param("username")
 
 	whoId, err := service.GetUserIdByUsername(db, username)

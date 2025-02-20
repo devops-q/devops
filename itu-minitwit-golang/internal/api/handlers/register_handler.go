@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"itu-minitwit/internal/api/json_models"
 	"itu-minitwit/internal/models"
 	"itu-minitwit/internal/service"
 	"itu-minitwit/internal/utils"
 	"net/http"
+
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
@@ -54,6 +55,8 @@ func RegisterHandler(c *gin.Context) {
 }
 
 func RegisterHandlerAPI(c *gin.Context) {
+	utils.UpdateLatest(c.DefaultQuery("latest", "-1"))
+
 	var db = c.MustGet("DB").(*gorm.DB)
 	var body json_models.RegisterUserBody
 
