@@ -30,9 +30,10 @@ func RegisterHandler(c *gin.Context) {
 		email := c.PostForm("email")
 		password := c.PostForm("password")
 		password2 := c.PostForm("password2")
-		success, err := service.RegisterUser(db, username, email, password, password2)
+		success, registerErrorMessage := service.RegisterUser(db, username, email, password, password2)
+		err = registerErrorMessage
 		if success {
-			utils.SetFlashes(c, "You were successfully registered and can log in now")
+			utils.SetFlashes(c, "You were successfully registered and can login now")
 			c.Redirect(http.StatusFound, "/login")
 			return
 
@@ -66,6 +67,7 @@ func RegisterHandlerAPI(c *gin.Context) {
 
 	success, err := service.RegisterUser(db, body.Username, body.Email, body.Pwd, body.Pwd)
 	if success {
+		utils.SetFlashes(c, "You were successfully registered and can login now")
 		c.JSON(http.StatusNoContent, nil)
 		return
 	} else {

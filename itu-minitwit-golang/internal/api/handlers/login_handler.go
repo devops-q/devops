@@ -27,7 +27,7 @@ func LoginHandler(c *gin.Context) {
 		if msg != "" {
 			utils.SetFlashes(c, msg)
 		} else {
-			utils.SetFlashes(c, "You were successfully logged in")
+			utils.SetFlashes(c, "You were logged in")
 			c.Redirect(http.StatusFound, "/")
 			return
 		}

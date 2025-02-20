@@ -19,6 +19,7 @@ func MessageHandler(ctx *gin.Context) {
 
 	if exists {
 		if created := utils.AddMessage(ctx, text); created {
+			utils.SetFlashes(ctx, "Your message was recorded")
 			ctx.Redirect(301, "/")
 		}
 	} else {
