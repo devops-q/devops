@@ -38,6 +38,18 @@ To run the tests for the MiniTwit application, run the following command:
 ./run-tests.sh
 ```
 
+## API Authentication
+
+The API uses Basic HTTP authentication protocol for authorizing routes under `/api/v1/`.
+
+### Registering a new user
+
+To create a new user you can run:
+
+```shell
+go run cmd/create_api_user/main.go -username=<username> -password=<password>
+```
+
 ## Project structure
 
 * `cmd/`: Contains the application entry points.

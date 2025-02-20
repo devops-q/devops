@@ -36,6 +36,6 @@ func InitDb(cfg *config.Config) {
 	if dbErr != nil {
 		log.Fatalf("Could not connect to database: %v", dbErr)
 	}
-	db.AutoMigrate(&models.User{}, &models.Message{})
+	db.AutoMigrate(&models.User{}, &models.Message{}, &models.APIUser{})
 	DB = db
 }

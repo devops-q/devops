@@ -3,6 +3,9 @@ package api
 import (
 	"itu-minitwit/config"
 	"itu-minitwit/internal/api/handlers"
+	"itu-minitwit/internal/service"
+	"itu-minitwit/pkg/database"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,7 +43,17 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.POST("/add_message", handlers.MessageHandler)
 
 	// API endpoints
-	apiV1 := r.Group("/api/v1")
+
+	db := database.DB
+	apiUsers, err := service.GetApiUsers(db)
+
+	if err != nil {
+		log.Printf("Error getting API users: %v", err)
+		panic(err)
+	}
+
+	apiV1 := r.Group("/api/v1", gin.BasicAuth(apiUsers))
+
 	{
 		apiV1.GET("/latest", handlers.GetLatest)
 		apiV1.POST("/register", handlers.RegisterHandlerAPI)
