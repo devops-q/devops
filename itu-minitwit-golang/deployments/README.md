@@ -70,7 +70,7 @@ docker push ghcr.io/alin-plamadeala/itu-minitwit-golang:<tag>
 (if you are NOT on linux/amd64)
 
 ```shell
-docker buildx build --platform linux/amd64 -t ghcr.io/alin-plamadeala/itu-minitwit-golang:1 . --push
+docker buildx build --platform linux/amd64 -t ghcr.io/alin-plamadeala/itu-minitwit-golang:<tag> . --push
 ```
 
 ## Deployment of the application
