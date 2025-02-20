@@ -40,6 +40,10 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	apiV1 := r.Group("/api/v1")
 	{
 		apiV1.POST("/register", handlers.RegisterHandlerAPI)
+		apiV1.GET("/msgs", handlers.MessagesHandlerAPI)
+		apiV1.GET("/msgs/:username", handlers.MessagesPerUserHandlerAPI)
+		apiV1.GET("/fllws/:username", handlers.GetUserFollowersAPI)
+		apiV1.POST("/fllws/:username", handlers.FollowUnfollowHandlerAPI)
 	}
 
 }

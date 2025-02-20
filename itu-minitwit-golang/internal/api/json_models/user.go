@@ -5,3 +5,12 @@ type RegisterUserBody struct {
 	Email    string `json:"email"`
 	Pwd      string `json:"pwd"`
 }
+
+type GetFollowsResponse struct {
+	Follows []string `json:"follows"`
+}
+
+type FollowUnfollowBody struct {
+	Follow   *string `json:"follow,omitempty"`
+	Unfollow *string `json:"unfollow,omitempty"`
+}
