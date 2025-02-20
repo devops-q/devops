@@ -16,6 +16,31 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func FollowHandler(c *gin.Context) {
+	db := c.MustGet("DB").(*gorm.DB)
+	username := c.Param("username")
+
+	userLoggedIn := utils.GetUserFomContext(c)
+	if userLoggedIn == nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	var userToFollow models.User
+	if err := db.First(&userToFollow, models.User{Username: username}).Error; err != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	if err := db.Model(&userLoggedIn).Association("Following").Append(&userToFollow); err != nil {
+		_ = c.Error(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	utils.SetFlashes(c, fmt.Sprintf("You are now following \"%s\"", userToFollow.Username))
+	c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("/%s", userToFollow.Username))
+}
+
 func UnfollowHandler(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
 	username := c.Param("username")
@@ -33,11 +58,12 @@ func UnfollowHandler(c *gin.Context) {
 	}
 
 	if err := db.Model(userLoggedIn).Association("Following").Delete(&userToUnfollow); err != nil {
+		c.Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	utils.SetFlashes(c, "You are no longer following "+username)
+	utils.SetFlashes(c, fmt.Sprintf("You are no longer following \"%s\"", username))
 
 	c.Redirect(http.StatusTemporaryRedirect, "/"+username)
 	return
