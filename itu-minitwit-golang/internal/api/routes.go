@@ -13,10 +13,9 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 
 	r.GET("/ping", handlers.PingHandler)
 	r.GET("/hello/:name", handlers.HelloHandler)
-	r.GET("/register", handlers.RegisterHandler)	
+	r.GET("/register", handlers.RegisterHandler)
 	r.POST("/register", handlers.RegisterHandler)
 	r.POST("/login", handlers.LoginHandler)
-
 
 	r.GET("/login", handlers.LoginHandler)
 
@@ -37,5 +36,14 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/user/current", handlers.GetUserInSession)
 	r.GET("/user/force-login/:id", handlers.ForceSetUserId)
 
-	// Add more routes here
+	// API endpoints
+	apiV1 := r.Group("/api/v1")
+	{
+		apiV1.POST("/register", handlers.RegisterHandlerAPI)
+		apiV1.GET("/msgs", handlers.MessagesHandlerAPI)
+		apiV1.GET("/msgs/:username", handlers.MessagesPerUserHandlerAPI)
+		apiV1.GET("/fllws/:username", handlers.GetUserFollowersAPI)
+		apiV1.POST("/fllws/:username", handlers.FollowUnfollowHandlerAPI)
+	}
+
 }
