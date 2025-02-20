@@ -37,7 +37,7 @@ func FollowHandler(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	utils.SetFlashes(c, fmt.Sprintf("You are now following &#34;%s&#34;", userToFollow.Username))
+	utils.SetFlashes(c, fmt.Sprintf("You are now following \"%s\"", userToFollow.Username))
 	c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("/%s", userToFollow.Username))
 }
 
@@ -63,7 +63,7 @@ func UnfollowHandler(c *gin.Context) {
 		return
 	}
 
-	utils.SetFlashes(c, "You are no longer following "+username)
+	utils.SetFlashes(c, fmt.Sprintf("You are no longer following \"%s\"", username))
 
 	c.Redirect(http.StatusTemporaryRedirect, "/"+username)
 	return
