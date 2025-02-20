@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/models"
+	"itu-minitwit/internal/service"
 	"itu-minitwit/internal/utils"
 	"log"
 	"net/http"
@@ -94,14 +95,13 @@ func UserTimelineHandler(c *gin.Context) {
 		followed = count > 0
 	}
 
-	// Get messages for profile user
-	var messages []models.Message
-	db.Model(&models.Message{}).
-		Preload("Author").
-		Where("author_id = ? AND flagged = ?", profileUser.ID, false).
-		Order("created_at desc").
-		Limit(cfg.PerPage).
-		Find(&messages)
+	messages, err := service.GetMessagesByAuthor(db, profileUser.ID, cfg.PerPage)
+
+	if err != nil {
+		_ = c.Error(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	flashes := utils.GetFlashes(c)
 
