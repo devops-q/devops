@@ -42,6 +42,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	// API endpoints
 	apiV1 := r.Group("/api/v1")
 	{
+		apiV1.GET("/latest", handlers.GetLatest)
 		apiV1.POST("/register", handlers.RegisterHandlerAPI)
 		apiV1.GET("/msgs", handlers.MessagesHandlerAPI)
 		apiV1.GET("/msgs/:username", handlers.MessagesPerUserHandlerAPI)
