@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/alin-plamadeala/itu-minitwit-golang:1
+    image: ghcr.io/alin-plamadeala/itu-minitwit-golang:2
     ports:
       - "80:80"
     environment:
@@ -12,8 +12,3 @@ services:
         source: /root/data/
         target: /app/data/
         consistency: consistent
-    deploy:
-      replicas: 3
-      update_config:
-        parallelism: 2
-        delay: 10s
