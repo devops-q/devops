@@ -56,8 +56,6 @@ func RegisterHandler(c *gin.Context) {
 }
 
 func RegisterHandlerAPI(c *gin.Context) {
-	utils.UpdateLatest(c.DefaultQuery("latest", "-1"))
-
 	var db = c.MustGet("DB").(*gorm.DB)
 	var body json_models.RegisterUserBody
 

@@ -41,6 +41,7 @@ func main() {
 	r.Use(middlewares.SetConfigMiddleware(cfg))
 	r.Use(middlewares.SetDbMiddleware())
 	r.Use(middlewares.SetUserContext())
+	r.Use(middlewares.UpdateLatestMiddleware())
 
 	api.SetupRoutes(r, cfg)
 
