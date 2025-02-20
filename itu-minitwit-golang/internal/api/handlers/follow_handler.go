@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"itu-minitwit/internal/api/json_models"
 	"itu-minitwit/internal/models"
 	"itu-minitwit/internal/service"
@@ -11,8 +11,34 @@ import (
 	"strconv"
 	"strings"
 
+	"gorm.io/gorm"
+
 	"github.com/gin-gonic/gin"
 )
+
+func FollowHandler(c *gin.Context) {
+	db := c.MustGet("DB").(*gorm.DB)
+	username := c.Param("username")
+
+	userLoggedIn := utils.GetUserFomContext(c)
+	if userLoggedIn == nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	var userToFollow models.User
+	if err := db.First(&userToFollow, models.User{Username: username}).Error; err != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	if err := db.Model(&userLoggedIn).Association("Following").Append(userToFollow); err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	utils.SetFlashes(c, fmt.Sprintf("You are now following &#34;%s&#34;", userToFollow.Username))
+	c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("/%s", userToFollow.Username))
+}
 
 func UnfollowHandler(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
