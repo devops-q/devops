@@ -34,6 +34,10 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/users/messages", handlers.GetAllUsersWithNonFlaggedMessages)
 
 	r.GET("/user/current", handlers.GetUserInSession)
+	r.GET("/user/force-login/:id", handlers.ForceSetUserId)
+	r.GET("/latest", handlers.GetLatest)
+	
+	r.POST("/add_message", handlers.MessageHandler)
 
 	r.POST("/add_message", handlers.MessageHandler)
 
