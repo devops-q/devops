@@ -68,3 +68,28 @@ func RegisterUser(db *gorm.DB, username string, email string, password string, p
 
 	return false, "Unexpected error occurred"
 }
+
+func GetUserFollows(db *gorm.DB, userId uint, limit int) ([]models.User, error) {
+	var followers []models.User
+
+	err := db.Model(&models.User{}).
+		Select("users.id, users.username").
+		Joins("INNER JOIN follower ON users.id = follower.following_id").
+		Where("follower.user_id = ?", userId).
+		Limit(limit).
+		Find(&followers).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return followers, nil
+}
+
+func UnfollowUser(db *gorm.DB, whoId, whomId uint) error {
+	return db.Exec("DELETE FROM follower WHERE user_id = ? AND following_id = ?", whoId, whomId).Error
+}
+
+func FollowUser(db *gorm.DB, whoId, whomId uint) error {
+	return db.Exec("INSERT INTO follower (user_id, following_id) VALUES (?, ?)", whoId, whomId).Error
+}

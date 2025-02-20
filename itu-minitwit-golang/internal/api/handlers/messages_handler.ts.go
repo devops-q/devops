@@ -13,7 +13,7 @@ import (
 func MessagesHandlerAPI(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
 
-	nrOfMessagesParam := c.DefaultQuery("no", "10")
+	nrOfMessagesParam := c.DefaultQuery("no", "100")
 	nrOfMessages, err := strconv.Atoi(nrOfMessagesParam)
 
 	if err != nil {
@@ -42,7 +42,7 @@ func MessagesHandlerAPI(c *gin.Context) {
 func MessagesPerUserHandlerAPI(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
 
-	nrOfMessagesParam := c.DefaultQuery("no", "10")
+	nrOfMessagesParam := c.DefaultQuery("no", "100")
 	nrOfMessages, err := strconv.Atoi(nrOfMessagesParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, json_models.ErrorResponse{
@@ -73,6 +73,7 @@ func MessagesPerUserHandlerAPI(c *gin.Context) {
 	messages, err := service.GetMessagesByAuthor(db, uint(userId), nrOfMessages)
 
 	if err != nil {
+		c.Error(err)
 		c.JSON(http.StatusInternalServerError, json_models.ErrorResponse{
 			Code:         http.StatusInternalServerError,
 			ErrorMessage: "Error fetching messages",
