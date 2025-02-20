@@ -21,3 +21,10 @@ func GetApiUsers(db *gorm.DB) (gin.Accounts, error) {
 
 	return accounts, nil
 }
+
+func CreateApiUser(db *gorm.DB, username, password string) (bool, error) {
+	if err := db.Create(&models.APIUser{Username: username, Password: password}).Error; err != nil {
+		return false, err
+	}
+	return true, nil
+}
