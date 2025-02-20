@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/alin-plamadeala/itu-minitwit-golang:2
+    image: ghcr.io/alin-plamadeala/itu-minitwit-golang:c6bd9d
     ports:
       - "80:80"
     environment:
