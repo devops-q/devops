@@ -32,7 +32,8 @@ func FollowHandler(c *gin.Context) {
 		return
 	}
 
-	if err := db.Model(&userLoggedIn).Association("Following").Append(userToFollow); err != nil {
+	if err := db.Model(&userLoggedIn).Association("Following").Append(&userToFollow); err != nil {
+		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -57,6 +58,7 @@ func UnfollowHandler(c *gin.Context) {
 	}
 
 	if err := db.Model(userLoggedIn).Association("Following").Delete(&userToUnfollow); err != nil {
+		c.Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
