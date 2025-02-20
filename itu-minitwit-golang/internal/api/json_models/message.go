@@ -7,3 +7,7 @@ type Message struct {
 	PubDate time.Time `json:"pub_date"`
 	User    string    `json:"user"`
 }
+
+type CreateMessageBody struct {
+	Content string `json:"content"`
+}

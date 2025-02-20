@@ -55,3 +55,13 @@ func MapMessages(messages []models.Message) []json_models.Message {
 	}
 	return formattedMessages
 }
+
+func CreateMessage(db *gorm.DB, authorID uint, content string) error {
+	err := db.Model(&models.Message{}).
+		Create(&models.Message{
+			AuthorID: authorID,
+			Text:     content,
+		}).Error
+
+	return err
+}
