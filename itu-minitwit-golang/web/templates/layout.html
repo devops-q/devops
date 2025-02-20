@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{{ .Title }} | MiniTwit</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+  </head>
+
+  <body>
+    <div class="page">
+      <h1>MiniTwit</h1>
+      <div class="navigation">
+        {{ if .User }}
+        <a href="/">my timeline</a> | <a href="/public">public timeline</a> |
+        <a href="/logout">sign out [{{ .User.Username }}]</a>
+        {{ else }}
+        <a href="/public">public timeline</a> |
+        <a href="/register">sign up</a> |
+        <a href="/login">sign in</a>
+        {{ end }}
+      </div>
+
+      {{ if .Flashes }}
+      <ul class="flashes">
+        {{ range .Flashes }}
+        <li>{{ . }}</li>
+        {{ end }}
+      </ul>
+      {{ end }}
+
+      <div class="body">
+        <!-- This code block ensures that the correct content is shown on the correct sites. -->
+        {{ if eq .body "login" }} {{ template "login" . }} {{ else if eq .body
+        "register" }} {{ template "register" .}} {{ else if eq .body
+        "timeline"}} {{ template "timeline" . }} {{ end }}
+      </div>
+
+      <div class="footer">MiniTwit &mdash; A Gin Application</div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+services:
+  app:
+    image: ghcr.io/alin-plamadeala/itu-minitwit-golang:c46d64
+    ports:
+      - "80:80"
+    environment:
+      - PORT=80
+      - DB_PATH=/app/data/database.sqlite
+      - ENVIRONMENT=production
+    volumes:
+      - type: bind
+        source: /root/data/
+        target: /app/data/
+        consistency: consistent
