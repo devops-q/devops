@@ -51,6 +51,7 @@ jobs:
 
   terraform-check:
     runs-on: ubuntu-latest
+    env: PROD
     defaults:
       run:
         working-directory: ./itu-minitwit-golang/deployments/terraform
@@ -68,5 +69,5 @@ jobs:
       - name: Terraform validate
         run: terraform validate
 
-      - name: Terraform plan
-        run: terraform plan #TODO: set up vars when I get access to repo settings
+      - name: Terraform apply
+        run: terraform apply -auto-approve -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}"
