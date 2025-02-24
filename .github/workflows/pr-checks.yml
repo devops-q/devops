@@ -51,7 +51,7 @@ jobs:
 
   terraform-check:
     runs-on: ubuntu-latest
-    env: PROD
+    environment: PROD
     defaults:
       run:
         working-directory: ./itu-minitwit-golang/deployments/terraform
