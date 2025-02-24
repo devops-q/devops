@@ -51,7 +51,11 @@ jobs:
 
   terraform-check:
     runs-on: ubuntu-latest
-    environment: PROD
+    environment: DEV
+    env:
+      TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     defaults:
       run:
         working-directory: ./itu-minitwit-golang/deployments/terraform
