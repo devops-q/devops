@@ -12,7 +12,8 @@ rm -f database.test.sqlite
 DB_PATH=./database.test.sqlite go run cmd/create_api_user/main.go -username=test -password=test
 
 # Start the server in background
-PORT=8181 DB_PATH=./database.test.sqlite go run cmd/server/main.go > /dev/null 2>&1 &
+PORT=8181 DB_PATH=./database.test.sqlite go run cmd/server/main.go &
+#PORT=8181 DB_PATH=./database.test.sqlite go run cmd/server/main.go > /dev/null 2>&1 &
 
 # Wait for server to start
 sleep 2
