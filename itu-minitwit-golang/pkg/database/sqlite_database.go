@@ -21,9 +21,17 @@ func InitDb(cfg *config.Config) {
 		path := strings.Split(cfg.DBPath, "/")
 		if len(path) > 0 {
 			dirPath := strings.Join(path[:len(path)-1], "/")
-			os.MkdirAll(dirPath, 0755)
+			err := os.MkdirAll(dirPath, 0755)
+			if err != nil {
+				log.Printf("Error creating directory: %v", err)
+				panic(err)
+			}
 		}
-		os.Create(cfg.DBPath)
+		_, err := os.Create(cfg.DBPath)
+		if err != nil {
+			log.Printf("Error creating file: %v", err)
+			panic(err)
+		}
 	}
 
 	gormConfig := &gorm.Config{}
@@ -36,6 +44,10 @@ func InitDb(cfg *config.Config) {
 	if dbErr != nil {
 		log.Fatalf("Could not connect to database: %v", dbErr)
 	}
-	db.AutoMigrate(&models.User{}, &models.Message{}, &models.APIUser{})
+	err := db.AutoMigrate(&models.User{}, &models.Message{}, &models.APIUser{})
+	if err != nil {
+		log.Printf("Error during auto migration: %v", err)
+		panic(err)
+	}
 	DB = db
 }

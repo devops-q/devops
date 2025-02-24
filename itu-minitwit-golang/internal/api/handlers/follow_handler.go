@@ -58,7 +58,7 @@ func UnfollowHandler(c *gin.Context) {
 	}
 
 	if err := db.Model(userLoggedIn).Association("Following").Delete(&userToUnfollow); err != nil {
-		c.Error(err)
+		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -66,7 +66,6 @@ func UnfollowHandler(c *gin.Context) {
 	utils.SetFlashes(c, fmt.Sprintf("You are no longer following \"%s\"", username))
 
 	c.Redirect(http.StatusTemporaryRedirect, "/"+username)
-	return
 }
 
 func GetUserFollowersAPI(c *gin.Context) {
@@ -102,7 +101,7 @@ func GetUserFollowersAPI(c *gin.Context) {
 	followers, err := service.GetUserFollows(db, uint(userId), limit)
 
 	if err != nil {
-		c.Error(err)
+		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, json_models.ErrorResponse{
 			Code:         http.StatusInternalServerError,
 			ErrorMessage: "Error fetching followers",
@@ -199,7 +198,7 @@ func FollowUnfollowHandlerAPI(c *gin.Context) {
 	}
 
 	if fllwErr != nil {
-		c.Error(fllwErr)
+		_ = c.Error(fllwErr)
 		c.JSON(http.StatusInternalServerError, json_models.ErrorResponse{
 			Code:         http.StatusInternalServerError,
 			ErrorMessage: "Error following user",
