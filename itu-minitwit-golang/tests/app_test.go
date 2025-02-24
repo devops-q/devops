@@ -123,11 +123,11 @@ func (suite *MinitwitTestSuite) TestLoginLogout() {
 	body, _ = io.ReadAll(resp.Body)
 	assert.Contains(suite.T(), string(body), "You were logged out")
 
-	resp, client = login(suite.T(), "user1", "wrongpassword")
+	resp, _ = login(suite.T(), "user1", "wrongpassword")
 	body, _ = io.ReadAll(resp.Body)
 	assert.Contains(suite.T(), string(body), "Invalid password")
 
-	resp, client = login(suite.T(), "user2", "wrongpassword")
+	resp, _ = login(suite.T(), "user2", "wrongpassword")
 	body, _ = io.ReadAll(resp.Body)
 	assert.Contains(suite.T(), string(body), "Invalid username")
 }

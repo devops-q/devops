@@ -68,7 +68,6 @@ func TimelineHandler(c *gin.Context) {
 		"Endpoint": "/",
 		"Flashes":  flashes,
 	})
-	return
 }
 
 func UserTimelineHandler(c *gin.Context) {
@@ -116,5 +115,4 @@ func UserTimelineHandler(c *gin.Context) {
 		"Flashes":     flashes,
 	})
 
-	return
 }
