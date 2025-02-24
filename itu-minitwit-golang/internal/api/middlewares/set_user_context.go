@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"itu-minitwit/internal/models"
+	"log"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -19,6 +20,10 @@ func SetUserContext() gin.HandlerFunc {
 			ctx.Set("user", user)
 		}
 		ctx.Next()
-		session.Save()
+		err := session.Save()
+		if err != nil {
+			log.Printf("Error saving session: %v", err)
+			_ = ctx.AbortWithError(500, err)
+		}
 	}
 }

@@ -75,7 +75,7 @@ func MessagesPerUserHandlerAPI(c *gin.Context) {
 	messages, err := service.GetMessagesByAuthor(db, uint(userId), nrOfMessages)
 
 	if err != nil {
-		c.Error(err)
+		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, json_models.ErrorResponse{
 			Code:         http.StatusInternalServerError,
 			ErrorMessage: "Error fetching messages",
@@ -121,7 +121,7 @@ func MessagesCreateHandlerAPI(c *gin.Context) {
 	err = service.CreateMessage(db, uint(userId), body.Content)
 
 	if err != nil {
-		c.Error(err)
+		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, json_models.ErrorResponse{
 			Code:         http.StatusInternalServerError,
 			ErrorMessage: "Error creating message",

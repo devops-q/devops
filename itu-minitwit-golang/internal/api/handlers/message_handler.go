@@ -26,5 +26,4 @@ func MessageHandler(ctx *gin.Context) {
 		ctx.JSON(http.StatusFailedDependency, gin.H{"error": "The message could not be created!"})
 	}
 
-	return
 }
