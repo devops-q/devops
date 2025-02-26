@@ -21,7 +21,7 @@ jobs:
         id: set-env
         run: echo "env=$(if [ ${{ github.ref }} == 'refs/heads/main' ]; then echo 'PROD'; else echo 'DEV_1'; fi)" >> $GITHUB_ENV
     outputs:
-      env: ${{ steps.set-env.outputs.env }}
+      env: ${{ env.env }}
   build:
     runs-on: ubuntu-latest
     needs:
