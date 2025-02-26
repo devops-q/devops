@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Set environment
         id: set-env
-        run: echo "env=$(if [ ${{ github.ref }} == 'refs/heads/main' ]; then echo 'PROD'; else echo 'DEV'; fi)" >> $GITHUB_ENV
+        run: echo "env=$(if [ ${{ github.ref }} == 'refs/heads/main' ]; then echo 'PROD'; else echo 'DEV_1'; fi)" >> $GITHUB_ENV
     outputs:
       env: ${{ steps.set-env.outputs.env }}
   build:
@@ -35,7 +35,7 @@ jobs:
       - name: Get short SHA or matching commit hash
         id: get_sha
         run: |
-          if [ "${{ needs.get-env.outputs.env }}" == "DEV" ]; then
+          if [ "${{ needs.get-env.outputs.env }}" == "DEV_1" ]; then
             short_sha=$(echo ${{ github.sha }} | cut -c1-7)
           else
             latest_commit=$(git log -1 --pretty=format:"%H" main)
@@ -43,7 +43,7 @@ jobs:
           fi
           echo "short_sha=$short_sha" >> $GITHUB_ENV
       - name: Log in to GitHub Docker registry
-        if: ${{ needs.get-env.outputs.env == 'DEV' }}
+        if: ${{ needs.get-env.outputs.env == 'DEV_1' }}
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -51,7 +51,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        if: ${{ needs.get-env.outputs.env == 'DEV' }}
+        if: ${{ needs.get-env.outputs.env == 'DEV_1' }}
         uses: docker/build-push-action@v6
         with:
           context: ./itu-minitwit-golang
@@ -83,7 +83,7 @@ jobs:
         run: terraform apply -auto-approve -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}"
 
       - name: Log in to GitHub Docker registry
-        if: ${{ needs.get-env.outputs.env == 'DEV' }}
+        if: ${{ needs.get-env.outputs.env == 'DEV_1' }}
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
