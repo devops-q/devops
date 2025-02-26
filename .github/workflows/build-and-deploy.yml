@@ -96,27 +96,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Add host to known hosts
+      - name: Create env file
         run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.DIGITAL_OCEAN_VM_IP }} >> ~/.ssh/known_hosts
+          echo "DOCKER_IMAGE=ghcr.io/${{ github.repository_owner }}/itu-minitwit-golang:${{ needs.build.outputs.short_sha }}" >> ./envfile
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Docker Stack Deploy
+        uses: cssnr/stack-deploy-action@v1
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Create docker context
-        run: docker context create digitalocean --docker "host=ssh://root@${{ secrets.DIGITAL_OCEAN_VM_IP }}"
-
-      - name: Use docker context
-        run: docker context use digitalocean
-
-      - name: Deploy
-        env:
-          DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/itu-minitwit-golang:${{ needs.build.outputs.short_sha }}
-        run: docker stack deploy -c docker-compose.yml itu-minitwit --detach=false
-        working-directory: ./itu-minitwit-golang
+          name: itu-minitwit
+          file: ./itu-minitwit-golang/docker-compose.yml
+          host: ${{ secrets.DIGITAL_OCEAN_VM_IP }}
+          user: root
+          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          env_file: ./envfile
 
   create-release:
     runs-on: ubuntu-latest
