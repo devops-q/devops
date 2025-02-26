@@ -96,6 +96,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Add host to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.DIGITAL_OCEAN_VM_IP }} >> ~/.ssh/known_hosts
+
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -110,7 +115,7 @@ jobs:
       - name: Deploy
         env:
           DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/itu-minitwit-golang:${{ needs.build.outputs.short_sha }}
-        run: docker stack deploy -c docker-compose.yml itu-minitwit
+        run: docker stack deploy -c docker-compose.yml itu-minitwit --detach=false
         working-directory: ./itu-minitwit-golang
 
   create-release:
