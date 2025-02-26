@@ -82,10 +82,11 @@ jobs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: ./infrastructure/terraform
+        working-directory: ./itu-minitwit-golang/deployments/terraform
 
       - name: Terraform apply
         run: terraform apply -auto-approve -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}"
+        working-directory: ./itu-minitwit-golang/deployments/terraform
 
       - name: Log in to GitHub Docker registry
         if: ${{ needs.get-env.outputs.env == 'DEV_1' }}
