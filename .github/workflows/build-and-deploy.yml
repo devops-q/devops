@@ -108,7 +108,7 @@ jobs:
           host: ${{ secrets.DIGITAL_OCEAN_VM_IP }}
           user: root
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
-          env_file: ./envfile
+          env_file: ./itu-minitwit-golang/envfile
 
   create-release:
     runs-on: ubuntu-latest
