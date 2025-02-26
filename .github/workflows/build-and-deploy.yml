@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - feat/deploy-dev-cd
 
 permissions:
   id-token: write
