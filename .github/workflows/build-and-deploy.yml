@@ -38,7 +38,7 @@ jobs:
           if [ "${{ needs.get-env.outputs.env }}" == "DEV" ]; then
             short_sha=$(echo ${{ github.sha }} | cut -c1-7)
           else
-            latest_commit=$(git log -1 --pretty=format:"%H" main)
+            latest_commit=$(git log -1 --pretty=format:"%H" develop)
             short_sha=$(echo $latest_commit | cut -c1-7)
           fi
           echo "short_sha=$short_sha" >> $GITHUB_ENV
