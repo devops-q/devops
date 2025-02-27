@@ -6,9 +6,10 @@ docker swarm init --advertise-addr $(hostname -I | awk '{print $1}')
 mkdir -p /root/data
 
 # Authenticate to Docker GHCR
-echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
+docker login ghcr.io --username "${GHCR_USERNAME}" --password "${GHCR_TOKEN}"
 
 # Pull and run the Docker container for creating api user
-docker pull ghcr.io/${GHCR_USERNAME}/your-container:latest
+docker run -e DB_PATH=/app/data/database.sqlite -v /root/data/:/app/data/:consistent ghcr.io/devops-q/itu-minitwit-create-api-user:51dea8 /app/create_api_user -username=${API_USER} -password=${API_PASSWORD}
 
-docker run -d -e DB_PATH=/root/data/database.sqlite ghcr.io/devops-q/itu-minitwit-create-api-user:51dea8 /app/create_api_user -username=${API_USER} -password=${API_PASSWORD}
+
+echo "Finished running minitwit init script"

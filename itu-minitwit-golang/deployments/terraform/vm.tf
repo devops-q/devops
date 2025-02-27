@@ -38,3 +38,7 @@ resource "digitalocean_floating_ip" "ip" {
   droplet_id = digitalocean_droplet.minitwit-vm.id
   region     = digitalocean_droplet.minitwit-vm.region
 }
+
+output "ip_address" {
+  value = trimspace(digitalocean_floating_ip.ip.ip_address)
+}

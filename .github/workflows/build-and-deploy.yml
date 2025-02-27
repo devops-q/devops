@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - fix/deploy
 
 permissions:
   id-token: write
@@ -18,7 +19,7 @@ jobs:
     steps:
       - name: Set environment
         id: set-env
-        run: echo "env=$(if [ ${{ github.ref }} == 'refs/heads/main' ]; then echo 'PROD'; else echo 'DEV'; fi)" >> $GITHUB_ENV
+        run: echo "env=$(if [ ${{ github.ref }} == 'refs/heads/main' ]; then echo 'PROD'; else echo 'DEV_DEBUG'; fi)" >> $GITHUB_ENV
     outputs:
       env: ${{ env.env }}
   build:
@@ -35,7 +36,7 @@ jobs:
       - name: Get short SHA or matching commit hash
         id: get_sha
         run: |
-          if [ "${{ needs.get-env.outputs.env }}" == "DEV" ]; then
+          if [ "${{ needs.get-env.outputs.env }}" == "DEV_DEBUG" ]; then
             short_sha=$(echo ${{ github.sha }} | cut -c1-7)
           else
             latest_commit=$(git log -1 --pretty=format:"%H" main)
@@ -43,7 +44,7 @@ jobs:
           fi
           echo "short_sha=$short_sha" >> $GITHUB_ENV
       - name: Log in to GitHub Docker registry
-        if: ${{ needs.get-env.outputs.env == 'DEV' }}
+        if: ${{ needs.get-env.outputs.env == 'DEV_DEBUG' }}
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -51,7 +52,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        if: ${{ needs.get-env.outputs.env == 'DEV' }}
+        if: ${{ needs.get-env.outputs.env == 'DEV_DEBUG' }}
         uses: docker/build-push-action@v6
         with:
           context: ./itu-minitwit-golang
@@ -88,15 +89,27 @@ jobs:
           terraform apply -auto-approve \
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
             -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
-            -var="ghcr_username=${{ github.GHCR_PAT_USERNAME }}" \
+            -var="ghcr_username=${{ secrets.GHCR_PAT_USERNAME }}" \
             -var="ghcr_token=${{ secrets.GHCR_PAT_TOKEN }}" \
             -var="api_user=${{ secrets.API_USER }}" \
             -var="api_password=${{ secrets.API_PASSWORD }}"
-
+          ip_address=$(terraform output -raw ip_address)
+          echo "ip_address=$ip_address" >> $GITHUB_ENV
         working-directory: ./itu-minitwit-golang/deployments/terraform
 
+      - name: Check user_data script completion
+        working-directory: ./scripts
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ./id_rsa
+          chmod 600 ./id_rsa
+
+          sleep 30
+          
+          scp -o StrictHostKeyChecking=no -i ./id_rsa check_user_data_completion.sh "root@${{ env.ip_address }}":/tmp/
+          ssh -o StrictHostKeyChecking=no -i ./id_rsa "root@${{ env.ip_address }}" "bash /tmp/check_user_data_completion.sh"
+
       - name: Log in to GitHub Docker registry
-        if: ${{ needs.get-env.outputs.env == 'DEV' }}
+        if: ${{ needs.get-env.outputs.env == 'DEV_DEBUG' }}
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -112,7 +125,7 @@ jobs:
         with:
           name: itu-minitwit
           file: ./itu-minitwit-golang/docker-compose.yml
-          host: ${{ secrets.DIGITAL_OCEAN_VM_IP }}
+          host: ${{ env.ip_address }}
           user: root
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           env_file: ./itu-minitwit-golang/envfile
