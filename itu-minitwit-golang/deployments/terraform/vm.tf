@@ -26,7 +26,7 @@ resource "digitalocean_droplet" "minitwit-vm" {
   ssh_keys = [
     data.digitalocean_ssh_key.terraform.id
   ]
-  user_data = templatefile("init_script.sh", {
+  user_data = templatefile("./files/init_script.sh", {
     GHCR_USERNAME = var.ghcr_username
     GHCR_TOKEN    = var.ghcr_token
     API_USER      = var.api_user
