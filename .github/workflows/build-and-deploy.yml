@@ -88,12 +88,24 @@ jobs:
           terraform apply -auto-approve \
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
             -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
-            -var="ghcr_username=${{ github.GHCR_PAT_USERNAME }}" \
+            -var="ghcr_username=${{ secrets.GHCR_PAT_USERNAME }}" \
             -var="ghcr_token=${{ secrets.GHCR_PAT_TOKEN }}" \
             -var="api_user=${{ secrets.API_USER }}" \
             -var="api_password=${{ secrets.API_PASSWORD }}"
-
+          ip_address=$(terraform output -raw ip_address)
+          echo "ip_address=$ip_address" >> $GITHUB_ENV
         working-directory: ./itu-minitwit-golang/deployments/terraform
+
+      - name: Check user_data script completion
+        working-directory: ./scripts
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ./id_rsa
+          chmod 600 ./id_rsa
+
+          sleep 30
+          
+          scp -o StrictHostKeyChecking=no -i ./id_rsa check_user_data_completion.sh "root@${{ env.ip_address }}":/tmp/
+          ssh -o StrictHostKeyChecking=no -i ./id_rsa "root@${{ env.ip_address }}" "bash /tmp/check_user_data_completion.sh"
 
       - name: Log in to GitHub Docker registry
         if: ${{ needs.get-env.outputs.env == 'DEV' }}
@@ -112,7 +124,7 @@ jobs:
         with:
           name: itu-minitwit
           file: ./itu-minitwit-golang/docker-compose.yml
-          host: ${{ secrets.DIGITAL_OCEAN_VM_IP }}
+          host: ${{ env.ip_address }}
           user: root
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           env_file: ./itu-minitwit-golang/envfile
