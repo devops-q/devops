@@ -182,17 +182,8 @@ func FollowUnfollowHandlerAPI(c *gin.Context) {
 	}
 
 	if fllwErr != nil && strings.Contains(fllwErr.Error(), "UNIQUE constraint failed") {
-		var message string
-		if action == "follow" {
-			message = "You are already following this user"
-		} else {
-			message = "You are not following this user"
-		}
-
-		c.JSON(http.StatusBadRequest, json_models.ErrorResponse{
-			Code:         http.StatusBadRequest,
-			ErrorMessage: message,
-		})
+		// NOTE: the simulator expects a 204 status code when trying to follow a user that is already followed
+		c.Status(http.StatusNoContent)
 
 		return
 	}
