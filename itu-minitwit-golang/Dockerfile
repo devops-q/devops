@@ -1,5 +1,7 @@
 FROM golang:1.24
 
+LABEL org.opencontainers.image.source = "https://github.com/devops-q/devops"
+
 # Set destination for COPY
 WORKDIR /app
 
