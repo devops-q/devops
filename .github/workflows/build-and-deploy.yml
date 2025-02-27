@@ -84,7 +84,15 @@ jobs:
         working-directory: ./itu-minitwit-golang/deployments/terraform
 
       - name: Terraform apply
-        run: terraform apply -auto-approve -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}"
+        run: |
+          terraform apply -auto-approve \
+            -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
+            -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
+            -var="ghcr_username=${{ github.actor }}" \
+            -var="ghcr_token=${{ secrets.GITHUB_TOKEN }}" \
+            -var="api_user=${{ secrets.API_USER }}" \
+            -var="api_password=${{ secrets.API_PASSWORD }}"
+
         working-directory: ./itu-minitwit-golang/deployments/terraform
 
       - name: Log in to GitHub Docker registry
