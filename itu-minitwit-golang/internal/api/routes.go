@@ -23,9 +23,6 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/:username/follow", handlers.FollowHandler)
 	r.GET("/:username/unfollow", handlers.UnfollowHandler)
 	r.GET("/logout", handlers.LogoutHandler)
-	r.GET("/user/current", handlers.GetUserInSession)
-	r.GET("/user/force-login/:id", handlers.ForceSetUserId)
-	r.GET("/latest", handlers.GetLatest)
 
 	r.POST("/add_message", handlers.MessageHandler)
 

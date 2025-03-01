@@ -50,7 +50,7 @@ func RegisterHandler(c *gin.Context) {
 		"Username": username,
 		"Email":    email,
 		"Endpoint": "/register",
-		"Flashes":  utils.RetrieveFlashes(c),
+		"Flashes":  utils.GetFlashes(c),
 	})
 
 }
