@@ -1,10 +1,11 @@
 package service
 
 import (
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"itu-minitwit/internal/models"
 	"strings"
+
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 // Creates a user and adds the user to the database.
@@ -87,9 +88,13 @@ func GetUserFollows(db *gorm.DB, userId uint, limit int) ([]models.User, error) 
 }
 
 func UnfollowUser(db *gorm.DB, whoId, whomId uint) error {
-	return db.Exec("DELETE FROM follower WHERE user_id = ? AND following_id = ?", whoId, whomId).Error
+	return db.Model(&models.User{Model: gorm.Model{ID: whoId}}).
+		Association("Following").
+		Delete(&models.User{Model: gorm.Model{ID: whomId}})
 }
 
 func FollowUser(db *gorm.DB, whoId, whomId uint) error {
-	return db.Exec("INSERT INTO follower (user_id, following_id) VALUES (?, ?)", whoId, whomId).Error
+	return db.Model(&models.User{Model: gorm.Model{ID: whoId}}).
+		Association("Following").
+		Append(&models.User{Model: gorm.Model{ID: whomId}})
 }
