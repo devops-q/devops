@@ -21,7 +21,7 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	database.InitDb(cfg)
+	_ = database.InitSQLiteDb(cfg)
 
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
