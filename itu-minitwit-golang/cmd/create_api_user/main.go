@@ -16,7 +16,7 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	database.InitDb(cfg)
+	db := database.InitSQLiteDb(cfg)
 
 	username := flag.String("username", "", "API user username")
 	password := flag.String("password", "", "API user password")
@@ -27,7 +27,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	db := database.DB
 	success, err := service.CreateApiUser(db, *username, *password)
 	if err != nil {
 		log.Fatalf("Failed to create API user: %v", err)

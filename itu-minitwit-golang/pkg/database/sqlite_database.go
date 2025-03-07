@@ -15,7 +15,7 @@ import (
 
 var DB *gorm.DB
 
-func InitDb(cfg *config.Config) {
+func InitSQLiteDb(cfg *config.Config) *gorm.DB {
 	if _, err := os.Stat(cfg.DBPath); err != nil {
 		fmt.Print("Creating new db file")
 		path := strings.Split(cfg.DBPath, "/")
