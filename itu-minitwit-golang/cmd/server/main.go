@@ -21,7 +21,11 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	_ = database.InitSQLiteDb(cfg)
+	if cfg.DBEngine == "sqlite" {
+		_ = database.InitSQLiteDb(cfg)
+	} else if cfg.DBEngine == "postgresql" {
+		_ = database.InitPostgreSQLDb(cfg)
+	}
 
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)

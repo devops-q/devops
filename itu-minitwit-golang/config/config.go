@@ -11,12 +11,13 @@ type Config struct {
 	Port        int
 	Environment string
 	PerPage     int
-	
-	DBPath      string
-	DBHost string
-	DBPort int
-	DBUser string
-	DBPass string
+
+	DBEngine string
+	DBPath   string
+	DBHost   string
+	DBPort   int
+	DBUser   string
+	DBPass   string
 }
 
 func LoadConfig() (*Config, error) {
@@ -26,10 +27,11 @@ func LoadConfig() (*Config, error) {
 	config := &Config{}
 
 	config.Port = getEnvAsInt("PORT", 8080)
-	config.DBPath = getEnv("DB_PATH", "database.sqlite")
 	config.Environment = getEnv("ENVIRONMENT", "development")
 	config.PerPage = getEnvAsInt("PER_PAGE", 30)
 
+	config.DBEngine = getEnv("DB_ENGINE", "sqlite")
+	config.DBPath = getEnv("DB_PATH", "database.sqlite")
 	config.DBHost = getEnv("DB_HOST", "localhost")
 	config.DBPort = getEnvAsInt("DB_PORT", 9920)
 	config.DBUser = getEnv("DB_USER", "root")
