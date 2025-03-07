@@ -1,4 +1,11 @@
+
+networks:
+  itu-minitwit-network:
+    external: false
+    name: itu-minitwit-network
+
 services:
+
   app:
     image: ${DOCKER_IMAGE}
     ports:
@@ -12,3 +19,25 @@ services:
         source: /root/data/
         target: /app/data/
         consistency: consistent
+    networks:
+      - itu-minitwit-network
+    depends_on:
+      - grafana
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - itu-minitwit-network
+
+  grafana:
+    image: grafana/grafana:10.2.4
+    ports:
+      - "3000:3000"
+    networks:
+      - itu-minitwit-network
