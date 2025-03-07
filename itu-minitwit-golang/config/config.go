@@ -9,9 +9,14 @@ import (
 
 type Config struct {
 	Port        int
-	DBPath      string
 	Environment string
 	PerPage     int
+	
+	DBPath      string
+	DBHost string
+	DBPort int
+	DBUser string
+	DBPass string
 }
 
 func LoadConfig() (*Config, error) {
@@ -24,6 +29,11 @@ func LoadConfig() (*Config, error) {
 	config.DBPath = getEnv("DB_PATH", "database.sqlite")
 	config.Environment = getEnv("ENVIRONMENT", "development")
 	config.PerPage = getEnvAsInt("PER_PAGE", 30)
+
+	config.DBHost = getEnv("DB_HOST", "localhost")
+	config.DBPort = getEnvAsInt("DB_PORT", 9920)
+	config.DBUser = getEnv("DB_USER", "root")
+	config.DBPass = getEnv("DB_PASS", "root")
 
 	return config, nil
 }
