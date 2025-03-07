@@ -2,12 +2,12 @@ package database
 
 import (
 	"fmt"
-	"gorm.io/gorm/logger"
 	"itu-minitwit/config"
-	"itu-minitwit/internal/models"
 	"log"
 	"os"
 	"strings"
+
+	"gorm.io/gorm/logger"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -44,10 +44,7 @@ func InitSQLiteDb(cfg *config.Config) *gorm.DB {
 	if dbErr != nil {
 		log.Fatalf("Could not connect to database: %v", dbErr)
 	}
-	err := db.AutoMigrate(&models.User{}, &models.Message{}, &models.APIUser{})
-	if err != nil {
-		log.Printf("Error during auto migration: %v", err)
-		panic(err)
-	}
+	AutoMigrate(db)
 	DB = db
+	return DB
 }
