@@ -1,7 +1,7 @@
 package api
 
 import (
-	ginprom "github.com/logocomune/gin-prometheus"
+	"github.com/Depado/ginprom"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/api/handlers"
 	"itu-minitwit/internal/service"
@@ -12,10 +12,12 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, cfg *config.Config) {
-
-	//p := ginprometheus.NewPrometheus("gin")
-
-	r.Use(ginprom.Middleware())
+	p := ginprom.New(
+		ginprom.Engine(r),
+		ginprom.Subsystem("gin"),
+		ginprom.Path("/metrics"),
+	)
+	r.Use(p.Instrument())
 	r.Static("/static", "./web/static")
 	r.LoadHTMLGlob("web/templates/*")
 	r.GET("/register", handlers.RegisterHandler)
@@ -29,7 +31,6 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/:username/unfollow", handlers.UnfollowHandler)
 	r.GET("/logout", handlers.LogoutHandler)
 	r.POST("/add_message", handlers.MessageHandler)
-	r.GET("/metrics", gin.WrapH(ginprom.GetMetricHandler()))
 
 	// API endpoints
 
@@ -42,9 +43,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	}
 
 	apiV1 := r.Group("/api/v1", gin.BasicAuth(apiUsers))
-
 	{
-		apiV1.GET("/metrics", gin.WrapH(ginprom.GetMetricHandler()))
 		apiV1.GET("/latest", handlers.GetLatest)
 		apiV1.POST("/register", handlers.RegisterHandlerAPI)
 		apiV1.GET("/msgs", handlers.MessagesHandlerAPI)
