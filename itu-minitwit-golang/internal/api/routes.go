@@ -27,7 +27,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/metrics", func(c *gin.Context) {
 		handler := promhttp.Handler()
 		handler.ServeHTTP(c.Writer, c.Request)
-	})
+	}) // Tried again?
 
 	r.POST("/add_message", handlers.MessageHandler)
 
