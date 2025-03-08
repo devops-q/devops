@@ -28,7 +28,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/:username/follow", handlers.FollowHandler)
 	r.GET("/:username/unfollow", handlers.UnfollowHandler)
 	r.GET("/logout", handlers.LogoutHandler)
-
+	r.POST("/metrics", p.HandlerFunc())
 	r.POST("/add_message", handlers.MessageHandler)
 
 	// API endpoints
