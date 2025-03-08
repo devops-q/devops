@@ -42,8 +42,8 @@ func main() {
 	r.Use(middlewares.SetDbMiddleware())
 	r.Use(middlewares.SetUserContext())
 	r.Use(middlewares.UpdateLatestMiddleware())
-	r.Use(middlewares.UpdateCPUMetrics())     // Track CPU usage
-	r.Use(middlewares.TrackRequestDuration()) // Track request durations
+	// r.Use(middlewares.UpdateCPUMetrics())     // Track CPU usage
+	// r.Use(middlewares.TrackRequestDuration()) // Track request durations
 	api.SetupRoutes(r, cfg)
 
 	log.Printf("Server starting on port %d", cfg.Port)
