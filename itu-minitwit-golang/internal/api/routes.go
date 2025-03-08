@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/api/handlers"
 	"itu-minitwit/internal/service"
@@ -23,6 +24,10 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/:username/follow", handlers.FollowHandler)
 	r.GET("/:username/unfollow", handlers.UnfollowHandler)
 	r.GET("/logout", handlers.LogoutHandler)
+	r.GET("/metrics", func(c *gin.Context) {
+		handler := promhttp.Handler()
+		handler.ServeHTTP(c.Writer, c.Request)
+	})
 
 	r.POST("/add_message", handlers.MessageHandler)
 
