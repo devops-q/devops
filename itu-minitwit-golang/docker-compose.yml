@@ -1,8 +1,3 @@
-
-networks:
-  itu-minitwit-network:
-    driver: overlay
-
 services:
 
   app:
@@ -18,8 +13,7 @@ services:
         source: /root/data/
         target: /app/data/
         consistency: consistent
-    networks:
-      - itu-minitwit-network
+
     depends_on:
       - grafana
       - prometheus
@@ -30,12 +24,9 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
-    networks:
-      - itu-minitwit-network
+
 
   grafana:
     image: grafana/grafana:10.2.4
     ports:
       - "3000:3000"
-    networks:
-      - itu-minitwit-network
