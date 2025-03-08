@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/mcuadros/go-gin-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/api/handlers"
@@ -12,6 +13,10 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, cfg *config.Config) {
+
+	p := ginprometheus.NewPrometheus("gin")
+
+	p.Use(r)
 	r.Static("/static", "./web/static")
 	r.LoadHTMLGlob("web/templates/*")
 	r.GET("/register", handlers.RegisterHandler)
@@ -24,6 +29,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/:username/follow", handlers.FollowHandler)
 	r.GET("/:username/unfollow", handlers.UnfollowHandler)
 	r.GET("/logout", handlers.LogoutHandler)
+	r.GET("/metrics", p.HandlerFunc()) // This exposes the Prometheus metrics
 
 	r.POST("/add_message", handlers.MessageHandler)
 
