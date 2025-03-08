@@ -21,7 +21,10 @@ services:
   prometheus:
     image: prom/prometheus
     volumes:
-      - ./root/prometheus.yml:/etc/prometheus/prometheus.yml
+        - type: bind
+          source: /root/prometheus.yml
+          target: /etc/prometheus/prometheus.yml
+          consistency: consistent
     ports:
       - "9090:9090"
 
