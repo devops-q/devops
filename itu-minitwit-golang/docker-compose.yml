@@ -1,8 +1,8 @@
 
 networks:
   itu-minitwit-network:
-    external: false
-    name: itu-minitwit-network
+    driver: bridge
+    attachable: true
 
 services:
 
