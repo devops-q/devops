@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/mcuadros/go-gin-prometheus"
+	ginprom "github.com/logocomune/gin-prometheus"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/api/handlers"
 	"itu-minitwit/internal/service"
@@ -13,9 +13,9 @@ import (
 
 func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 
-	p := ginprometheus.NewPrometheus("gin")
+	//p := ginprometheus.NewPrometheus("gin")
 
-	p.Use(r)
+	r.Use(ginprom.Middleware())
 	r.Static("/static", "./web/static")
 	r.LoadHTMLGlob("web/templates/*")
 	r.GET("/register", handlers.RegisterHandler)
@@ -29,6 +29,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/:username/unfollow", handlers.UnfollowHandler)
 	r.GET("/logout", handlers.LogoutHandler)
 	r.POST("/add_message", handlers.MessageHandler)
+	r.GET("/metrics", gin.WrapH(ginprom.GetMetricHandler()))
 
 	// API endpoints
 
