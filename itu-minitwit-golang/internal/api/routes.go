@@ -44,6 +44,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	apiV1 := r.Group("/api/v1", gin.BasicAuth(apiUsers))
 
 	{
+		apiV1.GET("/metrics", gin.WrapH(ginprom.GetMetricHandler()))
 		apiV1.GET("/latest", handlers.GetLatest)
 		apiV1.POST("/register", handlers.RegisterHandlerAPI)
 		apiV1.GET("/msgs", handlers.MessagesHandlerAPI)
