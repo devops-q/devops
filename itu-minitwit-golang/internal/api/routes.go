@@ -28,7 +28,6 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/:username/follow", handlers.FollowHandler)
 	r.GET("/:username/unfollow", handlers.UnfollowHandler)
 	r.GET("/logout", handlers.LogoutHandler)
-	r.GET("/metrics", p.HandlerFunc()) // This exposes the Prometheus metrics
 
 	r.POST("/add_message", handlers.MessageHandler)
 
