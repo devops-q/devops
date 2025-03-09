@@ -18,6 +18,15 @@ resource "digitalocean_database_cluster" "postgres" {
   node_count = 1
 }
 
+resource "digitalocean_database_firewall" "minitwit_app_firewall" {
+  cluster_id = digitalocean_database_cluster.postgres.id
+
+  rule {
+    type  = "droplet"
+    value = digitalocean_droplet.minitwit-vm.id
+  }
+}
+
 resource "digitalocean_database_user" "app_user" {
   cluster_id = digitalocean_database_cluster.postgres.id
   name       = var.db_user
