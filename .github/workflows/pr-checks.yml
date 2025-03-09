@@ -84,5 +84,4 @@ jobs:
             -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
             -var="api_user=${{ secrets.API_USER }}" \
             -var="api_password=${{ secrets.API_PASSWORD }}" \
-            -var="db_name=${{ vars.DB_NAME }}" \
-            -var="db_user=${{ vars.DB_USER }}"
+            -var="db_name=${{ vars.DB_NAME }}"
