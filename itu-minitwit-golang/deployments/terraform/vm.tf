@@ -1,13 +1,3 @@
-variable "ghcr_username" {
-  type        = string
-  description = "GitHub Container Registry username"
-}
-
-variable "ghcr_token" {
-  type        = string
-  description = "GitHub Container Registry authentication token"
-}
-
 variable "api_user" {
   type        = string
   description = "Initial API user to be created"
@@ -27,10 +17,13 @@ resource "digitalocean_droplet" "minitwit-vm" {
     data.digitalocean_ssh_key.terraform.id
   ]
   user_data = templatefile("./files/init_script.sh", {
-    GHCR_USERNAME = var.ghcr_username
-    GHCR_TOKEN    = var.ghcr_token
-    API_USER      = var.api_user
-    API_PASSWORD  = var.api_password
+    API_USER     = var.api_user
+    API_PASSWORD = var.api_password
+    DB_HOST      = digitalocean_database_cluster.postgres.private_host
+    DB_USER      = digitalocean_database_user.app_user.name
+    DB_PASSWORD  = digitalocean_database_user.app_user.password
+    DB_NAME      = digitalocean_database_db.app_db.name
+    DB_PORT      = digitalocean_database_cluster.postgres.port
   })
 }
 

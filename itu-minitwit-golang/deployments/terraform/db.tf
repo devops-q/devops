@@ -42,4 +42,5 @@ output "db_user" {
 
 output "db_password" {
   value = digitalocean_database_user.app_user.password
+  sensitive = true
 }
