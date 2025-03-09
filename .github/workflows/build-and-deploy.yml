@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - feat/database
 
 permissions:
   id-token: write
@@ -18,7 +19,7 @@ jobs:
     steps:
       - name: Set environment
         id: set-env
-        run: echo "env=$(if [ ${{ github.ref }} == 'refs/heads/main' ]; then echo 'PROD'; else echo 'DEV'; fi)" >> $GITHUB_ENV
+        run: echo "env=$(if [ ${{ github.ref }} == 'refs/heads/main' ]; then echo 'PROD'; else echo 'DEV_DEBUG'; fi)" >> $GITHUB_ENV
     outputs:
       env: ${{ env.env }}
   build:
