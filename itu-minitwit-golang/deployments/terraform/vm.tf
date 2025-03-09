@@ -20,8 +20,8 @@ resource "digitalocean_droplet" "minitwit-vm" {
     API_USER     = var.api_user
     API_PASSWORD = var.api_password
     DB_HOST      = digitalocean_database_cluster.postgres.private_host
-    DB_USER      = digitalocean_database_user.app_user.name
-    DB_PASSWORD  = digitalocean_database_user.app_user.password
+    DB_USER      = digitalocean_database_cluster.postgres.user
+    DB_PASSWORD  = digitalocean_database_cluster.postgres.password
     DB_NAME      = digitalocean_database_db.app_db.name
     DB_PORT      = digitalocean_database_cluster.postgres.port
   })

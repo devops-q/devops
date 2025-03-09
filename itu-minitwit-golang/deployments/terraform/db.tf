@@ -3,12 +3,6 @@ variable "db_name" {
   description = "The name of the PostgreSQL database"
 }
 
-variable "db_user" {
-  type        = string
-  description = "The username for the PostgreSQL database"
-}
-
-
 resource "digitalocean_database_cluster" "postgres" {
   name       = "minitwit-db"
   engine     = "pg"
@@ -27,11 +21,6 @@ resource "digitalocean_database_firewall" "minitwit_app_firewall" {
   }
 }
 
-resource "digitalocean_database_user" "app_user" {
-  cluster_id = digitalocean_database_cluster.postgres.id
-  name       = var.db_user
-}
-
 resource "digitalocean_database_db" "app_db" {
   cluster_id = digitalocean_database_cluster.postgres.id
   name       = var.db_name
@@ -46,10 +35,10 @@ output "db_port" {
 }
 
 output "db_user" {
-  value = digitalocean_database_user.app_user.name
+  value = digitalocean_database_cluster.postgres.user
 }
 
 output "db_password" {
-  value = digitalocean_database_user.app_user.password
+  value     = digitalocean_database_cluster.postgres.password
   sensitive = true
 }
