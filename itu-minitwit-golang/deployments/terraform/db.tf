@@ -8,10 +8,6 @@ variable "db_user" {
   description = "The username for the PostgreSQL database"
 }
 
-variable "db_password" {
-  type        = string
-  description = "The password for the PostgreSQL database"
-}
 
 resource "digitalocean_database_cluster" "postgres" {
   name       = "minitwit-db"
@@ -25,7 +21,6 @@ resource "digitalocean_database_cluster" "postgres" {
 resource "digitalocean_database_user" "app_user" {
   cluster_id = digitalocean_database_cluster.postgres.id
   name       = var.db_user
-  password   = var.db_password
 }
 
 resource "digitalocean_database_db" "app_db" {
@@ -39,4 +34,12 @@ output "db_private_host" {
 
 output "db_port" {
   value = digitalocean_database_cluster.postgres.port
+}
+
+output "db_user" {
+  value = digitalocean_database_user.app_user.name
+}
+
+output "db_password" {
+  value = digitalocean_database_user.app_user.password
 }

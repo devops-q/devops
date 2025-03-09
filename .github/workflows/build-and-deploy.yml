@@ -94,14 +94,19 @@ jobs:
             -var="api_user=${{ secrets.API_USER }}" \
             -var="api_password=${{ secrets.API_PASSWORD }}" \
             -var="db_name=${{ vars.DB_NAME }}" \
-            -var="db_user=${{ vars.DB_USER }}" \
-            -var="db_password=${{ secrets.DB_PASSWORD }}"
+            -var="db_user=${{ vars.DB_USER }}"
+          
           ip_address=$(terraform output -raw ip_address)
           db_host=$(terraform output -raw db_private_host)
           db_port=$(terraform output -raw db_port)
+          db_password=$(terraform output -raw db_password)
+          
+          echo "::add-mask::$db_password" # Mask the password
+          
           echo "ip_address=$ip_address" >> $GITHUB_ENV
           echo "db_host=$db_host" >> $GITHUB_ENV
           echo "db_port=$db_port" >> $GITHUB_ENV
+          echo "db_password=$db_password" >> $GITHUB_ENV
         working-directory: ./itu-minitwit-golang/deployments/terraform
 
       - name: Check user_data script completion
@@ -128,7 +133,7 @@ jobs:
           echo "DOCKER_IMAGE=ghcr.io/${{ github.repository_owner }}/itu-minitwit-golang:${{ needs.build.outputs.short_sha }}" > ./envfile
           echo "DB_HOST=${{ env.db_host }}" >> ./envfile
           echo "DB_USER=${{ vars.DB_USER }}" >> ./envfile
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ./envfile
+          echo "DB_PASSWORD=${{ env.db_password }}" >> ./envfile
           echo "DB_NAME=${{ vars.DB_NAME }}" >> ./envfile
           echo "DB_PORT=${{ env.db_port }}" >> ./envfile
       - name: Docker Stack Deploy
