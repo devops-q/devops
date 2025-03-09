@@ -2,6 +2,7 @@ services:
 
   app:
     image: ${DOCKER_IMAGE}
+
     ports:
       - "80:80"
     environment:
@@ -21,15 +22,22 @@ services:
   prometheus:
     image: prom/prometheus
     volumes:
-        - type: bind
-          source: /root/prometheus.yml
-          target: /etc/prometheus/prometheus.yml
-          consistency: consistent
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
     ports:
       - "9090:9090"
 
 
   grafana:
-    image: grafana/grafana:10.2.4
+    image: grafana/grafana
+    container_name: grafana
     ports:
       - "3000:3000"
+    volumes:
+      - ./provisioning:/etc/grafana/provisioning  # Mount provisioning folder
+      - grafana-data:/var/lib/grafana  # Persist Grafana data (dashboards, users, etc.)
+    restart: always
+
+volumes:
+    grafana-data:  # Define the volume for Grafana data
+    prometheus-data:
