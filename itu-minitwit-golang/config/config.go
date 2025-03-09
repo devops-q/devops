@@ -17,6 +17,7 @@ type Config struct {
 	DBPassword string
 	DBName     string
 	DBPort     string
+	DBSSLMode  string
 }
 
 func LoadConfig() (*Config, error) {
@@ -34,6 +35,7 @@ func LoadConfig() (*Config, error) {
 	config.DBPassword = mustGetEnv("DB_PASSWORD")
 	config.DBName = mustGetEnv("DB_NAME")
 	config.DBPort = mustGetEnv("DB_PORT")
+	config.DBSSLMode = getEnv("DB_SSL_MODE", "disable")
 
 	return config, nil
 }
