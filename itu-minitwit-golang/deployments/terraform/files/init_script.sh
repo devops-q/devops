@@ -16,9 +16,10 @@ docker run -e DB_HOST=${DB_HOST} \
  -e DB_PASSWORD=${DB_PASSWORD} \
  -e DB_NAME=${DB_NAME} \
  -e DB_PORT=${DB_PORT} \
- ghcr.io/devops-q/itu-minitwit-create-api-user:c1960e /app/create_api_user \
- -username=${API_USER} \
- -password=${API_PASSWORD}
+ -e DB_SSL_MODE=require \
+ -e API_USER=${API_USER} \
+ -e API_PASSWORD=${API_PASSWORD} \
+ ghcr.io/devops-q/itu-minitwit-create-api-user:dec2f8
 
 
 echo "Finished running minitwit init script"
