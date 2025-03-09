@@ -85,4 +85,7 @@ jobs:
             -var="ghcr_username=${{ github.GHCR_PAT_USERNAME }}" \
             -var="ghcr_token=${{ secrets.GHCR_PAT_TOKEN }}" \
             -var="api_user=${{ secrets.API_USER }}" \
-            -var="api_password=${{ secrets.API_PASSWORD }}"
+            -var="api_password=${{ secrets.API_PASSWORD }}" \
+            -var="db_name=${{ vars.DB_NAME }}" \
+            -var="db_user=${{ vars.DB_USER }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}"

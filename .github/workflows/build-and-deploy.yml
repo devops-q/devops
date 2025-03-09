@@ -92,9 +92,16 @@ jobs:
             -var="ghcr_username=${{ secrets.GHCR_PAT_USERNAME }}" \
             -var="ghcr_token=${{ secrets.GHCR_PAT_TOKEN }}" \
             -var="api_user=${{ secrets.API_USER }}" \
-            -var="api_password=${{ secrets.API_PASSWORD }}"
+            -var="api_password=${{ secrets.API_PASSWORD }}" \
+            -var="db_name=${{ vars.DB_NAME }}" \
+            -var="db_user=${{ vars.DB_USER }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}"
           ip_address=$(terraform output -raw ip_address)
+          db_host=$(terraform output -raw db_private_host)
+          db_port=$(terraform output -raw db_port)
           echo "ip_address=$ip_address" >> $GITHUB_ENV
+          echo "db_host=$db_host" >> $GITHUB_ENV
+          echo "db_port=$db_port" >> $GITHUB_ENV
         working-directory: ./itu-minitwit-golang/deployments/terraform
 
       - name: Check user_data script completion
@@ -119,6 +126,11 @@ jobs:
       - name: Create env file
         run: |
           echo "DOCKER_IMAGE=ghcr.io/${{ github.repository_owner }}/itu-minitwit-golang:${{ needs.build.outputs.short_sha }}" > ./envfile
+          echo "DB_HOST=${{ env.db_host }}" >> ./envfile
+          echo "DB_USER=${{ vars.DB_USER }}" >> ./envfile
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ./envfile
+          echo "DB_NAME=${{ vars.DB_NAME }}" >> ./envfile
+          echo "DB_PORT=${{ env.db_port }}" >> ./envfile
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1
         with:

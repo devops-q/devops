@@ -6,14 +6,13 @@ services:
       - "80:80"
     environment:
       - PORT=80
-      - DB_PATH=/app/data/database.sqlite
       - ENVIRONMENT=production
       - GIN_MODE=release
-    volumes:
-      - type: bind
-        source: /root/data/
-        target: /app/data/
-        consistency: consistent
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
 
     depends_on:
       - grafana

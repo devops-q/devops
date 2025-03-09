@@ -33,8 +33,8 @@ resource "digitalocean_database_db" "app_db" {
   name       = var.db_name
 }
 
-output "db_host" {
-  value = digitalocean_database_cluster.postgres.host
+output "db_private_host" {
+  value = digitalocean_database_cluster.postgres.private_host
 }
 
 output "db_port" {
