@@ -35,7 +35,11 @@ services:
       - "3000:3000"
     volumes:
         - type: bind
-          source: /root/grafana
+          source: /root/grafana/dashboards
           target: /etc/grafana/provisioning
+          consistency: consistent
+        - type: bind
+          source: /root/grafana/datasources
+          target: /etc/grafana/provisioning/datasources
           consistency: consistent
 
