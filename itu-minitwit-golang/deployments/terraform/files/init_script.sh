@@ -2,6 +2,11 @@
 # Initialize Docker Swarm with advertise address
 docker swarm init --advertise-addr $(hostname -I | awk '{print $1}')
 
+
+# Allow ssh traffic on port 22
+sudo ufw allow 22/tcp
+sudo ufw allow 22
+
 # Create directory /root/data
 mkdir -p /root/data
 
