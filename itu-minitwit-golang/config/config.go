@@ -9,9 +9,14 @@ import (
 
 type Config struct {
 	Port        int
-	DBPath      string
 	Environment string
 	PerPage     int
+
+	DBHost     string
+	DBUser     string
+	DBPassword string
+	DBName     string
+	DBPort     string
 }
 
 func LoadConfig() (*Config, error) {
@@ -21,9 +26,14 @@ func LoadConfig() (*Config, error) {
 	config := &Config{}
 
 	config.Port = getEnvAsInt("PORT", 8080)
-	config.DBPath = getEnv("DB_PATH", "database.sqlite")
 	config.Environment = getEnv("ENVIRONMENT", "development")
 	config.PerPage = getEnvAsInt("PER_PAGE", 30)
+
+	config.DBHost = mustGetEnv("DB_HOST")
+	config.DBUser = mustGetEnv("DB_USER")
+	config.DBPassword = mustGetEnv("DB_PASSWORD")
+	config.DBName = mustGetEnv("DB_NAME")
+	config.DBPort = mustGetEnv("DB_PORT")
 
 	return config, nil
 }
@@ -33,6 +43,15 @@ func getEnv(key string, defaultVal string) string {
 		return value
 	}
 	return defaultVal
+}
+
+func mustGetEnv(key string) string {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		panic("Environment variable " + key + " not set")
+	}
+
+	return value
 }
 
 func getEnvAsInt(key string, defaultVal int) int {
