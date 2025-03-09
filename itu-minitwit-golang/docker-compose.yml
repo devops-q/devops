@@ -8,6 +8,7 @@ services:
       - PORT=80
       - DB_PATH=/app/data/database.sqlite
       - ENVIRONMENT=production
+      - GIN_MODE=release
     volumes:
       - type: bind
         source: /root/data/
