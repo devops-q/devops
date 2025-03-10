@@ -82,7 +82,6 @@ jobs:
           terraform plan \
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
             -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
-            -var="ghcr_username=${{ github.GHCR_PAT_USERNAME }}" \
-            -var="ghcr_token=${{ secrets.GHCR_PAT_TOKEN }}" \
             -var="api_user=${{ secrets.API_USER }}" \
-            -var="api_password=${{ secrets.API_PASSWORD }}"
+            -var="api_password=${{ secrets.API_PASSWORD }}" \
+            -var="db_name=${{ vars.DB_NAME }}"

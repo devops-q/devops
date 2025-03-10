@@ -89,12 +89,23 @@ jobs:
           terraform apply -auto-approve \
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
             -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
-            -var="ghcr_username=${{ secrets.GHCR_PAT_USERNAME }}" \
-            -var="ghcr_token=${{ secrets.GHCR_PAT_TOKEN }}" \
             -var="api_user=${{ secrets.API_USER }}" \
-            -var="api_password=${{ secrets.API_PASSWORD }}"
+            -var="api_password=${{ secrets.API_PASSWORD }}" \
+            -var="db_name=${{ vars.DB_NAME }}"
+          
           ip_address=$(terraform output -raw ip_address)
+          db_host=$(terraform output -raw db_private_host)
+          db_port=$(terraform output -raw db_port)
+          db_user=$(terraform output -raw db_user)
+          db_password=$(terraform output -raw db_password)
+          
+          echo "::add-mask::$db_password" # Mask the password
+          
           echo "ip_address=$ip_address" >> $GITHUB_ENV
+          echo "db_host=$db_host" >> $GITHUB_ENV
+          echo "db_port=$db_port" >> $GITHUB_ENV
+          echo "db_user=$db_user" >> $GITHUB_ENV
+          echo "db_password=$db_password" >> $GITHUB_ENV
         working-directory: ./itu-minitwit-golang/deployments/terraform
 
       - name: Check user_data script completion
@@ -119,6 +130,11 @@ jobs:
       - name: Create env file
         run: |
           echo "DOCKER_IMAGE=ghcr.io/${{ github.repository_owner }}/itu-minitwit-golang:${{ needs.build.outputs.short_sha }}" > ./envfile
+          echo "DB_HOST=${{ env.db_host }}" >> ./envfile
+          echo "DB_USER=${{ env.db_user }}" >> ./envfile
+          echo "DB_PASSWORD=${{ env.db_password }}" >> ./envfile
+          echo "DB_NAME=${{ vars.DB_NAME }}" >> ./envfile
+          echo "DB_PORT=${{ env.db_port }}" >> ./envfile
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1
         with:
@@ -128,10 +144,6 @@ jobs:
           user: root
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           env_file: ./itu-minitwit-golang/envfile
-          registry_auth: true
-          registry_host: ghcr.io
-          registry_user: ${{ github.actor }}
-          registry_pass: ${{ secrets.GITHUB_TOKEN }}
 
   create-release:
     runs-on: ubuntu-latest
