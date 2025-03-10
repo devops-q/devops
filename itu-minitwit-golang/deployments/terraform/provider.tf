@@ -58,7 +58,6 @@ resource "grafana_folder" "my_folder" {
 }
 
 resource "grafana_dashboard" "test_folder" {
-  org_id = grafana_organization.my_org.org_id
   folder = grafana_folder.my_folder.id
   config_json = jsonencode({
     "annotations": {
