@@ -13,37 +13,30 @@ mkdir -p /root/data
 # Create and populate the
 mkdir -p /root/prometheus
 
-touch /root/prometheus
+cat <<EOF > /root/prometheus/prometheus.yml
+global:
+  scrape_interval: 15s  # By default, scrape targets every 15 seconds.
+  evaluation_interval: 15s  # Evaluate rules every 15 seconds.
+  # Attach these extra labels to all timeseries collected by this Prometheus instance.
+  external_labels:
+    monitor: 'codelab-monitor'
 
-echo "global:
-        scrape_interval:     15s # By default, scrape targets every 15 seconds.
-        evaluation_interval: 15s # Evaluate rules every 15 seconds.
+rule_files:
+  - 'prometheus.rules.yml'
 
-        # Attach these extra labels to all timeseries collected by this Prometheus instance.
-        external_labels:
-          monitor: 'codelab-monitor'
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s  # Scrape targets every 5 seconds for this job.
+    static_configs:
+      - targets: ['prometheus:9090']
 
-      rule_files:
-        - 'prometheus.rules.yml'
-
-      scrape_configs:
-        - job_name: 'prometheus'
-
-          # Override the global default and scrape targets from this job every 5 seconds.
-          scrape_interval: 5s
-
-          static_configs:
-            - targets: ['prometheus:9090']
-
-        - job_name:       'itu-minitwit-app'
-
-          # Override the global default and scrape targets from this job every 5 seconds.
-          scrape_interval: 5s
-
-          static_configs:
-            - targets: ['app:80']
-              labels:
-                group: 'production'" > /root/prometheus
+  - job_name: 'itu-minitwit-app'
+    scrape_interval: 5s  # Scrape targets every 5 seconds for this job.
+    static_configs:
+      - targets: ['app:80']
+        labels:
+          group: 'production'
+EOF
 
 # Pull and run the Docker container for creating api user
 docker run -e DB_HOST=${DB_HOST} \
