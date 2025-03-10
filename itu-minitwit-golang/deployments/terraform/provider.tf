@@ -42,9 +42,9 @@ data "digitalocean_ssh_key" "terraform" {
 }
 
 
+
 provider "grafana" {
-  url  = "http://164.90.242.193:3000"
+  url  = "http://${digitalocean_floating_ip.ip.ip_address}:3000"
   auth = "admin:admin"
 }
-
 
