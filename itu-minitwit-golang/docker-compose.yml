@@ -34,13 +34,3 @@ services:
     image: grafana/grafana
     ports:
       - "3000:3000"
-    volumes:
-        - type: bind
-          source: /root/grafana/dashboards
-          target: /etc/grafana/provisioning/dashboards
-          consistency: consistent
-        - type: bind
-          source: /root/grafana/datasources
-          target: /etc/grafana/provisioning/datasources
-          consistency: consistent
-
