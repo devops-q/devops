@@ -23,8 +23,18 @@ func GetApiUsers(db *gorm.DB) (gin.Accounts, error) {
 }
 
 func CreateApiUser(db *gorm.DB, username, password string) (bool, error) {
+	// Check if the user already exists
+	var existingUser models.APIUser
+	if err := db.Where("username = ?", username).First(&existingUser).Error; err == nil {
+		// User already exists
+		return false, nil
+	}
+
+	// If no existing user, create a new one
 	if err := db.Create(&models.APIUser{Username: username, Password: password}).Error; err != nil {
 		return false, err
 	}
+
+	// Successfully created the user
 	return true, nil
 }
