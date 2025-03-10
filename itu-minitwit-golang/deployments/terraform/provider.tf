@@ -46,8 +46,9 @@ data "digitalocean_reserved_ip" "terraform" {
   ip_address = var.do_float_ip
 }
 
+
 provider "grafana" {
-  url  = "http://${var.do_float_ip}:3000"
+  url  = "http://${data.digitalocean_reserved_ip.terraform.id}:3000"
   auth = "admin:admin"
 }
 
