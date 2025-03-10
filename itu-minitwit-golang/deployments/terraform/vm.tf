@@ -35,7 +35,7 @@ resource "digitalocean_floating_ip" "ip" {
 output "ip_address" {
   value = trimspace(digitalocean_floating_ip.ip.ip_address)
 }
-
+/**
 resource "grafana_folder" "my_folder" {
   title  = "grafana_dashboard_folder"
 }
@@ -255,3 +255,5 @@ resource "grafana_dashboard" "grafana_dashboard_folder" {
     "weekStart": ""
   })
 }
+
+ */
