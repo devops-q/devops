@@ -31,6 +31,8 @@ terraform {
 variable "do_token" {}
 variable "do_ssh_key_name" {}
 
+variable "do_float_ip" {}
+
 provider "digitalocean" {
   token = var.do_token
 }
@@ -39,12 +41,14 @@ data "digitalocean_ssh_key" "terraform" {
   name = var.do_ssh_key_name
 }
 
-
+data "digitalocean_reserved_ip" "terraform" {
+  ip_address = var.do_float_ip
+}
 
 
 
 provider "grafana" {
-  url  = "http://${digitalocean_floating_ip}:3000"
+  url  = "http://${data.digitalocean_reserved_ip.terraform.ip_address}:3000"
   auth = "admin:admin"
 }
 
