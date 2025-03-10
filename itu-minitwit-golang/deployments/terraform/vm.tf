@@ -69,7 +69,7 @@ resource "grafana_dashboard" "grafana_dashboard_folder" {
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "b957054d-2c8d-403e-95ef-49a1aea7f57b"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -148,7 +148,7 @@ resource "grafana_dashboard" "grafana_dashboard_folder" {
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "Prometheus"
+              "uid": "prometheus"
             },
             "disableTextWrap": false,
             "editorMode": "builder",
@@ -168,7 +168,7 @@ resource "grafana_dashboard" "grafana_dashboard_folder" {
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "Prometheus"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -219,7 +219,7 @@ resource "grafana_dashboard" "grafana_dashboard_folder" {
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "Prometheus"
+              "uid": "prometheus"
             },
             "disableTextWrap": false,
             "editorMode": "builder",

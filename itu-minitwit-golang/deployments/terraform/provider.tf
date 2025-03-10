@@ -41,10 +41,14 @@ data "digitalocean_ssh_key" "terraform" {
   name = var.do_ssh_key_name
 }
 
-
-provider "grafana" {
-  url  = "http://164.90.242.193:3000"
-  auth = "admin:admin"
+resource "digitalocean_floating_ip" "ip" {
+  droplet_id = digitalocean_droplet.minitwit-vm.id
+  region     = digitalocean_droplet.minitwit-vm.region
 }
 
+
+provider "grafana" {
+  url  = "http://${digitalocean_floating_ip.ip.ip_address}:3000"
+  auth = "admin:admin"
+}
 
