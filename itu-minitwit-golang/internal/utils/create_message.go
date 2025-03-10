@@ -7,12 +7,10 @@ import (
 	"gorm.io/gorm"
 )
 
-
 func AddMessage(ctx *gin.Context, text string) (created bool) {
 
-		user := GetUserFomContext(ctx)
-		db := ctx.MustGet("DB").(*gorm.DB)
-
+	user := GetUserFomContext(ctx)
+	db := ctx.MustGet("DB").(*gorm.DB)
 
 	newMessage := &models.Message{
 		AuthorID: user.ID,
@@ -21,11 +19,6 @@ func AddMessage(ctx *gin.Context, text string) (created bool) {
 		Flagged:  false,
 	}
 
-	if (db.Create(&newMessage) != nil) {
-		return true
-	} else {
-		return false
-	}
-
+	return db.Create(&newMessage) != nil
 
 }

@@ -1,14 +1,46 @@
 services:
+
   app:
-    image: ghcr.io/alin-plamadeala/itu-minitwit-golang:c46d64
+    image: ${DOCKER_IMAGE}
     ports:
       - "80:80"
     environment:
       - PORT=80
-      - DB_PATH=/app/data/database.sqlite
       - ENVIRONMENT=production
+      - GIN_MODE=release
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - DB_SSL_MODE=require
+
+    depends_on:
+      - grafana
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus
     volumes:
       - type: bind
-        source: /root/data/
-        target: /app/data/
+        source: /root/prometheus/
+        target: /etc/prometheus/
         consistency: consistent
+    ports:
+      - "9090:9090"
+
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+        - type: bind
+          source: /root/grafana/dashboards
+          target: /etc/grafana/provisioning/dashboards
+          consistency: consistent
+        - type: bind
+          source: /root/grafana/datasources
+          target: /etc/grafana/provisioning/datasources
+          consistency: consistent
+

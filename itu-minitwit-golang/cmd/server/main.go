@@ -42,7 +42,6 @@ func main() {
 	r.Use(middlewares.SetDbMiddleware())
 	r.Use(middlewares.SetUserContext())
 	r.Use(middlewares.UpdateLatestMiddleware())
-
 	api.SetupRoutes(r, cfg)
 
 	log.Printf("Server starting on port %d", cfg.Port)

@@ -99,5 +99,5 @@ docker context use digitalocean
 2. Deploy the application:
 
 ```shell
-docker stack deploy -c docker-compose.yml itu-minitwit
+DOCKER_IMAGE=<image> docker stack deploy -c docker-compose.yml itu-minitwit
 ```
