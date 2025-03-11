@@ -38,6 +38,7 @@ func main() {
 		"FormatDateTime": utils.FormatDateTime,
 	})
 
+	r.Use(middlewares.PrometheusMiddleware(r).Instrument())
 	r.Use(middlewares.SetConfigMiddleware(cfg))
 	r.Use(middlewares.SetDbMiddleware())
 	r.Use(middlewares.SetUserContext())

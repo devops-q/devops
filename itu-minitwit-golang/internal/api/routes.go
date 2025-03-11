@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/Depado/ginprom"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/api/handlers"
 	"itu-minitwit/internal/service"
@@ -12,12 +11,7 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, cfg *config.Config) {
-	p := ginprom.New(
-		ginprom.Engine(r),
-		ginprom.Subsystem("gin"),
-		ginprom.Path("/metrics"),
-	)
-	r.Use(p.Instrument())
+
 	r.Static("/static", "./web/static")
 	r.LoadHTMLGlob("web/templates/*")
 	r.GET("/register", handlers.RegisterHandler)
@@ -31,7 +25,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/:username/unfollow", handlers.UnfollowHandler)
 	r.GET("/logout", handlers.LogoutHandler)
 	r.POST("/add_message", handlers.MessageHandler)
-
+	// /metrics is also available through ginprom pkg
 	// API endpoints
 
 	db := database.DB
