@@ -13,7 +13,7 @@ resource "grafana_data_source" "prometheus" {
   name                = "mimir"
   url                 = "https://prometheus:9090"
   basic_auth_enabled  = true
-  basic_auth_username = "username"
+  basic_auth_username = "admin"
 
   json_data_encoded = jsonencode({
     httpMethod        = "POST"
