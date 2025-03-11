@@ -21,6 +21,8 @@ resource "grafana_data_source" "prometheus" {
     prometheusVersion = "2.4.0"
   })
 
+  uid = "prometheus"
+
   secure_json_data_encoded = jsonencode({
     basicAuthPassword = "admin"
   })
@@ -87,7 +89,7 @@ resource "grafana_dashboard" "grafana_dashboard_folder" {
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus"
+          "uid": grafana_data_source.prometheus.uid
         },
         "fieldConfig": {
           "defaults": {
@@ -166,7 +168,7 @@ resource "grafana_dashboard" "grafana_dashboard_folder" {
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "prometheus"
+              "uid": grafana_data_source.prometheus.uid
             },
             "disableTextWrap": false,
             "editorMode": "builder",
@@ -237,7 +239,7 @@ resource "grafana_dashboard" "grafana_dashboard_folder" {
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "prometheus"
+              "uid": grafana_data_source.prometheus.uid
             },
             "disableTextWrap": false,
             "editorMode": "builder",
