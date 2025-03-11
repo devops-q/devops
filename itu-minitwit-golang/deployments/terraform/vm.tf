@@ -8,6 +8,24 @@ variable "api_password" {
   description = "API password for the initial user"
 }
 
+resource "grafana_data_source" "prometheus" {
+  type                = "prometheus"
+  name                = "mimir"
+  url                 = "https://prometheus:9090"
+  basic_auth_enabled  = true
+  basic_auth_username = "admin"
+
+  json_data_encoded = jsonencode({
+    httpMethod        = "POST"
+    prometheusType    = "Mimir"
+    prometheusVersion = "2.4.0"
+  })
+
+  secure_json_data_encoded = jsonencode({
+    basicAuthPassword = "admin"
+  })
+}
+
 resource "digitalocean_droplet" "minitwit-vm" {
   image  = "docker-20-04"
   name   = "minitwit-vm"
