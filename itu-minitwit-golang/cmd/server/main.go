@@ -38,11 +38,11 @@ func main() {
 		"FormatDateTime": utils.FormatDateTime,
 	})
 
+	r.Use(middlewares.PrometheusMiddleware(r).Instrument())
 	r.Use(middlewares.SetConfigMiddleware(cfg))
 	r.Use(middlewares.SetDbMiddleware())
 	r.Use(middlewares.SetUserContext())
 	r.Use(middlewares.UpdateLatestMiddleware())
-
 	api.SetupRoutes(r, cfg)
 
 	log.Printf("Server starting on port %d", cfg.Port)

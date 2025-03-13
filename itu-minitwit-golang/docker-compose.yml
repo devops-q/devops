@@ -1,14 +1,48 @@
 services:
+
   app:
     image: ${DOCKER_IMAGE}
     ports:
       - "80:80"
     environment:
       - PORT=80
-      - DB_PATH=/app/data/database.sqlite
       - ENVIRONMENT=production
+      - GIN_MODE=release
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - DB_SSL_MODE=require
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:80/api/v1/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  prometheus:
+    image: prom/prometheus
     volumes:
       - type: bind
-        source: /root/data/
-        target: /app/data/
+        source: /root/prometheus/
+        target: /etc/prometheus/
         consistency: consistent
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.config.file=/etc/prometheus/web.yml'
+    ports:
+      - "9090:9090"
+
+
+  grafana:
+    image: grafana/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ROOT_PASSWORD}
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 3

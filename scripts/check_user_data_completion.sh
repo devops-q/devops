@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-timeout=180
+timeout=360
 elapsed=0
 while ! grep -q "Finished running minitwit init script" /var/log/cloud-init-output.log; do
   if [ $elapsed -ge $timeout ]; then

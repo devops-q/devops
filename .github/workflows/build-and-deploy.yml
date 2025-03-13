@@ -67,6 +67,7 @@ jobs:
       - get-env
     environment: ${{ needs.get-env.outputs.env }}
     env:
+      PROMETHEUS_ROOT_PASSWORD: ${{ secrets.PROMETHEUS_ROOT_PASSWORD }}
       TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -80,22 +81,35 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform init
+      - name: Terraform init infrastructure
         run: terraform init
-        working-directory: ./itu-minitwit-golang/deployments/terraform
+        working-directory: ./itu-minitwit-golang/deployments/terraform/infrastructure
 
-      - name: Terraform apply
+      - name: Terraform apply infrastructure
         run: |
           terraform apply -auto-approve \
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
             -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
-            -var="ghcr_username=${{ secrets.GHCR_PAT_USERNAME }}" \
-            -var="ghcr_token=${{ secrets.GHCR_PAT_TOKEN }}" \
             -var="api_user=${{ secrets.API_USER }}" \
-            -var="api_password=${{ secrets.API_PASSWORD }}"
+            -var="api_password=${{ secrets.API_PASSWORD }}" \
+            -var="db_name=${{ vars.DB_NAME }}" \
+            -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
+            -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
+          
           ip_address=$(terraform output -raw ip_address)
+          db_host=$(terraform output -raw db_private_host)
+          db_port=$(terraform output -raw db_port)
+          db_user=$(terraform output -raw db_user)
+          db_password=$(terraform output -raw db_password)
+          
+          echo "::add-mask::$db_password" # Mask the password
+          
           echo "ip_address=$ip_address" >> $GITHUB_ENV
-        working-directory: ./itu-minitwit-golang/deployments/terraform
+          echo "db_host=$db_host" >> $GITHUB_ENV
+          echo "db_port=$db_port" >> $GITHUB_ENV
+          echo "db_user=$db_user" >> $GITHUB_ENV
+          echo "db_password=$db_password" >> $GITHUB_ENV
+        working-directory: ./itu-minitwit-golang/deployments/terraform/infrastructure
 
       - name: Check user_data script completion
         working-directory: ./scripts
@@ -119,6 +133,12 @@ jobs:
       - name: Create env file
         run: |
           echo "DOCKER_IMAGE=ghcr.io/${{ github.repository_owner }}/itu-minitwit-golang:${{ needs.build.outputs.short_sha }}" > ./envfile
+          echo "DB_HOST=${{ env.db_host }}" >> ./envfile
+          echo "DB_USER=${{ env.db_user }}" >> ./envfile
+          echo "DB_PASSWORD=${{ env.db_password }}" >> ./envfile
+          echo "DB_NAME=${{ vars.DB_NAME }}" >> ./envfile
+          echo "DB_PORT=${{ env.db_port }}" >> ./envfile
+          echo "GRAFANA_ROOT_PASSWORD=${{ secrets.GRAFANA_ROOT_PASSWORD }}" >> ./envfile
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1
         with:
@@ -128,10 +148,19 @@ jobs:
           user: root
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           env_file: ./itu-minitwit-golang/envfile
-          registry_auth: true
-          registry_host: ghcr.io
-          registry_user: ${{ github.actor }}
-          registry_pass: ${{ secrets.GITHUB_TOKEN }}
+          detach: false
+      - name: Terraform init observability
+        run: terraform init
+        working-directory: ./itu-minitwit-golang/deployments/terraform/observability
+
+      - name: Terraform apply observability
+        run: |
+          terraform apply -auto-approve \
+            -var="vm_ip_address=${{ env.ip_address }}" \
+            -var="grafana_root_password=${{ secrets.GRAFANA_ROOT_PASSWORD }}" \
+            -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
+            -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
+        working-directory: ./itu-minitwit-golang/deployments/terraform/observability
 
   create-release:
     runs-on: ubuntu-latest

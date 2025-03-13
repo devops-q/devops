@@ -11,6 +11,7 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, cfg *config.Config) {
+
 	r.Static("/static", "./web/static")
 	r.LoadHTMLGlob("web/templates/*")
 	r.GET("/register", handlers.RegisterHandler)
@@ -23,9 +24,8 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.GET("/:username/follow", handlers.FollowHandler)
 	r.GET("/:username/unfollow", handlers.UnfollowHandler)
 	r.GET("/logout", handlers.LogoutHandler)
-
 	r.POST("/add_message", handlers.MessageHandler)
-
+	// /metrics is also available through ginprom pkg
 	// API endpoints
 
 	db := database.DB
@@ -36,8 +36,9 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 		panic(err)
 	}
 
-	apiV1 := r.Group("/api/v1", gin.BasicAuth(apiUsers))
+	r.GET("/api/v1/health", handlers.HealthHandlerAPI)
 
+	apiV1 := r.Group("/api/v1", gin.BasicAuth(apiUsers))
 	{
 		apiV1.GET("/latest", handlers.GetLatest)
 		apiV1.POST("/register", handlers.RegisterHandlerAPI)
