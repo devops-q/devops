@@ -60,6 +60,8 @@ jobs:
       TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    outputs:
+      ip_address: ${{ steps.get-vm-ip.outputs.ip_address }}
     defaults:
       run:
         working-directory: ./itu-minitwit-golang/deployments/terraform/infrastructure
@@ -86,4 +88,41 @@ jobs:
             -var="api_password=${{ secrets.API_PASSWORD }}" \
             -var="db_name=${{ vars.DB_NAME }}" \
             -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
+            -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
+      - name: Get VM IP address
+        id: get-vm-ip
+        run: |
+          ip_address=$(terraform output -raw ip_address)
+          echo "ip_address=$ip_address" >> $GITHUB_OUTPUT
+
+  terraform-check-obsevability:
+    runs-on: ubuntu-latest
+    environment: DEV
+    needs: terraform-check
+    env:
+      TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    defaults:
+      run:
+        working-directory: ./itu-minitwit-golang/deployments/terraform/observability
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform validate observability
+        run: terraform validate
+
+      - name: Terraform plan observability
+        run: |
+          terraform plan \
+            -var="vm_ip_address=${{ needs.terraform-check.outputs.ip_address }}" \
+            -var="grafana_root_password=${{ secrets.GRAFANA_ROOT_PASSWORD }}" \
             -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"

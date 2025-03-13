@@ -137,6 +137,7 @@ jobs:
           echo "DB_PASSWORD=${{ env.db_password }}" >> ./envfile
           echo "DB_NAME=${{ vars.DB_NAME }}" >> ./envfile
           echo "DB_PORT=${{ env.db_port }}" >> ./envfile
+          echo "GRAFANA_ROOT_PASSWORD=${{ secrets.GRAFANA_ROOT_PASSWORD }}" >> ./envfile
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1
         with:
@@ -146,6 +147,18 @@ jobs:
           user: root
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           env_file: ./itu-minitwit-golang/envfile
+
+      - name: Terraform init observability
+        run: terraform init
+        working-directory: ./itu-minitwit-golang/deployments/terraform/observability
+
+      - name: Terraform apply observability
+        run: |
+          terraform apply -auto-approve \
+            -var="vm_ip_address=${{ env.ip_address }}" \
+            -var="grafana_root_password=${{ secrets.GRAFANA_ROOT_PASSWORD }}" \
+            -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
+        working-directory: ./itu-minitwit-golang/deployments/terraform/observability
 
   create-release:
     runs-on: ubuntu-latest
