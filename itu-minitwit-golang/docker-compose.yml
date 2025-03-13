@@ -15,7 +15,7 @@ services:
       - DB_PORT=${DB_PORT}
       - DB_SSL_MODE=require
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:80/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:80/api/v1/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
