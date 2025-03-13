@@ -26,6 +26,7 @@ resource "grafana_data_source" "prometheus" {
   secure_json_data_encoded = jsonencode({
     basicAuthPassword = "admin"
   })
+  depends_on = [digitalocean_droplet.minitwit-vm]
 }
 
 resource "digitalocean_droplet" "minitwit-vm" {
@@ -56,9 +57,16 @@ output "ip_address" {
   value = trimspace(digitalocean_floating_ip.ip.ip_address)
 }
 
+
+
+
 resource "grafana_folder" "my_folder" {
   title  = "grafana_dashboard_folder"
+
+  depends_on = [digitalocean_droplet.minitwit-vm]
 }
+
+
 
 resource "grafana_dashboard" "grafana_dashboard_folder" {
   folder = grafana_folder.my_folder.id
@@ -274,5 +282,7 @@ resource "grafana_dashboard" "grafana_dashboard_folder" {
     "version": 2,
     "weekStart": ""
   })
+  depends_on = [grafana_folder.my_folder, digitalocean_droplet.minitwit-vm]
+
 }
 
