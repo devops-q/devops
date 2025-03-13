@@ -4,6 +4,8 @@ terraform {
       source  = "digitalocean/digitalocean"
       version = "2.48.2"
     }
+
+    # TODO: Remove after apply
     grafana = {
       source  = "grafana/grafana"
       version = "3.15.2"
@@ -32,7 +34,6 @@ variable "do_token" {}
 variable "do_ssh_key_name" {}
 
 
-
 provider "digitalocean" {
   token = var.do_token
 }
@@ -41,12 +42,8 @@ data "digitalocean_ssh_key" "terraform" {
   name = var.do_ssh_key_name
 }
 
-
-
+# TODO: Remove after apply
 provider "grafana" {
   url  = "http://${digitalocean_floating_ip.ip.ip_address}:3000"
   auth = "admin:admin"
-
-
 }
-
