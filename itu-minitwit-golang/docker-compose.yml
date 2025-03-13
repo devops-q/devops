@@ -14,10 +14,11 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_PORT=${DB_PORT}
       - DB_SSL_MODE=require
-
-    depends_on:
-      - grafana
-      - prometheus
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:80/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   prometheus:
     image: prom/prometheus
@@ -31,7 +32,11 @@ services:
       - '--web.config.file=/etc/prometheus/web.yml'
     ports:
       - "9090:9090"
-
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9090/-/healthy" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   grafana:
     image: grafana/grafana
@@ -40,3 +45,8 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ROOT_PASSWORD}
     ports:
       - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
