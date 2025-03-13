@@ -16,7 +16,7 @@ resource "grafana_folder" "my_folder" {
 resource "grafana_data_source" "prometheus" {
   type                = "prometheus"
   name                = "mimir"
-  url                 = "https://prometheus:9090"
+  url                 = "http://prometheus:9090"
   basic_auth_enabled  = true
   basic_auth_username = "admin"
 
