@@ -40,8 +40,8 @@ EOF
 
 cat <<EOF > /root/prometheus/web.yml
 basic_auth_users:
-    admin: ${PROMETHEUS_ROOT_PASSWORD}
-    helgeandmircea: ${HELGE_AND_MIRCEA_PASSWORD}
+    admin: '${PROMETHEUS_ROOT_PASSWORD}'
+    helgeandmircea: '${HELGE_AND_MIRCEA_PASSWORD}'
 EOF
 
 # Pull and run the Docker container for creating api user
