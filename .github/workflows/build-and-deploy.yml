@@ -148,7 +148,7 @@ jobs:
           user: root
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           env_file: ./itu-minitwit-golang/envfile
-
+          detach: false
       - name: Terraform init observability
         run: terraform init
         working-directory: ./itu-minitwit-golang/deployments/terraform/observability
