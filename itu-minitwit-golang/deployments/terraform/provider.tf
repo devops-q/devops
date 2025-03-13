@@ -47,5 +47,6 @@ provider "grafana" {
   url  = "http://${digitalocean_floating_ip.ip.ip_address}:3000"
   auth = "admin:admin"
 
+
 }
 
