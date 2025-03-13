@@ -34,8 +34,8 @@ resource "digitalocean_droplet" "minitwit-vm" {
     DB_PASSWORD               = digitalocean_database_cluster.postgres.password
     DB_NAME                   = digitalocean_database_db.app_db.name
     DB_PORT                   = digitalocean_database_cluster.postgres.port
-    PROMETHEUS_ROOT_PASSWORD  = var.prometheus_root_password
-    HELGE_AND_MIRCEA_PASSWORD = var.helge_and_mircea_password
+    PROMETHEUS_ROOT_PASSWORD  = bcrypt(var.prometheus_root_password) # Prometheus expects a bcrypt hash
+    HELGE_AND_MIRCEA_PASSWORD = bcrypt(var.helge_and_mircea_password) # Prometheus expects a bcrypt hash
   })
 }
 
