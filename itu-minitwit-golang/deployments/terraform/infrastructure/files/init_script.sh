@@ -29,6 +29,9 @@ scrape_configs:
     scrape_interval: 5s  # Scrape targets every 5 seconds for this job.
     static_configs:
       - targets: ['prometheus:9090']
+    basic_auth:
+      username: 'admin'
+      password: $ { secrets.PROMETHEUS_ROOT_PASSWORD }
 
   - job_name: 'itu-minitwit-app'
     scrape_interval: 5s  # Scrape targets every 5 seconds for this job.
