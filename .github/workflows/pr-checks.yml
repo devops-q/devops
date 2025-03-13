@@ -125,4 +125,5 @@ jobs:
           terraform plan \
             -var="vm_ip_address=${{ needs.terraform-check.outputs.ip_address }}" \
             -var="grafana_root_password=${{ secrets.GRAFANA_ROOT_PASSWORD }}" \
+            -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
             -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"

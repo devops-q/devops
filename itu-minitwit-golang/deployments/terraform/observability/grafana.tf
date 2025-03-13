@@ -1,5 +1,10 @@
 variable "helge_and_mircea_password" {
-  type = string
+  type      = string
+  sensitive = true
+}
+
+variable "prometheus_root_password" {
+  type      = string
   sensitive = true
 }
 
@@ -24,7 +29,7 @@ resource "grafana_data_source" "prometheus" {
   uid = "prometheus"
 
   secure_json_data_encoded = jsonencode({
-    basicAuthPassword = "admin"
+    basicAuthPassword = var.prometheus_root_password
   })
 }
 
