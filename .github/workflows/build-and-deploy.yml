@@ -80,11 +80,11 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform init
+      - name: Terraform init infrastructure
         run: terraform init
-        working-directory: ./itu-minitwit-golang/deployments/terraform
+        working-directory: ./itu-minitwit-golang/deployments/terraform/infrastructure
 
-      - name: Terraform apply
+      - name: Terraform apply infrastructure
         run: |
           terraform apply -auto-approve \
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
@@ -106,7 +106,7 @@ jobs:
           echo "db_port=$db_port" >> $GITHUB_ENV
           echo "db_user=$db_user" >> $GITHUB_ENV
           echo "db_password=$db_password" >> $GITHUB_ENV
-        working-directory: ./itu-minitwit-golang/deployments/terraform
+        working-directory: ./itu-minitwit-golang/deployments/terraform/infrastructure
 
       - name: Check user_data script completion
         working-directory: ./scripts

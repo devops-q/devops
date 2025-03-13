@@ -62,7 +62,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     defaults:
       run:
-        working-directory: ./itu-minitwit-golang/deployments/terraform
+        working-directory: ./itu-minitwit-golang/deployments/terraform/infrastructure
 
     steps:
       - name: Checkout code
@@ -74,10 +74,10 @@ jobs:
       - name: Terraform init
         run: terraform init
 
-      - name: Terraform validate
+      - name: Terraform validate infrastructure
         run: terraform validate
 
-      - name: Terraform plan
+      - name: Terraform plan infrastructure
         run: |
           terraform plan \
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \

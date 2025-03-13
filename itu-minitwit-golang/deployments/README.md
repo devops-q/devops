@@ -20,7 +20,7 @@ We use terraform to initialize the infrastructure. So far the infrastructure inc
 1. cd into the terraform directory:
 
 ```shell
-cd deployments/terraform
+cd deployments/terraform/infrastructure
 ```
 
 2. Terraform initialize:
