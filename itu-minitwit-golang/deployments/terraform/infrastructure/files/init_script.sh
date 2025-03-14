@@ -1,6 +1,6 @@
 #!/bin/bash
 # Initialize Docker Swarm with advertise address
-docker swarm init --advertise-addr $(hostname -I | awk '{print $1}')
+docker swarm init --advertise-addr "$(hostname -I | awk '{print $1}')"
 
 
 # Allow ssh traffic on port 22

@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">= 1.3.0"
   required_providers {
     digitalocean = {
       source  = "digitalocean/digitalocean"
@@ -24,8 +25,12 @@ terraform {
 
 }
 
-variable "do_token" {}
-variable "do_ssh_key_name" {}
+variable "do_token" {
+  type = string
+}
+variable "do_ssh_key_name" {
+  type = string
+}
 
 
 provider "digitalocean" {

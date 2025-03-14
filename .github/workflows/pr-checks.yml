@@ -19,6 +19,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: dockerlint
+        uses: hadolint/hadolint-action@master
+        with:
+          dockerfile: './itu-minitwit-golang/Dockerfile'
+
+      - name: shellcheck
+        uses: ludeeus/action-shellcheck@master
+        env:
+            SHELLCHECK_OPTS: -e SC2086
+
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
@@ -27,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: go mod tidy
 
-      - name: Run linter
+      - name: golint
         uses: golangci/golangci-lint-action@v6
         with:
           working-directory: ./itu-minitwit-golang
@@ -69,6 +79,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Setup tflint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.52.0
+
+      - name: Init tflint
+        run: tflint --init
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Run tflint
+        run: tflint -f compact
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3

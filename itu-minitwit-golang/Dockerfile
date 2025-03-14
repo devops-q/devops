@@ -6,7 +6,7 @@ LABEL org.opencontainers.image.source = "https://github.com/devops-q/devops"
 WORKDIR /app
 
 # Install necessary dependencies for CGO
-RUN apt-get update && apt-get install -y gcc
+RUN apt-get install -y --no-install-recommends gcc=10.3.0-1ubuntu1
 
 # Download Go modules
 COPY go.mod go.sum ./
