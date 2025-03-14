@@ -19,6 +19,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: dockerlint
+        uses: hadolint/hadolint-action@master
+        with:
+          dockerfile: 'Dockerfile'
+
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
