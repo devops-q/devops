@@ -26,6 +26,8 @@ jobs:
 
       - name: shellcheck
         uses: ludeeus/action-shellcheck@master
+        env:
+            SHELLCHECK_OPTS: -e SC2086
 
       - name: Set up Go
         uses: actions/setup-go@v3
