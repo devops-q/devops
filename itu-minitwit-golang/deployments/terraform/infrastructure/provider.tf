@@ -26,10 +26,10 @@ terraform {
 }
 
 variable "do_token" {
-  type = "string"
+  type = string
 }
 variable "do_ssh_key_name" {
-  type = "string"
+  type = string
 }
 
 
