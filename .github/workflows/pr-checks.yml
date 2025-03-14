@@ -22,7 +22,7 @@ jobs:
       - name: dockerlint
         uses: hadolint/hadolint-action@master
         with:
-          dockerfile: './Dockerfile'
+          dockerfile: './itu-minitwit-golang/Dockerfile'
 
       - name: Set up Go
         uses: actions/setup-go@v3
