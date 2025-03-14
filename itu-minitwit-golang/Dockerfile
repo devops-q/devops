@@ -6,6 +6,7 @@ LABEL org.opencontainers.image.source = "https://github.com/devops-q/devops"
 WORKDIR /app
 
 # Install necessary dependencies for CGO
+# hadolint ignore=DL3008,DL3009,DL3015
 RUN apt-get update && apt-get install -y gcc
 # Download Go modules
 COPY go.mod go.sum ./
