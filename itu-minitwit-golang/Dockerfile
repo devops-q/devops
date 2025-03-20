@@ -24,6 +24,8 @@ FROM scratch
 # Set destination for COPY
 WORKDIR /app
 
+COPY --from=builder /app/web ./web
+
 # Copy the binary from the build stage
 COPY --from=builder /app/itu-minitwit-golang .
 
