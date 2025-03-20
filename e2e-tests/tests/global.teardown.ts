@@ -9,7 +9,7 @@ teardown('Tear down Docker Compose environment', async () => {
     console.log('Tearing down Docker Compose setup...');
 
     try {
-        await execAsync(`docker-compose -f ${DOCKER_COMPOSE_PATH} down`);
+        await execAsync(`docker compose -f ${DOCKER_COMPOSE_PATH} down`);
         console.log('Docker Compose teardown completed successfully');
     } catch (error) {
         console.error('Failed to tear down Docker Compose setup:', error);

@@ -1,7 +1,6 @@
 import {test as setup} from '@playwright/test';
 import {exec} from 'child_process';
 import {promisify} from 'util';
-import * as path from 'node:path';
 import {DOCKER_COMPOSE_PATH, HEALTH_CHECK_INTERVAL, HEALTH_CHECK_TIMEOUT, HEALTH_CHECK_URL} from "../config";
 
 const execAsync = promisify(exec);
@@ -43,7 +42,7 @@ setup('Start Docker Compose environment and wait for API health', async () => {
 
     try {
         // Start containers
-        await execAsync(`docker-compose -f ${DOCKER_COMPOSE_PATH} up -d`);
+        await execAsync(`docker compose -f ${DOCKER_COMPOSE_PATH} up -d`);
         console.log('Docker Compose containers started');
 
         // Wait for API to be ready by polling the health endpoint
@@ -56,8 +55,7 @@ setup('Start Docker Compose environment and wait for API health', async () => {
 
         // Try to clean up on failure
         try {
-            const dockerComposePath = path.resolve(__dirname, '../docker-compose.yml');
-            await execAsync(`docker-compose -f ${dockerComposePath} down`);
+            await execAsync(`docker compose -f ${DOCKER_COMPOSE_PATH} down`);
             console.log('Cleaned up Docker Compose environment after failure');
         } catch (cleanupError) {
             console.error('Failed to clean up Docker Compose after failure:', cleanupError);
