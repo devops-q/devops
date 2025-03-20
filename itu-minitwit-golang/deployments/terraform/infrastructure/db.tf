@@ -44,5 +44,5 @@ output "db_user" {
 
 output "db_password" {
   value     = digitalocean_database_cluster.postgres.password
-  sensitive = true
+  sensitive = false
 }
