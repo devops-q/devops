@@ -154,8 +154,6 @@ jobs:
           terraform plan \
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
             -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
-            -var="api_user=${{ secrets.API_USER }}" \
-            -var="api_password=${{ secrets.API_PASSWORD }}" \
             -var="db_name=${{ vars.DB_NAME }}" \
             -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
             -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
