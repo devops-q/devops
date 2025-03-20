@@ -14,11 +14,8 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_PORT=${DB_PORT}
       - DB_SSL_MODE=require
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:80/api/v1/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - INITIAL_API_USER=${INITIAL_API_USER}
+      - INITIAL_API_PASSWORD=${INITIAL_API_PASSWORD}
 
   prometheus:
     image: prom/prometheus
