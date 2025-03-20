@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm/logger"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/models"
+	"itu-minitwit/internal/service"
 	"log"
 )
 
@@ -32,4 +33,26 @@ func InitDb(cfg *config.Config) {
 		panic(err)
 	}
 	DB = db
+}
+
+func InitApiUserIfNotExists(cfg *config.Config) error {
+	if DB == nil {
+		return fmt.Errorf("database not initialized")
+	}
+
+	if cfg.InitialApiUser == "" || cfg.InitialApiPassword == "" {
+		return nil
+	}
+
+	success, err := service.CreateApiUser(DB, cfg.InitialApiUser, cfg.InitialApiPassword)
+
+	if err != nil {
+		return fmt.Errorf("failed to create initial API user: %v", err)
+	}
+
+	if success {
+		log.Printf("Initial API user %s created successfully", cfg.InitialApiUser)
+	}
+
+	return nil
 }

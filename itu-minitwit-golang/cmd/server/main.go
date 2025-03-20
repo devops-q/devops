@@ -22,6 +22,10 @@ func main() {
 	}
 
 	database.InitDb(cfg)
+	err = database.InitApiUserIfNotExists(cfg)
+	if err != nil {
+		log.Fatalf("Failed to initialize API user: %v", err)
+	}
 
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
