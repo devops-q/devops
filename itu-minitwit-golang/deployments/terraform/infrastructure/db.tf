@@ -19,6 +19,10 @@ resource "digitalocean_database_firewall" "minitwit_app_firewall" {
     type  = "droplet"
     value = digitalocean_droplet.minitwit-vm.id
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "digitalocean_database_db" "app_db" {
