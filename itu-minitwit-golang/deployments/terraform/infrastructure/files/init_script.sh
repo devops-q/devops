@@ -47,16 +47,4 @@ basic_auth_users:
     helgeandmircea: '${HELGE_AND_MIRCEA_PASSWORD_BCRYPT}'
 EOF
 
-# Pull and run the Docker container for creating api user
-docker run -e DB_HOST=${DB_HOST} \
- -e DB_USER=${DB_USER} \
- -e DB_PASSWORD=${DB_PASSWORD} \
- -e DB_NAME=${DB_NAME} \
- -e DB_PORT=${DB_PORT} \
- -e DB_SSL_MODE=require \
- -e API_USER=${API_USER} \
- -e API_PASSWORD=${API_PASSWORD} \
- ghcr.io/devops-q/itu-minitwit-create-api-user:dec2f8
-
-
 echo "Finished running minitwit init script"
