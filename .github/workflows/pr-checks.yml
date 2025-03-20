@@ -22,7 +22,7 @@ jobs:
 
       - name: Get PR branch
         id: get_pr_branch
-        run: echo "::set-output name=pr_branch::${{ github.event.pull_request.head.ref }}"
+        run: echo "::set-output name=pr_branch::${{ github.event.pull_request.base.ref }}"
 
       - name: Set environment
         id: set_env
