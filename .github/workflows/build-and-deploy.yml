@@ -90,8 +90,6 @@ jobs:
           terraform apply -auto-approve \
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
             -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
-            -var="api_user=${{ secrets.API_USER }}" \
-            -var="api_password=${{ secrets.API_PASSWORD }}" \
             -var="db_name=${{ vars.DB_NAME }}" \
             -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
             -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
@@ -117,7 +115,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ./id_rsa
           chmod 600 ./id_rsa
 
-          sleep 30
+          sleep 10
           
           scp -o StrictHostKeyChecking=no -i ./id_rsa check_user_data_completion.sh "root@${{ env.ip_address }}":/tmp/
           ssh -o StrictHostKeyChecking=no -i ./id_rsa "root@${{ env.ip_address }}" "bash /tmp/check_user_data_completion.sh"
@@ -139,6 +137,8 @@ jobs:
           echo "DB_NAME=${{ vars.DB_NAME }}" >> ./envfile
           echo "DB_PORT=${{ env.db_port }}" >> ./envfile
           echo "GRAFANA_ROOT_PASSWORD=${{ secrets.GRAFANA_ROOT_PASSWORD }}" >> ./envfile
+          echo "INITIAL_API_USER=${{ secrets.API_USER }}" >> ./envfile
+          echo "INITIAL_API_PASSWORD=${{ secrets.API_PASSWORD }}" >> ./envfile
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1
         with:

@@ -14,6 +14,8 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_PORT=${DB_PORT}
       - DB_SSL_MODE=require
+      - INITIAL_API_USER=${INITIAL_API_USER}
+      - INITIAL_API_PASSWORD=${INITIAL_API_PASSWORD}
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:80/api/v1/health" ]
       interval: 30s
