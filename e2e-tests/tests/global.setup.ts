@@ -36,12 +36,8 @@ async function waitForHealthEndpoint(url: string, timeout: number, interval: num
     throw new Error(`Health check timed out after ${timeout}ms`);
 }
 
-setup('Start Docker Compose environment and wait for API health', async () => {
-    setup.describe.configure({
-        timeout: 90000,
-    })
-    console.log('Starting Docker Compose setup...');
-
+setup('Start Docker Compose environment and wait for API health', async ({}, testInfo) => {
+    testInfo.setTimeout(90000);
     try {
         // Start containers
         await execAsync(`docker compose -f ${DOCKER_COMPOSE_PATH} up -d`);
