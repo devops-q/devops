@@ -5,7 +5,6 @@ import {DOCKER_COMPOSE_PATH, HEALTH_CHECK_INTERVAL, HEALTH_CHECK_TIMEOUT, HEALTH
 
 const execAsync = promisify(exec);
 
-
 /**
  * Sleep function to wait between polling attempts
  */
@@ -38,6 +37,9 @@ async function waitForHealthEndpoint(url: string, timeout: number, interval: num
 }
 
 setup('Start Docker Compose environment and wait for API health', async () => {
+    setup.describe.configure({
+        timeout: 90000,
+    })
     console.log('Starting Docker Compose setup...');
 
     try {
