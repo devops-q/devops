@@ -1,0 +1,57 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "organizeImports": {
+    "enabled": true
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "formatter": {
+    "lineWidth": 100,
+    "indentStyle": "space"
+  },
+
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noExplicitAny": "off"
+      },
+
+      "style": {
+        "noNonNullAssertion": "off",
+        "noParameterAssign": "off"
+      },
+      "complexity": {
+        "noThisInStatic": "off"
+      },
+
+      "a11y": {
+        "noSvgWithoutTitle": "off"
+      },
+
+      "correctness": {
+        "noEmptyPattern": "off"
+      }
+    }
+  },
+  "files": {
+    "ignore": [
+      "dist/**/*",
+      ".next/**/*",
+      "dev/**/*",
+      "coverage/**/*",
+      "node_modules/**/*",
+      "pnpm-lock.json"
+    ]
+  }
+}
