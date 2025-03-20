@@ -24,6 +24,7 @@ resource "digitalocean_droplet" "minitwit-vm" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes = [user_data] # Ignore changes to user_data so we don't have to recreate the droplet.
   }
 }
 
