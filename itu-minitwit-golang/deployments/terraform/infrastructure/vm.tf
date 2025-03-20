@@ -38,6 +38,10 @@ resource "digitalocean_droplet" "minitwit-vm" {
     PROMETHEUS_ROOT_PASSWORD_BCRYPT = bcrypt(var.prometheus_root_password) # Prometheus expects a bcrypt hash
     HELGE_AND_MIRCEA_PASSWORD_BCRYPT = bcrypt(var.helge_and_mircea_password) # Prometheus expects a bcrypt hash
   })
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "digitalocean_floating_ip" "ip" {
