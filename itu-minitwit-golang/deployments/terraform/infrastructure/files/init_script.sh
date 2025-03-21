@@ -13,6 +13,8 @@ mkdir -p /root/data
 # Create and populate the
 mkdir -p /root/prometheus
 
+mkdir -p /root/loki
+
 cat <<'EOF' > /root/prometheus/prometheus.yml
 global:
   scrape_interval: 15s  # By default, scrape targets every 15 seconds.
@@ -46,5 +48,42 @@ basic_auth_users:
     admin: '${PROMETHEUS_ROOT_PASSWORD_BCRYPT}'
     helgeandmircea: '${HELGE_AND_MIRCEA_PASSWORD_BCRYPT}'
 EOF
+
+cat <<'EOF' > /root/loki/config.yaml
+# This is a complete configuration to deploy Loki backed by the filesystem.
+# The index will be shipped to the storage via tsdb-shipper.
+
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+common:
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+  replication_factor: 1
+  path_prefix: /tmp/loki
+
+schema_config:
+  configs:
+  - from: 2020-05-15
+    store: tsdb
+    object_store: filesystem
+    schema: v13
+    index:
+      prefix: index_
+      period: 24h
+
+storage_config:
+  filesystem:
+    directory: /tmp/loki/chunks
+
+EOF
+
+
+
+
 
 echo "Finished running minitwit init script"

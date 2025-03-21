@@ -32,7 +32,13 @@ services:
 
   loki:
     image: grafana/loki
-
+    volumes:
+      - type: bind
+        source: /root/loki/
+        target: /etc/loki/
+        consistency: consistent
+    command:
+      - '--config.file=/etc/loki/config.yaml'
     ports:
       - "3100:3100"
 
