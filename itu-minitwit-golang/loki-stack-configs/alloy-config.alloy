@@ -42,7 +42,7 @@ loki.relabel "containers" {
 
   rule {
     source_labels = ["__meta_docker_container_name"]
-    regex         = "app-service"
+    regex         = "itu-minitwit_app*"
     action        = "replace"
     target_label  = "app"
     replacement   = "production-app"
