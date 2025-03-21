@@ -30,6 +30,11 @@ services:
     ports:
       - "9090:9090"
 
+  loki:
+    image: grafana/loki
+
+    ports:
+      - "3100:3100"
 
   grafana:
     image: grafana/grafana
