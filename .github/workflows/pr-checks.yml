@@ -160,7 +160,6 @@ jobs:
             -var="db_name=${{ vars.DB_NAME }}" \
             -var="s3_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -var="s3_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            -var="db_name=${{ vars.DB_NAME }}" \
             -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
             -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
       - name: Get VM IP address
