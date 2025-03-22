@@ -75,8 +75,15 @@ jobs:
       run:
         working-directory: ./itu-minitwit-golang
     steps:
+
+      - name: Fetch Prometheus data
+        run: |
+          scp -r root@${{ env.ip_address }}:/prometheus/data/ ./prom_data
+
       - name: Checkout code
         uses: actions/checkout@v2
+
+
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
@@ -109,6 +116,8 @@ jobs:
           echo "db_password=$db_password" >> $GITHUB_ENV
         working-directory: ./itu-minitwit-golang/deployments/terraform/infrastructure
 
+
+
       - name: Check user_data script completion
         working-directory: ./scripts
         run: |
@@ -119,6 +128,8 @@ jobs:
           
           scp -o StrictHostKeyChecking=no -i ./id_rsa check_user_data_completion.sh "root@${{ env.ip_address }}":/tmp/
           ssh -o StrictHostKeyChecking=no -i ./id_rsa "root@${{ env.ip_address }}" "bash /tmp/check_user_data_completion.sh"
+          scp -r ./prom_data root@${{ env.ip_address }}:/prometheus/data/
+          
 
       - name: Log in to GitHub Docker registry
         if: ${{ needs.get-env.outputs.env == 'DEV' }}
