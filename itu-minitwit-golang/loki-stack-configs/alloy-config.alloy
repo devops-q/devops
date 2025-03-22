@@ -1,50 +1,16 @@
-logging {
-  level = "info"
-  format = "logfmt"
-}
-
-// Define Loki client for sending logs
-loki.write "default" {
-  endpoint {
-    url = "http://loki:3100/loki/api/v1/push"
-  }
-}
-
-// Docker logs discovery and collection
-discovery.docker "containers" {
+discovery.docker "linux" {
   host = "unix:///var/run/docker.sock"
 }
 
-local.file_match "docker_logs" {
-  path_targets = discovery.docker.containers.targets
-  sync_period = "10s"
+loki.source.docker "default" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.linux.targets
+  labels     = {"app" = "docker"}
+  forward_to = [loki.write.local.receiver]
 }
 
-loki.source.file "docker_logs" {
-  targets    = local.file_match.docker_logs.targets
-  forward_to = [loki.write.default.receiver]
-  tail_from_end = true
-}
-
-// Relabeling for container information
-loki.relabel "containers" {
-  forward_to = [loki.write.default.receiver]
-
-  rule {
-    source_labels = ["__meta_docker_container_name"]
-    target_label  = "container_name"
-  }
-
-  rule {
-    source_labels = ["__meta_docker_container_image"]
-    target_label  = "container_image"
-  }
-
-  rule {
-    source_labels = ["__meta_docker_container_name"]
-    regex         = "itu-minitwit_app*"
-    action        = "replace"
-    target_label  = "app"
-    replacement   = "production-app"
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
   }
 }

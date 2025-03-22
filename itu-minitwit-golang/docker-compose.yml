@@ -88,7 +88,6 @@ services:
   alloy:
     image: grafana/alloy:v1.7.5
     volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - alloy-data:/var/lib/alloy
     ports:
