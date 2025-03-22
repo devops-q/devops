@@ -21,25 +21,31 @@ query_scheduler:
 schema_config:
   configs:
     - from: 2020-10-24
-      store: boltdb-shipper
-      object_store: filesystem
-      schema: v11
+      store: tsdb
+      object_store: s3
+      schema: v12
       index:
         prefix: index_
         period: 24h
 
 storage_config:
-  boltdb_shipper:
-    active_index_directory: /loki/index
-    cache_location: /loki/cache
+  tsdb_shipper:
+    active_index_directory: /loki/tsdb-index
+    cache_location: /loki/tsdb-cache
     cache_ttl: 24h
-    shared_store: filesystem
-  filesystem:
-    directory: /loki/chunks
+    shared_store: s3
+  aws:
+    endpoint: fra1.digitaloceanspaces.com
+    access_key_id: '<ACCESS_KEY>'
+    secret_access_key: '<SECRET_KEY>'
+    s3forcepathstyle: true
+    insecure: false
+    region: us-east-1
+    bucketnames: minitwit-logs-prod
 
 compactor:
   working_directory: /loki/compactor
-  shared_store: filesystem
+  shared_store: s3
   compaction_interval: 10m
 
 limits_config:
