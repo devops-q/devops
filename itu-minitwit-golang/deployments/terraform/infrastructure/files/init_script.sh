@@ -47,4 +47,100 @@ basic_auth_users:
     helgeandmircea: '${HELGE_AND_MIRCEA_PASSWORD_BCRYPT}'
 EOF
 
+
+mkdir -p /root/configs
+
+cat <<'EOF' > /root/configs/loki-config.yaml
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  log_level: info
+
+common:
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+  replication_factor: 1
+  path_prefix: /loki
+
+ingester:
+  chunk_idle_period: 5m
+  chunk_target_size: 1048576
+  max_chunk_age: 1h
+  lifecycler:
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+    heartbeat_period: 1m
+  wal:
+    enabled: true
+    dir: /loki/wal
+
+frontend:
+  address: 127.0.0.1
+  max_outstanding_per_tenant: 2048
+  compress_responses: true
+
+frontend_worker:
+  frontend_address: 127.0.0.1
+  grpc_client_config:
+    max_send_msg_size: 104857600
+    max_recv_msg_size: 104857600
+
+query_scheduler:
+  max_outstanding_requests_per_tenant: 4096
+  use_scheduler_ring: true
+
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: tsdb
+      object_store: s3
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  tsdb_shipper:
+    active_index_directory: /loki/index
+    cache_location: /loki/index_cache
+  aws:
+    endpoint: fra1.digitaloceanspaces.com
+    access_key_id: '${S3_ACCESS_KEY}'
+    secret_access_key: '${S3_SECRET_KEY}'
+    s3forcepathstyle: true
+    insecure: false
+    region: us-east-1
+    bucketnames: '${S3_BUCKET_NAME}'
+
+compactor:
+  working_directory: /loki/compactor
+  shared_store: s3
+  compaction_interval: 10m
+EOF
+
+cat <<'EOF' > /root/configs/alloy-config.alloy
+discovery.docker "linux" {
+  host = "unix:///var/run/docker.sock"
+}
+
+loki.source.docker "default" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.linux.targets
+  labels     = {"app" = "docker"}
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+EOF
+
+
 echo "Finished running minitwit init script"
