@@ -158,6 +158,7 @@ jobs:
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
             -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
             -var="db_name=${{ vars.DB_NAME }}" \
+            -var="s3_logs_bucket_name=${{ vars.S3_LOGS_BUCKET_NAME }}" \
             -var="s3_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -var="s3_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
