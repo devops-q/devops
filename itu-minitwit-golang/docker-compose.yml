@@ -21,12 +21,13 @@ services:
     image: prom/prometheus
     volumes:
       - type: bind
-        source: /root/prometheus/
-        target: /etc/prometheus/
+        source: ./mounts/prometheus/
+        target: /prometheus
         consistency: consistent
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--web.config.file=/etc/prometheus/web.yml'
+      - '--config.file=/prometheus/prometheus.yml'
+      - '--web.config.file=/prometheus/web.yml'
+      - '--storage.tsdb.path=/prometheus/data'
     ports:
       - "9090:9090"
 
