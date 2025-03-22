@@ -25,7 +25,7 @@ services:
     image: prom/prometheus:v3.2.1
     volumes:
       - type: bind
-        source: ./mounts/prometheus/
+        source: /root/prometheus/
         target: /etc/prometheus/
         consistency: consistent
     command:
