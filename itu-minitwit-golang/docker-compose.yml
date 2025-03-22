@@ -1,37 +1,20 @@
 services:
-  postgres:
-    image: postgres:17.0-alpine3.20
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: test
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "test" ]
-      interval: 30s
-      timeout: 60s
-      retries: 5
-      start_period: 80s
-
   app:
-    image: test:latest
+    image: ${DOCKER_IMAGE}
     ports:
       - "80:80"
     environment:
       - PORT=80
-      - ENVIRONMENT=test
-      - DB_HOST=postgres
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=test
-      - DB_PORT=5432
-      - INITIAL_API_USER=test
-      - INITIAL_API_PASSWORD=test_password
-    depends_on:
-      - postgres
+      - ENVIRONMENT=production
+      - GIN_MODE=release
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - DB_SSL_MODE=require
+      - INITIAL_API_USER=${INITIAL_API_USER}
+      - INITIAL_API_PASSWORD=${INITIAL_API_PASSWORD}
     logging:
       driver: "json-file"
       options:
@@ -39,7 +22,7 @@ services:
         max-file: "3"
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:v3.2.1
     volumes:
       - type: bind
         source: ./mounts/prometheus/
@@ -52,11 +35,10 @@ services:
       - "9090:9090"
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:11.5.2
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ROOT_PASSWORD}
-#      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
     ports:
       - "3000:3000"
     volumes:
@@ -100,11 +82,11 @@ services:
       - loki
     networks:
       - loki_network
+
 volumes:
   grafana-storage:
   loki-data:
   alloy-data:
-  postgres_data:
 
 networks:
   loki_network:
@@ -113,6 +95,6 @@ networks:
 
 configs:
   loki_config:
-    file: ./loki-stack-configs/loki-config.yaml
+    file: /root/configs/loki-config.yaml
   alloy_config:
-    file: loki-stack-configs/alloy-config.alloy
+    file: /root/configs/alloy-config.alloy

@@ -20,6 +20,9 @@ resource "digitalocean_droplet" "minitwit-vm" {
     PROMETHEUS_ROOT_PASSWORD = var.prometheus_root_password
     PROMETHEUS_ROOT_PASSWORD_BCRYPT = bcrypt(var.prometheus_root_password) # Prometheus expects a bcrypt hash
     HELGE_AND_MIRCEA_PASSWORD_BCRYPT = bcrypt(var.helge_and_mircea_password) # Prometheus expects a bcrypt hash
+    S3_ACCESS_KEY = var.s3_access_key
+    S3_SECRET_KEY = var.s3_secret_key
+    S3_BUCKET_NAME = digitalocean_spaces_bucket.logs.name
   })
 
   lifecycle {
