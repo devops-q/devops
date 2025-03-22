@@ -24,15 +24,9 @@ services:
         source: /root/prometheus/
         target: /etc/prometheus/
         consistency: consistent
-      - type: bind
-        source: /root/prometheus/data/
-        target: /prometheus/
-        consistency: consistent
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--web.config.file=/etc/prometheus/web.yml'
-      - '--storage.tsdb.path=/prometheus'
-
     ports:
       - "9090:9090"
 
