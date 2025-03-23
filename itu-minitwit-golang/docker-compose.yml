@@ -25,13 +25,14 @@ services:
 
   prometheus:
     image: prom/prometheus
+    user: "1000:1000"
     volumes:
       - type: bind
         source: /root/prometheus/
         target: /etc/prometheus/
         consistency: consistent
       - type: bind
-        source: prometheus_data
+        source: /mnt/mount/
         target: /prometheus
         consistency: consistent
     command:
@@ -93,12 +94,6 @@ volumes:
   grafana-storage:
   loki-data:
   alloy-data:
-  prometheus_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: /mnt/mount/
-      o: bind
 
 networks:
   minitwit-network:
