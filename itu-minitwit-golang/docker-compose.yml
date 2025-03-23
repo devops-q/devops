@@ -22,7 +22,7 @@ services:
         max-file: "3"
 
   prometheus:
-    image: prom/prometheus:v2.53.4
+    image: prom/prometheus
     volumes:
       - type: bind
         source: /root/prometheus/
