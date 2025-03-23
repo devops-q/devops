@@ -13,7 +13,8 @@ mkdir -p /root/data
 # Create and populate the
 mkdir -p /root/prometheus
 
-mkdir -p mnt/mount/data
+mkdir -p /mnt/mount/data
+
 
 cat <<'EOF' > /root/prometheus/prometheus.yml
 global:
