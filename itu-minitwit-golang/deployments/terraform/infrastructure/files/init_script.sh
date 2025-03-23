@@ -13,6 +13,12 @@ mkdir -p /root/data
 # Create and populate the
 mkdir -p /root/prometheus
 
+mkdir -p /mnt/mount
+
+mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount
+
+echo '/dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount ext4 defaults,nofail,discard 0 0' | sudo tee -a /etc/fstab
+
 cat <<'EOF' > /root/prometheus/prometheus.yml
 global:
   scrape_interval: 15s  # By default, scrape targets every 15 seconds.
