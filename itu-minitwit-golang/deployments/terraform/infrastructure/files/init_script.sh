@@ -13,6 +13,9 @@ mkdir -p /root/data
 # Create and populate the
 mkdir -p /root/prometheus
 
+mkdir -p /mnt/mount
+sudo mount /dev/sda1 /mnt/mount
+
 cat <<'EOF' > /root/prometheus/prometheus.yml
 global:
   scrape_interval: 15s  # By default, scrape targets every 15 seconds.
