@@ -19,6 +19,9 @@ mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mou
 
 echo '/dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount ext4 defaults,nofail,discard 0 0' | sudo tee -a /etc/fstab
 
+sudo chown -R 1000:1000 /mnt/mount
+sudo chmod -R 775 /mnt/mount
+
 cat <<'EOF' > /root/prometheus/prometheus.yml
 global:
   scrape_interval: 15s  # By default, scrape targets every 15 seconds.
