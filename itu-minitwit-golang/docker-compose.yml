@@ -33,6 +33,8 @@ services:
       - '--web.config.file=/etc/prometheus/web.yml'
     ports:
       - "9090:9090"
+    networks:
+      - loki_network
 
   grafana:
     image: grafana/grafana:11.5.2
