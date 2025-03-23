@@ -14,7 +14,10 @@ mkdir -p /root/data
 mkdir -p /root/prometheus
 
 mkdir -p /mnt/mount
-sudo mount /dev/sda1 /mnt/mount
+
+mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount
+
+echo '/dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount ext4 defaults,nofail,discard 0 0' | sudo tee -a /etc/fstab
 
 cat <<'EOF' > /root/prometheus/prometheus.yml
 global:
