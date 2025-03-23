@@ -23,23 +23,26 @@ services:
     networks:
       - minitwit-network
 
-#  prometheus:
- #   image: prom/prometheus
-  #  user: "1000:1000"
-   # volumes:
-    #  - type: bind
-     #   source: /root/prometheus/
-      #  target: /etc/prometheus/
-       # consistency: consistent
+  prometheus:
+    image: prom/prometheus
+    user: "1000:1000"
+    volumes:
+      - type: bind
+        source: /root/prometheus/
+        target: /etc/prometheus/
+        consistency: consistent
+      - type: bind
+        source: prometheus_data
+        target: /prometheus
 
-  #  command:
-   #   - '--config.file=/etc/prometheus/prometheus.yml'
-    #  - '--web.config.file=/etc/prometheus/web.yml'
-     # - '--storage.tsdb.path=/prometheus'
-    #ports:
-    #  - "9090:9090"
-    #networks:
-     # - minitwit-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.config.file=/etc/prometheus/web.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - minitwit-network
 
 
   grafana:
@@ -91,6 +94,12 @@ volumes:
   grafana-storage:
   loki-data:
   alloy-data:
+  prometheus_data:
+      driver: local
+      driver_opts:
+        type: none
+        device: /mnt/mount
+        o: bind
 
 
 networks:
