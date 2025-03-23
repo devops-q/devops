@@ -22,7 +22,6 @@ services:
         max-file: "3"
     networks:
       - minitwit-network
-
   prometheus:
     image: prom/prometheus
     volumes:
@@ -42,6 +41,7 @@ services:
       - "9090:9090"
     networks:
       - minitwit-network
+
 
 
   grafana:
