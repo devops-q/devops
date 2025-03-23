@@ -31,10 +31,7 @@ services:
         source: /root/prometheus/
         target: /etc/prometheus/
         consistency: consistent
-      - type: bind
-        source: prometheus_data
-        target: /prometheus
-        consistency: consistent
+
 
 
     command:
