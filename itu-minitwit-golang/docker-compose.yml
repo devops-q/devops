@@ -31,6 +31,9 @@ services:
         source: /root/prometheus/
         target: /etc/prometheus/
         consistency: consistent
+
+
+
     command:
       - '/bin/sh -c "chown -R 1000:1000 /prometheus/'
       - '--config.file=/etc/prometheus/prometheus.yml'
