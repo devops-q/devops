@@ -31,7 +31,7 @@ services:
         target: /etc/prometheus/
         consistency: consistent
       - type: bind
-        source: /mnt/mount
+        source: prometheus_data
         target: /prometheus
         consistency: consistent
     command:
@@ -93,6 +93,12 @@ volumes:
   grafana-storage:
   loki-data:
   alloy-data:
+  prometheus_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /mnt/mount/
+      o: bind
 
 networks:
   minitwit-network:
