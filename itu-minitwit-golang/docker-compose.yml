@@ -95,12 +95,11 @@ volumes:
   loki-data:
   alloy-data:
   prometheus_data:
-
-    driver: local
-    driver_opts:
-      type: none
-      device: /mnt/mount
-      o: bind
+      driver: local
+      driver_opts:
+        type: none
+        device: /mnt/mount
+        o: bind
 
 
 
