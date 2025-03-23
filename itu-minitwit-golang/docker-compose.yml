@@ -38,6 +38,7 @@ services:
     networks:
       - minitwit-network
 
+
   grafana:
     image: grafana/grafana:11.5.2
     environment:
