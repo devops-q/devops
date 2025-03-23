@@ -47,6 +47,21 @@ resource "digitalocean_droplet" "minitwit-vm" {
   }
 }
 
+resource "digitalocean_volume" "mount" {
+  region = "fra1"
+  name = "mount"
+  size = "20"
+  initial_filesystem_type = "ext4"
+
+}
+
+resource "digitalocean_volume_attachment" "mount" {
+  droplet_id = digitalocean_droplet.minitwit-vm.id
+  volume_id = digitalocean_volume.mount.id
+}
+
+
+
 resource "digitalocean_floating_ip" "ip" {
   droplet_id = digitalocean_droplet.minitwit-vm.id
   region     = digitalocean_droplet.minitwit-vm.region
