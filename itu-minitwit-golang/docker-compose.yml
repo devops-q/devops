@@ -22,7 +22,6 @@ services:
         max-file: "3"
     networks:
       - minitwit-network
-
   prometheus:
     image: prom/prometheus
     user: "1000:1000"
@@ -43,6 +42,7 @@ services:
       - "9090:9090"
     networks:
       - minitwit-network
+
 
 
   grafana:
@@ -95,11 +95,13 @@ volumes:
   loki-data:
   alloy-data:
   prometheus_data:
-      driver: local
-      driver_opts:
-        type: none
-        device: /mnt/mount
-        o: bind
+
+    driver: local
+    driver_opts:
+      type: none
+      device: /mnt/mount
+      o: bind
+
 
 
 networks:
