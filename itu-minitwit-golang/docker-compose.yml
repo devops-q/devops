@@ -31,7 +31,7 @@ services:
         target: /etc/prometheus/
         consistency: consistent
       - type: bind
-        source: /mnt/mount/data
+        source: /mnt/mount
         target: /prometheus
         consistency: consistent
     command:
