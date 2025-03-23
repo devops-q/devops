@@ -20,6 +20,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    networks:
+      - minitwit-network
 
   prometheus:
     image: prom/prometheus
@@ -33,7 +35,8 @@ services:
       - '--web.config.file=/etc/prometheus/web.yml'
     ports:
       - "9090:9090"
-
+    networks:
+      - minitwit-network
 
   grafana:
     image: grafana/grafana:11.5.2
@@ -51,7 +54,8 @@ services:
       retries: 3
     depends_on:
       - loki
-
+    networks:
+      - minitwit-network
 
   loki:
     image: grafana/loki:2.9.13
@@ -62,6 +66,8 @@ services:
       - /root/configs/loki-config.yaml:/etc/loki/loki-config.yaml
     command: -config.file=/etc/loki/loki-config.yaml
     hostname: loki
+    networks:
+      - minitwit-network
 
   alloy:
     image: grafana/alloy:v1.7.5
@@ -74,9 +80,15 @@ services:
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.river
     depends_on:
       - loki
-
+    networks:
+      - minitwit-network
 
 volumes:
   grafana-storage:
   loki-data:
   alloy-data:
+
+networks:
+  minitwit-network:
+    driver: overlay
+    attachable: true
