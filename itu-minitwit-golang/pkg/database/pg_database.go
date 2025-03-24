@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/models"
 	"itu-minitwit/internal/service"
-	"log"
+	"itu-minitwit/pkg/logger"
 )
 
 var DB *gorm.DB
@@ -16,20 +15,18 @@ var DB *gorm.DB
 func InitDb(cfg *config.Config) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=UTC", cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBPort, cfg.DBSSLMode)
 
-	gormConfig := &gorm.Config{}
+	gormLogger := NewGormLogger()
 
-	if cfg.Environment == "development" {
-		gormConfig.Logger = logger.Default.LogMode(logger.Info)
-	}
-
-	db, dbErr := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, dbErr := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: gormLogger,
+	})
 
 	if dbErr != nil {
-		log.Fatalf("Could not connect to database: %v", dbErr)
+		gormLogger.logger.Fatalf("Could not connect to database: %v", dbErr)
 	}
 	err := db.AutoMigrate(&models.User{}, &models.Message{}, &models.APIUser{})
 	if err != nil {
-		log.Printf("Error during auto migration: %v", err)
+		gormLogger.logger.Error("Error during auto migration: %v", err)
 		panic(err)
 	}
 	DB = db
@@ -51,7 +48,7 @@ func InitApiUserIfNotExists(cfg *config.Config) error {
 	}
 
 	if success {
-		log.Printf("Initial API user %s created successfully", cfg.InitialApiUser)
+		logger.GetLogger().WithService("gorm").Info("Initial API user created successfully", "apiUser", cfg.InitialApiUser)
 	}
 
 	return nil
