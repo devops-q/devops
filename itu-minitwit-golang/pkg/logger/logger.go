@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -56,7 +57,7 @@ func (l *Logger) WithService(service string) *Logger {
 func (l *Logger) logWithService(level slog.Level, msg string, args ...interface{}) {
 	attrs := []any{"context", l.service}
 	attrs = append(attrs, args...)
-	l.Logger.Log(nil, level, msg, attrs...)
+	l.Logger.Log(context.TODO(), level, msg, attrs...)
 }
 
 func (l *Logger) Debug(msg string, args ...interface{}) {
