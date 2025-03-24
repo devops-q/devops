@@ -58,6 +58,7 @@ resource "digitalocean_volume" "mount" {
 resource "digitalocean_volume_attachment" "mount" {
   droplet_id = digitalocean_droplet.minitwit-vm.id
   volume_id = digitalocean_volume.mount.id
+
 }
 
 
