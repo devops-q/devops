@@ -6,11 +6,13 @@ import (
 	"itu-minitwit/config"
 	"itu-minitwit/internal/service"
 	"itu-minitwit/pkg/database"
-	"log"
+	"itu-minitwit/pkg/logger"
 	"os"
 )
 
 func main() {
+	log := logger.Init()
+
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)

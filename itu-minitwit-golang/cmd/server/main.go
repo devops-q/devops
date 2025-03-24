@@ -8,7 +8,7 @@ import (
 	"itu-minitwit/internal/api/middlewares"
 	"itu-minitwit/internal/utils"
 	"itu-minitwit/pkg/database"
-	"log"
+	"itu-minitwit/pkg/logger"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -16,6 +16,8 @@ import (
 )
 
 func main() {
+	log := logger.Init()
+
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
@@ -49,7 +51,7 @@ func main() {
 	r.Use(middlewares.UpdateLatestMiddleware())
 	api.SetupRoutes(r, cfg)
 
-	log.Printf("Server starting on port %d", cfg.Port)
+	log.Info(fmt.Sprintf("Server starting on port %d", cfg.Port))
 	err = r.Run(fmt.Sprintf(":%d", cfg.Port))
 	if err != nil {
 		log.Fatalf("Error starting server: %v", err)

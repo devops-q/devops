@@ -8,6 +8,22 @@ variable "helge_and_mircea_password" {
   description = "API password for the initial user"
 }
 
+variable "s3_logs_bucket_name" {
+  type        = string
+  description = "S3 bucket name for logs"
+}
+
+variable "s3_access_key" {
+  type        = string
+  description = "S3 access key"
+}
+
+variable "s3_secret_key" {
+  type        = string
+  description = "S3 secret key"
+}
+
+
 resource "digitalocean_droplet" "minitwit-vm" {
   image  = "docker-20-04"
   name   = "minitwit-vm"
@@ -20,6 +36,9 @@ resource "digitalocean_droplet" "minitwit-vm" {
     PROMETHEUS_ROOT_PASSWORD = var.prometheus_root_password
     PROMETHEUS_ROOT_PASSWORD_BCRYPT = bcrypt(var.prometheus_root_password) # Prometheus expects a bcrypt hash
     HELGE_AND_MIRCEA_PASSWORD_BCRYPT = bcrypt(var.helge_and_mircea_password) # Prometheus expects a bcrypt hash
+    S3_ACCESS_KEY = var.s3_access_key
+    S3_SECRET_KEY = var.s3_secret_key
+    S3_BUCKET_NAME = var.s3_logs_bucket_name
   })
 
   lifecycle {
@@ -27,6 +46,22 @@ resource "digitalocean_droplet" "minitwit-vm" {
     ignore_changes = [user_data] # Ignore changes to user_data so we don't have to recreate the droplet.
   }
 }
+
+resource "digitalocean_volume" "mount" {
+  region = "fra1"
+  name = "mount"
+  size = "20"
+  initial_filesystem_type = "ext4"
+
+}
+
+resource "digitalocean_volume_attachment" "mount" {
+  droplet_id = digitalocean_droplet.minitwit-vm.id
+  volume_id = digitalocean_volume.mount.id
+
+}
+
+
 
 resource "digitalocean_floating_ip" "ip" {
   droplet_id = digitalocean_droplet.minitwit-vm.id
