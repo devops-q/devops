@@ -17,7 +17,7 @@ func GetLatest(ctx *gin.Context) {
 
 	if result.Error != nil {
 		log.Printf("Failed to read latest id from DB: %v\n", result.Error)
-		ctx.JSON(http.StatusNotFound, gin.H{"latest": -1})
+		ctx.JSON(http.StatusOK, gin.H{"latest": -1})
 		return
 	}
 
@@ -25,6 +25,6 @@ func GetLatest(ctx *gin.Context) {
 	if latestID.LatestID != -1 {
 		ctx.JSON(http.StatusOK, gin.H{"latest": latestID.LatestID})
 	} else {
-		ctx.JSON(http.StatusNotFound, gin.H{"latest": -1})
+		ctx.JSON(http.StatusOK, gin.H{"latest": -1})
 	}
 }
