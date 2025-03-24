@@ -13,7 +13,7 @@ func GetLatest(ctx *gin.Context) {
 
 	db := ctx.MustGet("DB").(*gorm.DB)
 	var latestID models.LatestID
-	result := db.Model(&models.LatestID{}).First(latestID)
+	result := db.Model(&models.LatestID{}).First(&latestID) // Note the & operator
 
 	if result.Error != nil {
 		log.Printf("Failed to read latest id from DB: %v\n", result.Error)
