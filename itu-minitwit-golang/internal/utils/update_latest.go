@@ -2,22 +2,28 @@ package utils
 
 import (
 	"fmt"
-	"os"
+	"itu-minitwit/internal/models"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func UpdateLatest(parsedCommandId string) {
-
+func UpdateLatest(ctx *gin.Context, parsedCommandId string) {
 	if parsedCommandIdInt, err := strconv.Atoi(parsedCommandId); err != nil {
 		fmt.Println("Couldn't convert value to Integer")
 		return
 	} else {
 		if parsedCommandIdInt != -1 {
-			if err := os.WriteFile("internal/api/handlers/latest_processed_sim_action_id.txt", []byte(parsedCommandId), 0644); err != nil {
-				fmt.Println("Error with file ${}")
+			db := ctx.MustGet("DB").(*gorm.DB)
+			var latestID models.LatestID
+			result := db.Model(&models.LatestID{}).First(latestID)
+			if result.Error == nil {
+				db.Model(&models.LatestID{}).Delete(latestID)
 			}
-
+			db.Model(&models.LatestID{}).Create(models.LatestID{
+				LatestID: parsedCommandIdInt,
+			})
 		}
 	}
-
 }
