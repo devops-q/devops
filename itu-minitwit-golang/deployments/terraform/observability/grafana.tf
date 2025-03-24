@@ -13,6 +13,12 @@ resource "grafana_folder" "my_folder" {
   title = "grafana_dashboard_folder"
 }
 
+resource "grafana_data_source" "loki" {
+  name = "loki"
+  type = "loki"
+  url = "http://localhost:3100"
+}
+
 resource "grafana_data_source" "prometheus" {
   type                = "prometheus"
   name                = "mimir"
@@ -32,6 +38,7 @@ resource "grafana_data_source" "prometheus" {
     basicAuthPassword = var.prometheus_root_password
   })
 }
+
 
 resource "grafana_dashboard" "grafana_dashboard_folder" {
   folder = grafana_folder.my_folder.id
@@ -242,7 +249,7 @@ resource "grafana_dashboard" "grafana_dashboard_folder" {
     },
     "timepicker" : {},
     "timezone" : "",
-    "title" : "Main dashboard",
+    "title" : "Monitor Dashboard",
     "uid" : "e115a275-682c-4ec2-8482-55e552c2c3a0",
     "version" : 2,
     "weekStart" : ""
