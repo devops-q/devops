@@ -19,7 +19,7 @@ func UpdateLatest(ctx *gin.Context, parsedCommandId string) {
 			var latestID *models.LatestID
 			result := db.Model(&models.LatestID{}).First(&latestID)
 			if result.Error == nil {
-				db.Model(&models.LatestID{}).Delete(latestID)
+				db.Delete(&models.LatestID{}, latestID.LatestID)
 			}
 			db.Model(&models.LatestID{}).Create(&models.LatestID{
 				LatestID: parsedCommandIdInt,
