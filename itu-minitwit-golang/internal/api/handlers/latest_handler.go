@@ -1,35 +1,30 @@
 package handlers
 
 import (
+	"itu-minitwit/internal/models"
 	"log"
 	"net/http"
-	"os"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func GetLatest(ctx *gin.Context) {
 
-	content, err := os.ReadFile("internal/api/handlers/latest_processed_sim_action_id.txt")
-	if err != nil {
-		log.Printf("Failed to read file: %v\n", err)
-		ctx.JSON(http.StatusOK, gin.H{"latest": -1})
-		return
-	}
+	db := ctx.MustGet("DB").(*gorm.DB)
+	var latestID models.LatestID
+	result := db.Model(&models.LatestID{}).First(latestID)
 
-	// Attempt to convert file content to integer
-	contentInt, err := strconv.Atoi(string(content))
-	if err != nil {
-		log.Printf("Failed to parse file content to integer: %v\n", err)
-		ctx.JSON(http.StatusOK, gin.H{"latest": -1})
+	if result.Error != nil {
+		log.Printf("Failed to read latest id from DB: %v\n", result.Error)
+		ctx.JSON(http.StatusNotFound, gin.H{"latest": -1})
 		return
 	}
 
 	// If content is valid and not -1, return it; otherwise, return -1
-	if contentInt != -1 {
-		ctx.JSON(http.StatusOK, gin.H{"latest": contentInt})
+	if latestID.LatestID != -1 {
+		ctx.JSON(http.StatusOK, gin.H{"latest": latestID.LatestID})
 	} else {
-		ctx.JSON(http.StatusOK, gin.H{"latest": -1})
+		ctx.JSON(http.StatusNotFound, gin.H{"latest": -1})
 	}
 }
