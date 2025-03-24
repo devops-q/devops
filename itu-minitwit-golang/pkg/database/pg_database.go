@@ -2,12 +2,13 @@ package database
 
 import (
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"itu-minitwit/config"
 	"itu-minitwit/internal/models"
 	"itu-minitwit/internal/service"
 	"itu-minitwit/pkg/logger"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
@@ -24,7 +25,7 @@ func InitDb(cfg *config.Config) {
 	if dbErr != nil {
 		gormLogger.logger.Fatalf("Could not connect to database: %v", dbErr)
 	}
-	err := db.AutoMigrate(&models.User{}, &models.Message{}, &models.APIUser{})
+	err := db.AutoMigrate(&models.User{}, &models.Message{}, &models.APIUser{}, &models.LatestID{})
 	if err != nil {
 		gormLogger.logger.Error("Error during auto migration: %v", err)
 		panic(err)
