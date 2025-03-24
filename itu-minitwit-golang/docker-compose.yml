@@ -24,6 +24,7 @@ services:
       - minitwit-network
   prometheus:
     image: prom/prometheus
+    user: "1000:1000"
     volumes:
       - type: bind
         source: /root/prometheus/
