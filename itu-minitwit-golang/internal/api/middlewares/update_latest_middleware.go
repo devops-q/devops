@@ -8,6 +8,6 @@ import (
 
 func UpdateLatestMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		utils.UpdateLatest(ctx.DefaultQuery("latest", "-1"))
+		utils.UpdateLatest(ctx, ctx.DefaultQuery("latest", "-1"))
 	}
 }
