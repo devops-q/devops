@@ -7,6 +7,7 @@ import (
 	"itu-minitwit/internal/models"
 	"itu-minitwit/internal/service"
 	"itu-minitwit/internal/utils"
+	"itu-minitwit/pkg/logger"
 	"net/http"
 	"strconv"
 	"strings"
@@ -17,54 +18,64 @@ import (
 )
 
 func FollowHandler(c *gin.Context) {
+	log := logger.Init()
 	db := c.MustGet("DB").(*gorm.DB)
 	username := c.Param("username")
 
 	userLoggedIn := utils.GetUserFomContext(c)
 	if userLoggedIn == nil {
+		log.Info("[FollowHandler] Error message: user not logged in")
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
 	var userToFollow models.User
 	if err := db.First(&userToFollow, models.User{Username: username}).Error; err != nil {
+		log.Info("[FollowHandler] Error message: %v", err)
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
 	if err := db.Model(&userLoggedIn).Association("Following").Append(&userToFollow); err != nil {
+		log.Info("[FollowHandler] Error message: %v", err)
 		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 	utils.SetFlashes(c, fmt.Sprintf("You are now following \"%s\"", userToFollow.Username))
+	log.Info("[FollowHandler] Success")
+
 	c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("/%s", userToFollow.Username))
 }
 
 func UnfollowHandler(c *gin.Context) {
+	log := logger.Init()
 	db := c.MustGet("DB").(*gorm.DB)
 	username := c.Param("username")
 
 	userLoggedIn := utils.GetUserFomContext(c)
 	if userLoggedIn == nil {
+		log.Info("[UnfollowHandler] Error message: user not logged in")
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
 	var userToUnfollow models.User
 	if err := db.Where("username = ?", username).First(&userToUnfollow).Error; err != nil {
+		log.Info("[UnfollowHandler] Error message: %v", err)
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
 	if err := db.Model(userLoggedIn).Association("Following").Delete(&userToUnfollow); err != nil {
+		log.Info("[UnfollowHandler] Error message: %v", err)
 		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	utils.SetFlashes(c, fmt.Sprintf("You are no longer following \"%s\"", username))
-
+	log.Info("[UnfollowHandler] Success")
 	c.Redirect(http.StatusTemporaryRedirect, "/"+username)
 }
 

@@ -3,12 +3,14 @@ package handlers
 import (
 	"itu-minitwit/internal/service"
 	"itu-minitwit/internal/utils"
+	"itu-minitwit/pkg/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func LoginHandler(c *gin.Context) {
+	log := logger.Init()
 	// Check if the user is already logged in
 	user := utils.GetUserFomContext(c)
 	if user != nil {
@@ -22,7 +24,11 @@ func LoginHandler(c *gin.Context) {
 
 		// Find user in DB
 
-		msg, _ := service.HandleLogin(c, username, password)
+		msg, err := service.HandleLogin(c, username, password)
+
+		if err != nil {
+			log.Error("[Login Method] Error signing user in: %v", err)
+		}
 
 		if msg != "" {
 			utils.SetFlashes(c, msg)

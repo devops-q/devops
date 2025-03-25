@@ -7,7 +7,7 @@ import (
 	"itu-minitwit/internal/models"
 	"itu-minitwit/internal/service"
 	"itu-minitwit/internal/utils"
-	"log"
+	"itu-minitwit/pkg/logger"
 	"net/http"
 )
 
@@ -37,7 +37,8 @@ func PublicTimelineHandler(c *gin.Context) {
 }
 
 func TimelineHandler(c *gin.Context) {
-	log.Printf("We got a visitor from: %s\n", c.ClientIP())
+	log := logger.Init()
+	log.Info("We got a visitor from: %s\n", c.ClientIP())
 
 	db := c.MustGet("DB").(*gorm.DB)
 	cfg := c.MustGet("Config").(*config.Config)

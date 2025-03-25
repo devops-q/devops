@@ -6,6 +6,7 @@ import (
 	"itu-minitwit/internal/models"
 	"itu-minitwit/internal/service"
 	"itu-minitwit/internal/utils"
+	"itu-minitwit/pkg/logger"
 	"net/http"
 
 	"gorm.io/gorm"
@@ -14,6 +15,7 @@ import (
 )
 
 func RegisterHandler(c *gin.Context) {
+	log := logger.Init()
 	var db = c.MustGet("DB").(*gorm.DB)
 	var user *models.User = utils.GetUserFomContext(c)
 
@@ -39,7 +41,7 @@ func RegisterHandler(c *gin.Context) {
 			return
 
 		} else {
-			fmt.Println(err)
+			log.Error("[Register Method] Error registering user: %v", err)
 		}
 	}
 
