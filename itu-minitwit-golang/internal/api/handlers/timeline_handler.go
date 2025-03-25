@@ -7,7 +7,7 @@ import (
 	"itu-minitwit/internal/models"
 	"itu-minitwit/internal/service"
 	"itu-minitwit/internal/utils"
-	"log"
+	"itu-minitwit/pkg/logger"
 	"net/http"
 )
 
@@ -37,7 +37,8 @@ func PublicTimelineHandler(c *gin.Context) {
 }
 
 func TimelineHandler(c *gin.Context) {
-	log.Printf("We got a visitor from: %s\n", c.ClientIP())
+	log := logger.Init()
+	log.Info("We got a visitor from: %s\n", c.ClientIP())
 
 	db := c.MustGet("DB").(*gorm.DB)
 	cfg := c.MustGet("Config").(*config.Config)
@@ -71,6 +72,7 @@ func TimelineHandler(c *gin.Context) {
 }
 
 func UserTimelineHandler(c *gin.Context) {
+	log := logger.Init()
 	db := c.MustGet("DB").(*gorm.DB)
 	cfg := c.MustGet("Config").(*config.Config)
 	username := c.Param("username")
@@ -78,6 +80,7 @@ func UserTimelineHandler(c *gin.Context) {
 	// Get profile user
 	var profileUser models.User
 	if err := db.Where("username = ?", username).First(&profileUser).Error; err != nil {
+
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -97,6 +100,7 @@ func UserTimelineHandler(c *gin.Context) {
 	messages, err := service.GetMessagesByAuthor(db, profileUser.ID, cfg.PerPage)
 
 	if err != nil {
+		log.Error("[UserTimelineHandler] Error: ", err)
 		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

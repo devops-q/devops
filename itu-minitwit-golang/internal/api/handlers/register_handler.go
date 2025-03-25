@@ -6,6 +6,7 @@ import (
 	"itu-minitwit/internal/models"
 	"itu-minitwit/internal/service"
 	"itu-minitwit/internal/utils"
+	"itu-minitwit/pkg/logger"
 	"net/http"
 
 	"gorm.io/gorm"
@@ -14,11 +15,12 @@ import (
 )
 
 func RegisterHandler(c *gin.Context) {
+	log := logger.Init()
 	var db = c.MustGet("DB").(*gorm.DB)
 	var user *models.User = utils.GetUserFomContext(c)
 
 	if user != nil {
-		// Already logged in !
+		log.Error("[RegisterHandler] User already exists")
 		c.Redirect(http.StatusFound, "/")
 	}
 
@@ -34,12 +36,13 @@ func RegisterHandler(c *gin.Context) {
 		success, registerErrorMessage := service.RegisterUser(db, username, email, password, password2)
 		err = registerErrorMessage
 		if success {
+
 			utils.SetFlashes(c, "You were successfully registered and can login now")
 			c.Redirect(http.StatusFound, "/login")
 			return
 
 		} else {
-			fmt.Println(err)
+			log.Error("[RegisterHandler] Error registering user: %v", err)
 		}
 	}
 
