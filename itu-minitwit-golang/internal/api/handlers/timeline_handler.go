@@ -72,6 +72,7 @@ func TimelineHandler(c *gin.Context) {
 }
 
 func UserTimelineHandler(c *gin.Context) {
+	log := logger.Init()
 	db := c.MustGet("DB").(*gorm.DB)
 	cfg := c.MustGet("Config").(*config.Config)
 	username := c.Param("username")
@@ -79,6 +80,7 @@ func UserTimelineHandler(c *gin.Context) {
 	// Get profile user
 	var profileUser models.User
 	if err := db.Where("username = ?", username).First(&profileUser).Error; err != nil {
+
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -98,6 +100,7 @@ func UserTimelineHandler(c *gin.Context) {
 	messages, err := service.GetMessagesByAuthor(db, profileUser.ID, cfg.PerPage)
 
 	if err != nil {
+		log.Error("[UserTimelineHandler] Error: ", err)
 		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

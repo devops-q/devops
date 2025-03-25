@@ -24,20 +24,20 @@ func FollowHandler(c *gin.Context) {
 
 	userLoggedIn := utils.GetUserFomContext(c)
 	if userLoggedIn == nil {
-		log.Info("[FollowHandler] Error message: user not logged in")
+		log.Error("[FollowHandler] Error message: User not logged in")
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
 	var userToFollow models.User
 	if err := db.First(&userToFollow, models.User{Username: username}).Error; err != nil {
-		log.Info("[FollowHandler] Error message: %v", err)
+		log.Error("[FollowHandler] Error message: %v", err)
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
 	if err := db.Model(&userLoggedIn).Association("Following").Append(&userToFollow); err != nil {
-		log.Info("[FollowHandler] Error message: %v", err)
+		log.Error("[FollowHandler] Error message: %v", err)
 		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -55,20 +55,20 @@ func UnfollowHandler(c *gin.Context) {
 
 	userLoggedIn := utils.GetUserFomContext(c)
 	if userLoggedIn == nil {
-		log.Info("[UnfollowHandler] Error message: user not logged in")
+		log.Error("[UnfollowHandler] Error message: user not logged in")
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
 	var userToUnfollow models.User
 	if err := db.Where("username = ?", username).First(&userToUnfollow).Error; err != nil {
-		log.Info("[UnfollowHandler] Error message: %v", err)
+		log.Error("[UnfollowHandler] Error message: %v", err)
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
 	if err := db.Model(userLoggedIn).Association("Following").Delete(&userToUnfollow); err != nil {
-		log.Info("[UnfollowHandler] Error message: %v", err)
+		log.Error("[UnfollowHandler] Error message: %v", err)
 		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -80,6 +80,7 @@ func UnfollowHandler(c *gin.Context) {
 }
 
 func GetUserFollowersAPI(c *gin.Context) {
+	log := logger.Init()
 	db := c.MustGet("DB").(*gorm.DB)
 
 	limitParam := c.DefaultQuery("no", "100")
@@ -87,6 +88,7 @@ func GetUserFollowersAPI(c *gin.Context) {
 	username := c.Param("username")
 
 	if err != nil {
+		log.Error("[GetUserFollowersAPI] Error: %v", err)
 		c.JSON(http.StatusBadRequest, json_models.ErrorResponse{
 			Code:         http.StatusInternalServerError,
 			ErrorMessage: "Invalid number of messages provided in param\"no\"",
@@ -97,10 +99,13 @@ func GetUserFollowersAPI(c *gin.Context) {
 	userId, err := service.GetUserIdByUsername(db, username)
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
+		log.Error("[GetUserFollowersAPI] Error: %v", err)
+
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 	if err != nil {
+		log.Error("[GetUserFollowersAPI] Error: %v", err)
 		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, json_models.ErrorResponse{
 			Code:         http.StatusInternalServerError,
@@ -112,6 +117,7 @@ func GetUserFollowersAPI(c *gin.Context) {
 	followers, err := service.GetUserFollows(db, uint(userId), limit)
 
 	if err != nil {
+		log.Error("[GetUserFollowersAPI] Error: %v", err)
 		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, json_models.ErrorResponse{
 			Code:         http.StatusInternalServerError,
@@ -131,6 +137,7 @@ func GetUserFollowersAPI(c *gin.Context) {
 }
 
 func FollowUnfollowHandlerAPI(c *gin.Context) {
+	log := logger.Init()
 	db := c.MustGet("DB").(*gorm.DB)
 
 	username := c.Param("username")
@@ -138,11 +145,15 @@ func FollowUnfollowHandlerAPI(c *gin.Context) {
 	whoId, err := service.GetUserIdByUsername(db, username)
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
+		log.Error("[FollowUnfollowHandlerAPI] Error: %v", err)
+
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
 	if err != nil {
+		log.Error("[FollowUnfollowHandlerAPI] Error: %v", err)
+
 		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, json_models.ErrorResponse{
 			Code:         http.StatusInternalServerError,
@@ -154,6 +165,7 @@ func FollowUnfollowHandlerAPI(c *gin.Context) {
 	var body json_models.FollowUnfollowBody
 
 	if err := c.ShouldBindJSON(&body); err != nil {
+		log.Error("[FollowUnfollowHandlerAPI] Error: %v", err)
 		fmt.Println("Error binding json", err)
 		_ = c.Error(err)
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -180,6 +192,8 @@ func FollowUnfollowHandlerAPI(c *gin.Context) {
 	whomId, err := service.GetUserIdByUsername(db, whomUsername)
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
+		log.Error("[FollowUnfollowHandlerAPI] Error: %v", err)
+
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -200,6 +214,8 @@ func FollowUnfollowHandlerAPI(c *gin.Context) {
 	}
 
 	if fllwErr != nil {
+		log.Error("[FollowUnfollowHandlerAPI] Error: %v", err)
+
 		_ = c.Error(fllwErr)
 		c.JSON(http.StatusInternalServerError, json_models.ErrorResponse{
 			Code:         http.StatusInternalServerError,
@@ -207,6 +223,8 @@ func FollowUnfollowHandlerAPI(c *gin.Context) {
 		})
 		return
 	}
+
+	log.Info("[FollowUnfollowHandlerAPI] Success")
 
 	c.Status(http.StatusNoContent)
 }

@@ -21,7 +21,7 @@ func HandleLogin(c *gin.Context, username string, password string) (string, erro
 			return "Database error", err
 		}
 	} else if hashedPS, err2 := utils.CheckPassword(user.PwHash, password); !hashedPS {
-		log.Error("[HandleLogin] CheckPassword error", log)
+		log.Error("[HandleLogin] CheckPassword error", err2)
 		return "Invalid password", err2
 	} else {
 		log.Info("[HandleLogin], successful login")

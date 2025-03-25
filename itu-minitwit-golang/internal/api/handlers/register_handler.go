@@ -20,7 +20,7 @@ func RegisterHandler(c *gin.Context) {
 	var user *models.User = utils.GetUserFomContext(c)
 
 	if user != nil {
-		// Already logged in !
+		log.Error("[RegisterHandler] User already exists")
 		c.Redirect(http.StatusFound, "/")
 	}
 
@@ -36,12 +36,13 @@ func RegisterHandler(c *gin.Context) {
 		success, registerErrorMessage := service.RegisterUser(db, username, email, password, password2)
 		err = registerErrorMessage
 		if success {
+
 			utils.SetFlashes(c, "You were successfully registered and can login now")
 			c.Redirect(http.StatusFound, "/login")
 			return
 
 		} else {
-			log.Error("[Register Method] Error registering user: %v", err)
+			log.Error("[RegisterHandler] Error registering user: %v", err)
 		}
 	}
 

@@ -14,6 +14,7 @@ func LoginHandler(c *gin.Context) {
 	// Check if the user is already logged in
 	user := utils.GetUserFomContext(c)
 	if user != nil {
+		log.Info("[LoginHandler] User already logged, redirecting to /")
 		c.Redirect(http.StatusFound, "/")
 		return
 	}
@@ -35,6 +36,7 @@ func LoginHandler(c *gin.Context) {
 		} else {
 			utils.SetFlashes(c, "You were logged in")
 			c.Redirect(http.StatusFound, "/")
+			log.Info("[LoginHandler] Successfully logged in")
 			return
 		}
 

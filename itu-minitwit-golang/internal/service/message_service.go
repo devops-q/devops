@@ -4,9 +4,11 @@ import (
 	"gorm.io/gorm"
 	"itu-minitwit/internal/api/json_models"
 	"itu-minitwit/internal/models"
+	"itu-minitwit/pkg/logger"
 )
 
 func GetMessagesByAuthor(db *gorm.DB, userID uint, perPage int) ([]models.Message, error) {
+	log := logger.Init()
 	var messages []models.Message
 	err := db.Model(&models.Message{}).
 		Preload("Author").
@@ -16,6 +18,8 @@ func GetMessagesByAuthor(db *gorm.DB, userID uint, perPage int) ([]models.Messag
 		Find(&messages).Error
 
 	if err != nil {
+		log.Error("[GetMessagesByAuthor] Error: %v", err)
+
 		return nil, err
 	}
 

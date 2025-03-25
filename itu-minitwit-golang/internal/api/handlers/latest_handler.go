@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"itu-minitwit/internal/models"
-	"log"
+	"itu-minitwit/pkg/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,12 +10,13 @@ import (
 )
 
 func GetLatest(ctx *gin.Context) {
+	log := logger.Init()
 	db := ctx.MustGet("DB").(*gorm.DB)
 	var latestID models.LatestID
 	result := db.Model(&models.LatestID{}).First(&latestID)
 
 	if result.Error != nil {
-		log.Printf("Failed to read latest id from DB: %v\n", result.Error)
+		log.Error("[GetLatest] Failed to read latest id from DB: %v\n", result.Error)
 		ctx.JSON(http.StatusOK, gin.H{"latest": -1})
 		return
 	}
