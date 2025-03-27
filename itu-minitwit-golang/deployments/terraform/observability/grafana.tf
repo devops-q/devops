@@ -16,7 +16,7 @@ resource "grafana_folder" "my_folder" {
 resource "grafana_data_source" "loki" {
   name = "loki"
   type = "loki"
-  url = "http://localhost:3100"
+  url = "http://loki:3100"
 }
 
 resource "grafana_data_source" "prometheus" {

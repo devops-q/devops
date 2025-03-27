@@ -15,6 +15,9 @@ mkdir -p /root/prometheus
 
 mkdir -p /mnt/mount
 
+# Add permissions to the /mnt/mount directory
+sudo chown -R 1000:1000 /mnt/mount
+
 mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount
 
 echo '/dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount ext4 defaults,nofail,discard 0 0' | sudo tee -a /etc/fstab
@@ -137,11 +140,31 @@ discovery.docker "linux" {
   host = "unix:///var/run/docker.sock"
 }
 
+discovery.relabel "container_labels" {
+  targets = discovery.docker.linux.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    target_label  = "container_name"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_id"]
+    target_label  = "container_id"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_swarm_service_name"]
+    target_label  = "service_name"
+  }
+}
+
 loki.source.docker "default" {
-  host       = "unix:///var/run/docker.sock"
-  targets    = discovery.docker.linux.targets
-  labels     = {"app" = "docker"}
-  forward_to = [loki.write.local.receiver]
+  host          = "unix:///var/run/docker.sock"
+  targets       = discovery.relabel.container_labels.output
+  labels        = {"app" = "docker"}
+  forward_to    = [loki.write.local.receiver]
+  refresh_interval = "5s"
 }
 
 loki.write "local" {
