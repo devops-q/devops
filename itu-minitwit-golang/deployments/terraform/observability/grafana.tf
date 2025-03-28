@@ -568,7 +568,7 @@ resource "grafana_dashboard" "Log" {
       {
         "datasource": {
           "type": "loki",
-          "uid": "eegtlsawuton4f"
+          "uid": grafana_data_source.loki.uid
         },
         "fieldConfig": {
           "defaults": {
