@@ -14,6 +14,9 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 
 	r.Static("/static", "./web/static")
 	r.LoadHTMLGlob("web/templates/*")
+	r.GET("/favicon.ico", func(c *gin.Context) {
+		c.Status(204) // No Content
+	})
 	r.GET("/register", handlers.RegisterHandler)
 	r.POST("/register", handlers.RegisterHandler)
 	r.POST("/login", handlers.LoginHandler)
