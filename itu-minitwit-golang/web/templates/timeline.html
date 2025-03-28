@@ -28,18 +28,28 @@
 <ul class="messages">
 
     {{ range .Messages }}
-    <li>
+    <li onload="formatTimeLocal()">
         <img src="{{ GravatarURL .Author.Email 48 }}" width="48" height="48">
         <p><strong>
             <a href="{{ .Author.Username }}">{{ .Author.Username }}</a>
         </strong>
             {{ .Text }}
-            <small> Written @ {{ .CreatedAt | FormatDateTime }}</small>
+            <small class="time">{{ .CreatedAt  }}</small>
         </p>
     </li>
     {{ else }}
     <li><em>There's no message so far.</em></li>
     {{ end }}
 </ul>
+
+<script>
+    function formatTimeLocal() {
+        var times = document.getElementsByClassName("time")
+        for (let element of times) {
+            var datetime = new Date(element.innerHTML)
+            element.innerHTML = "Written @ " + datetime.toLocaleTimeString()
+        }
+    }
+</script>
 
 {{ end }}
