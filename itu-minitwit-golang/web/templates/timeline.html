@@ -28,7 +28,7 @@
 <ul class="messages">
 
     {{ range .Messages }}
-    <li>
+    <li onload="formatTimeLocal()">
         <img src="{{ GravatarURL .Author.Email 48 }}" width="48" height="48">
         <p><strong>
             <a href="{{ .Author.Username }}">{{ .Author.Username }}</a>
