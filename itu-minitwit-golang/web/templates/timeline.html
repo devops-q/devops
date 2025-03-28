@@ -28,7 +28,7 @@
 <ul class="messages">
 
     {{ range .Messages }}
-    <li onload="formatTimeLocal()">
+    <li>
         <img src="{{ GravatarURL .Author.Email 48 }}" width="48" height="48">
         <p><strong>
             <a href="{{ .Author.Username }}">{{ .Author.Username }}</a>
@@ -43,11 +43,12 @@
 </ul>
 
 <script>
+    window.addEventListener("load", (event) => formatTimeLocal)
     function formatTimeLocal() {
         var times = document.getElementsByClassName("time")
         for (let element of times) {
             var datetime = new Date(element.innerHTML)
-            element.innerHTML = "Written @ " + datetime.toLocaleTimeString()
+            element.innerHTML = "Written @ " + datetime.toLocaleString()
         }
     }
 </script>
