@@ -42,7 +42,7 @@ resource "grafana_data_source" "prometheus" {
 }
 
 
-resource "grafana_dashboard" "grafana_dashboard_folder" {
+resource "grafana_dashboard" "Monitor" {
   folder = grafana_folder.my_folder.id
   config_json = jsonencode({
     "annotations" : {
@@ -252,13 +252,14 @@ resource "grafana_dashboard" "grafana_dashboard_folder" {
     "timepicker" : {},
     "timezone" : "",
     "title" : "Monitor Dashboard",
-    "uid" : "e115a275-682c-4ec2-8482-55e552c2c3a0",
+    "uid" : grafana_data_source.prometheus.uid,
     "version" : 2,
     "weekStart" : ""
   })
 }
 
-resource "grafana_dashboard" "grafana_dashboard_folder" {
+resource "grafana_dashboard" "Log" {
+  folder = grafana_folder.my_folder.id
   config_json = jsonencode({
     "annotations": {
       "list": [
