@@ -1,3 +1,29 @@
+variable "prometheus_root_password" {
+  type        = string
+  description = "API password for the initial user"
+}
+
+variable "helge_and_mircea_password" {
+  type        = string
+  description = "API password for the initial user"
+}
+
+variable "s3_logs_bucket_name" {
+  type        = string
+  description = "S3 bucket name for logs"
+}
+
+variable "s3_access_key" {
+  type        = string
+  description = "S3 access key"
+}
+
+variable "s3_secret_key" {
+  type        = string
+  description = "S3 secret key"
+}
+
+
 resource "digitalocean_droplet" "minitwit-vm" {
   image  = "docker-20-04"
   name   = "minitwit-vm"
