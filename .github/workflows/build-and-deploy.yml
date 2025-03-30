@@ -121,7 +121,8 @@ jobs:
               S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }} \
               S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }} \
               S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} \
-              ansible-playbook -i localhost, -c local playbook.yml
+              ansible-playbook /tmp/playbook.yml -c local playbook.yml
+
 
 
 
