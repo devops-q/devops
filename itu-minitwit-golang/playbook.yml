@@ -2,6 +2,12 @@
   hosts: localhost
   connection: local
   become: yes
+  vars:
+    prometheus_root_password: "{{ lookup('env', 'PROMETHEUS_ROOT_PASSWORD') }}"
+    helge_and_mircea_password: "{{ lookup('env', 'HELGE_AND_MIRCEA_PASSWORD') }}"
+    s3_access_key: "{{ lookup('env', 'S3_ACCESS_KEY') }}"
+    s3_secret_key: "{{ lookup('env', 'S3_SECRET_KEY') }}"
+    s3_logs_bucket_name: "{{ lookup('env', 'S3_BUCKET_NAME') }}"
   tasks:
     - name: Initialize Docker Swarm with advertise address
       docker_swarm:
@@ -59,4 +65,31 @@
             mode: '0775'
             recurse: yes
           changed_when: false
+        - name: Generate bcrypt hashes for passwords
+          set_fact:
+            prometheus_root_password_bcrypt: "{{ prometheus_root_password | password_hash('bcrypt') }}"
+            helge_and_mircea_password_bcrypt: "{{ helge_and_mircea_password | password_hash('bcrypt') }}"
 
+        - name: Write Prometheus configuration file
+          template:
+            src: vm_config/prometheus.yml.j2
+            dest: /mnt/mount/config/prom/prometheus.yml
+            mode: '0644'
+
+        - name: Write Prometheus web configuration file
+          template:
+            src: vm_config/web.yml.j2
+            dest: /mnt/mount/config/prom/web.yml
+            mode: '0644'
+
+        - name: Write Loki configuration file
+          template:
+            src: vm_config/loki-config.yaml.j2
+            dest: /mnt/mount/config/loki-config.yaml
+            mode: '0644'
+
+        - name: Write Alloy configuration file
+          template:
+            src: vm_config/alloy-config.alloy.j2
+            dest: /mnt/mount/config/alloy-config.alloy
+            mode: '0644'
