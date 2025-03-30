@@ -116,7 +116,7 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ./id_rsa
           chmod 600 ./id_rsa
-          
+
           sleep 10
           
           scp -o StrictHostKeyChecking=no -i ./id_rsa playbook.yml "root@${{ env.ip_address }}":/tmp/

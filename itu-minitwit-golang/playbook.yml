@@ -60,4 +60,3 @@
             recurse: yes
           changed_when: false
 
-        - name:
