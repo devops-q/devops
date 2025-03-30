@@ -1,5 +1,6 @@
 - name: Ansible Setup
-  hosts: all
+  hosts: localhost
+  connection: local
   become: yes
   tasks:
     - name: Initialize Docker Swarm with advertise address
@@ -58,5 +59,4 @@
             mode: '0775'
             recurse: yes
           changed_when: false
-
 

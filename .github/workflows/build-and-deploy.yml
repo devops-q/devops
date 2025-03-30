@@ -116,8 +116,11 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ./id_rsa
           chmod 600 ./id_rsa
-          ansible-playbook -i "root@${{ env.ip_address }}," playbook.yml --private-key ./id_rsa -o StrictHostKeyChecking=no
 
+          sleep 10
+          
+          scp -o StrictHostKeyChecking=no -i ./id_rsa playbook.yml "root@${{ env.ip_address }}":/tmp/
+          ssh -o StrictHostKeyChecking=no -i ./id_rsa "root@${{ env.ip_address }}" ansible-playbook /tmp/playbook.yml -c local
 
 
 
