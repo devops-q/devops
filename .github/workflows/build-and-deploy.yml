@@ -118,6 +118,9 @@ jobs:
           chmod 600 ./id_rsa
           sleep 10
           
+          scp -o StrictHostKeyChecking=no -i ./id_rsa check_user_data_completion.sh "root@${{ env.ip_address }}":/tmp/
+          
+          
           ansible-playbook -i "root@${{ env.ip_address }}," playbook.yml
 
 
