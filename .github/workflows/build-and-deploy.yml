@@ -113,8 +113,12 @@ jobs:
         working-directory: ./itu-minitwit-golang/deployments/terraform/infrastructure
 
       - name: Ansible Setup
-        run:
-            ansible-playbook -i "root@${{ env.ip_address }}," playbook.yml
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ./id_rsa
+          chmod 600 ./id_rsa
+          sleep 10
+          
+          ansible-playbook -i "root@${{ env.ip_address }}," playbook.yml
 
 
 
