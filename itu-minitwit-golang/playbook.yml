@@ -26,7 +26,6 @@
         - /mnt/mount/config
         - /mnt/mount/config/prom
 
-
     - name: Setup permissions for Do mount
       block:
         - name: Ensure the mount directory is owned by the correct user
@@ -59,3 +58,5 @@
             mode: '0775'
             recurse: yes
           changed_when: false
+
+
