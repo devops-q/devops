@@ -41,8 +41,6 @@ services:
     ports:
       - "9090:9090"
     environment:
-      - PROMETHEUS_ROOT_PASSWORD_BCRYPT=${PROMETHEUS_ROOT_PASSWORD_BCRYPT}
-      - HELGE_AND_MIRCEA_PASSWORD_BCRYPT=${HELGE_AND_MIRCEA_PASSWORD_BCRYPT}
     networks:
       - minitwit-network
 
