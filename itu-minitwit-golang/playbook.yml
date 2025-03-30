@@ -1,0 +1,35 @@
+- name: Ansible Setup
+  hosts: all
+  become: yes
+  tasks:
+    - name: Initialize Docker Swarm with advertise address
+      shell: docker swarm init --advertise-addr "$(hostname -I | awk '{print $1}')"
+      changed_when: false
+
+    - name: Allow SSH (port 22)
+      shell: |
+        ufw allow 22/tcp
+        ufw allow 22
+        ufw reload
+
+    - name: Create directories
+      shell: |
+        mkdir -p /root/data
+        mkdir -p /root/prometheus
+        mkdir -p /mnt/mount
+        mkdir -p /root/configs
+        mkdir -p /mnt/mount/prom
+        mkdir -p /mnt/mount/config
+        mkdir -p /mnt/mount/config/prom
+
+    - name: Setup permissions for Do mount
+      shell: |
+        chown -R 1000:1000 /mnt/mount
+        mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount
+        echo '/dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount ext4 defaults,nofail,discard 0 0' | sudo tee -a /etc/fstab
+        chown -R 1000:1000 /mnt/mount
+        chmod -R 775 /mnt/mount
+      
+      
+
+
