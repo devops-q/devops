@@ -112,6 +112,12 @@ jobs:
           echo "db_password=$db_password" >> $GITHUB_ENV
         working-directory: ./itu-minitwit-golang/deployments/terraform/infrastructure
 
+      - name: Ansible Setup
+        run:
+            ansible-playbook -i "root@${{ env.ip_address }}," playbook.yml
+
+
+
       - name: Check user_data script completion
         working-directory: ./scripts
         run: |
@@ -151,7 +157,6 @@ jobs:
           user: root
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           env_file: ./itu-minitwit-golang/envfile
-          detach: false
       - name: Terraform init observability
         run: terraform init
         working-directory: ./itu-minitwit-golang/deployments/terraform/observability

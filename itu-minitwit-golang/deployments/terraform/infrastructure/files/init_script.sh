@@ -1,31 +1,6 @@
 #!/bin/bash
-# Initialize Docker Swarm with advertise address
-docker swarm init --advertise-addr "$(hostname -I | awk '{print $1}')"
 
-
-# Allow ssh traffic on port 22
-sudo ufw allow 22/tcp
-sudo ufw allow 22
-
-# Create directory /root/data
-mkdir -p /root/data
-
-# Create and populate the
-mkdir -p /root/prometheus
-
-mkdir -p /mnt/mount
-
-# Add permissions to the /mnt/mount directory
-sudo chown -R 1000:1000 /mnt/mount
-
-mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount
-
-echo '/dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount ext4 defaults,nofail,discard 0 0' | sudo tee -a /etc/fstab
-
-sudo chown -R 1000:1000 /mnt/mount
-sudo chmod -R 775 /mnt/mount
-
-cat <<'EOF' > /root/prometheus/prometheus.yml
+cat <<'EOF' > /mnt/mount/config/prom/prometheus.yml
 global:
   scrape_interval: 15s  # By default, scrape targets every 15 seconds.
   evaluation_interval: 15s  # Evaluate rules every 15 seconds.
@@ -53,7 +28,7 @@ scrape_configs:
           group: 'production'
 EOF
 
-cat <<'EOF' > /root/prometheus/web.yml
+cat <<'EOF' > /mnt/mount/config/prom/web.yml
 basic_auth_users:
     admin: '${PROMETHEUS_ROOT_PASSWORD_BCRYPT}'
     helgeandmircea: '${HELGE_AND_MIRCEA_PASSWORD_BCRYPT}'
@@ -62,7 +37,7 @@ EOF
 
 mkdir -p /root/configs
 
-cat <<'EOF' > /root/configs/loki-config.yaml
+cat <<'EOF' > /mnt/mount/config/loki-config.yaml
 auth_enabled: false
 
 server:
@@ -135,7 +110,7 @@ compactor:
   compaction_interval: 10m
 EOF
 
-cat <<'EOF' > /root/configs/alloy-config.alloy
+cat <<'EOF' > /mnt/mount/config/alloy-config.alloy
 discovery.docker "linux" {
   host = "unix:///var/run/docker.sock"
 }

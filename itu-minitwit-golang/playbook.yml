@@ -1,0 +1,62 @@
+- name: Ansible Setup
+  hosts: all
+  become: yes
+  tasks:
+    - name: Initialize Docker Swarm with advertise address
+      docker_swarm:
+        state: present
+        advertise_addr: "{{ ansible_default_ipv4.address }}"
+
+    - name: Allow SSH (port 22)
+      ufw:
+        rule: allow
+        name: 'OpenSSH'
+        state: enabled
+
+    - name: Create necessary directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items:
+        - /root/data
+        - /root/prometheus
+        - /mnt/mount
+        - /mnt/mount/prom
+        - /mnt/mount/config
+        - /mnt/mount/config/prom
+
+    - name: Setup permissions for Do mount
+      block:
+        - name: Ensure the mount directory is owned by the correct user
+          file:
+            path: /mnt/mount
+            owner: 1000
+            group: 1000
+            recurse: yes
+
+        - name: Mount the disk (only if not already mounted)
+          mount:
+            path: /mnt/mount
+            src: /dev/disk/by-id/scsi-0DO_Volume_mount
+            fstype: ext4
+            opts: defaults,nofail,discard
+            state: mounted
+
+        - name: Add the mount to /etc/fstab
+          lineinfile:
+            path: /etc/fstab
+            line: '/dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount ext4 defaults,nofail,discard 0 0'
+            create: yes
+            state: present
+
+        - name: Ensure correct permissions on /mnt/mount
+          file:
+            path: /mnt/mount
+            owner: 1000
+            group: 1000
+            mode: '0775'
+            recurse: yes
+          changed_when: false
+
+
