@@ -35,7 +35,6 @@ basic_auth_users:
 EOF
 
 
-mkdir -p /root/configs
 
 cat <<'EOF' > /mnt/mount/config/loki-config.yaml
 auth_enabled: false

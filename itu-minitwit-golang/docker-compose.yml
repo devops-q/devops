@@ -40,6 +40,9 @@ services:
       - '--storage.tsdb.path=/prometheus'
     ports:
       - "9090:9090"
+    environment:
+      - PROMETHEUS_ROOT_PASSWORD_BCRYPT=$PROMETHEUS_ROOT_PASSWORD_BCRYPT
+      - HELGE_AND_MIRCEA_PASSWORD_BCRYPT=$HELGE_AND_MIRCEA_PASSWORD_BCRYPT
     networks:
       - minitwit-network
 
@@ -68,6 +71,8 @@ services:
       - type: bind
         source: /mnt/mount/loki-config.yaml
         target: /etc/loki/loki-config.yaml
+
+      - loki-data:/loki
     command: -config.file=/etc/loki/loki-config.yaml
     hostname: loki
     networks:
@@ -80,6 +85,8 @@ services:
         source: /mnt/mount/config/alloy-config.alloy
         target: /etc/alloy/config.river
       - /var/run/docker.sock:/var/run/docker.sock
+      - alloy-data:/var/lib/alloy
+
     ports:
       - "12345:12345"
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.river
@@ -87,6 +94,13 @@ services:
       - loki
     networks:
       - minitwit-network
+
+
+volumes:
+    grafana-storage:
+    loki-data:
+    alloy-data:
+
 networks:
   minitwit-network:
     driver: overlay
