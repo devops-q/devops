@@ -117,15 +117,13 @@ jobs:
 
           scp -o StrictHostKeyChecking=no -i ./id_rsa playbook.yml "root@${{ env.ip_address }}":/tmp/
           ssh -o StrictHostKeyChecking=no -i ./id_rsa "root@${{ env.ip_address }}" << EOF
-          export PROMETHEUS_ROOT_PASSWORD=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}
-          export HELGE_AND_MIRCEA_PASSWORD=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}
-          export S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}
-          export S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}
-          export S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}
-          ansible-playbook /tmp/playbook.yml -c local
+          ansible-playbook /tmp/playbook.yml -c local \
+          -e "PROMETHEUS_ROOT_PASSWORD=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
+          -e "HELGE_AND_MIRCEA_PASSWORD=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}" \
+          -e "S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}" \
+          -e "S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}" \
+          -e "S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}"
           EOF
-
-
 
       - name: Check user_data script completion
         working-directory: ./scripts
