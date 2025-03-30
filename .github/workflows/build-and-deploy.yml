@@ -90,12 +90,7 @@ jobs:
           terraform apply -auto-approve \
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
             -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
-            -var="db_name=${{ vars.DB_NAME }}" \
-            -var="s3_logs_bucket_name=${{ vars.S3_LOGS_BUCKET_NAME }}" \
-            -var="s3_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-            -var="s3_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
-            -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
+            -var="db_name=${{ vars.DB_NAME }}"
           
           ip_address=$(terraform output -raw ip_address)
           db_host=$(terraform output -raw db_private_host)
@@ -170,10 +165,7 @@ jobs:
       - name: Terraform apply observability
         run: |
           terraform apply -auto-approve \
-            -var="vm_ip_address=${{ env.ip_address }}" \
-            -var="grafana_root_password=${{ secrets.GRAFANA_ROOT_PASSWORD }}" \
-            -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
-            -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
+            -var="vm_ip_address=${{ env.ip_address }}"
         working-directory: ./itu-minitwit-golang/deployments/terraform/observability
 
   create-release:
