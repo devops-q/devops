@@ -116,7 +116,12 @@ jobs:
           scp -o StrictHostKeyChecking=no -i ./id_rsa -r vm_config "root@${{ env.ip_address }}":/tmp/vm_config
 
           scp -o StrictHostKeyChecking=no -i ./id_rsa playbook.yml "root@${{ env.ip_address }}":/tmp/
-          ssh -o StrictHostKeyChecking=no -i ./id_rsa "root@${{ env.ip_address }}" ansible-playbook /tmp/playbook.yml -c local
+          ssh -o StrictHostKeyChecking=no -i ./id_rsa "root@${{ env.ip_address }}" env PROMETHEUS_ROOT_PASSWORD=${{ secrets.PROMETHEUS_ROOT_PASSWORD }} \
+              HELGE_AND_MIRCEA_PASSWORD=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }} \
+              S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }} \
+              S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }} \
+              S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} \
+              ansible-playbook -i localhost, -c local playbook.yml
 
 
 
