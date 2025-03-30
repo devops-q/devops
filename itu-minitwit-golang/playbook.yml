@@ -3,11 +3,11 @@
   connection: local
   become: yes
   vars:
-    prometheus_root_password: "{{ lookup('env', 'PROMETHEUS_ROOT_PASSWORD') }}"
-    helge_and_mircea_password: "{{ lookup('env', 'HELGE_AND_MIRCEA_PASSWORD') }}"
-    s3_access_key: "{{ lookup('env', 'S3_ACCESS_KEY') }}"
-    s3_secret_key: "{{ lookup('env', 'S3_SECRET_KEY') }}"
-    s3_logs_bucket_name: "{{ lookup('env', 'S3_BUCKET_NAME') }}"
+    prometheus_root_password: "{{ PROMETHEUS_ROOT_PASSWORD }}"
+    helge_and_mircea_password: "{{ HELGE_AND_MIRCEA_PASSWORD }}"
+    s3_access_key: "{{ S3_ACCESS_KEY }}"
+    s3_secret_key: "{{ S3_SECRET_KEY }}"
+    s3_logs_bucket_name: "{{ S3_BUCKET_NAME }}"
   tasks:
     - name: Initialize Docker Swarm with advertise address
       docker_swarm:
