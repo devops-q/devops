@@ -113,8 +113,8 @@ jobs:
           chmod 600 ./id_rsa
 
           sleep 10
+          
           scp -o StrictHostKeyChecking=no -i ./id_rsa -r vm_config "root@${{ env.ip_address }}":/tmp/vm_config
-
           scp -o StrictHostKeyChecking=no -i ./id_rsa playbook.yml "root@${{ env.ip_address }}":/tmp/
           ssh -o StrictHostKeyChecking=no -i ./id_rsa "root@${{ env.ip_address }}" ansible-playbook /tmp/playbook.yml -c local
 
