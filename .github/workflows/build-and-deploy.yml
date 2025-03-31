@@ -112,6 +112,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ansible
 
+      - name: Install passlib
+        run: |
+          sudo apt-get install -y python3-pip
+          pip3 install passlib
+
       - name: Create inventory file
         run: |
           echo "${{ env.ip_address }} ansible_user=root ansible_ssh_private_key_file=./id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no'" > inventory
