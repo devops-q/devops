@@ -67,32 +67,26 @@
             recurse: yes
           changed_when: false
 
-        - name: Copy entire template directory to target machine
-          ansible.builtin.copy:
-            src: vm_config/
-            dest: /tmp/vm_config/
-            mode: '0755'
-
         - name: Write Prometheus configuration file
           template:
-            src: /tmp/vm_config/prometheus.yml.j2
+            src: ./vm_config/prometheus.yml.j2
             dest: /mnt/mount/config/prom/prometheus.yml
             mode: '0644'
 
         - name: Write Prometheus web configuration file
           template:
-            src: /tmp/vm_config/web.yml.j2
+            src: ./vm_config/web.yml.j2
             dest: /mnt/mount/config/prom/web.yml
             mode: '0644'
 
         - name: Write Loki configuration file
           template:
-            src: /tmp/vm_config/loki-config.yaml.j2
+            src: ./vm_config/loki-config.yaml.j2
             dest: /mnt/mount/config/loki-config.yaml
             mode: '0644'
 
         - name: Write Alloy configuration file
           template:
-            src: /tmp/vm_config/alloy-config.alloy.j2
+            src: ./vm_config/alloy-config.alloy.j2
             dest: /mnt/mount/config/alloy-config.alloy
             mode: '0644'
