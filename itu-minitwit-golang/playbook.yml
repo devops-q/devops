@@ -4,22 +4,12 @@
   vars:
     prometheus_root_password: "{{ PROMETHEUS_ROOT_PASSWORD }}"
     helge_and_mircea_password: "{{ HELGE_AND_MIRCEA_PASSWORD }}"
+    prometheus_root_password_bcrypt: "{{ PROMETHEUS_ROOT_PASSWORD_BCRYPT }}"
+    helge_and_mircea_password_bcrypt: "{{ HELGE_AND_MIRCEA_PASSWORD_BCRYPT }}"
     s3_access_key: "{{ S3_ACCESS_KEY }}"
     s3_secret_key: "{{ S3_SECRET_KEY }}"
     s3_logs_bucket_name: "{{ S3_BUCKET_NAME }}"
-
   tasks:
-    - name: Install python3-pip
-      apt:
-        name: python3-pip
-        state: present
-      when: ansible_os_family == "Debian"
-
-    - name: Install passlib
-      pip:
-        name: passlib
-        state: present
-
     - name: Initialize Docker Swarm with advertise address
       docker_swarm:
         state: present
@@ -82,11 +72,6 @@
             src: vm_config/
             dest: /tmp/vm_config/
             mode: '0755'
-
-        - name: Generate bcrypt hashes for passwords
-          set_fact:
-            prometheus_root_password_bcrypt: "{{ prometheus_root_password | password_hash('bcrypt') }}"
-            helge_and_mircea_password_bcrypt: "{{ helge_and_mircea_password | password_hash('bcrypt') }}"
 
         - name: Write Prometheus configuration file
           template:

@@ -121,7 +121,9 @@ jobs:
           mkdir -p group_vars
           cat > group_vars/all.yml << EOL
           PROMETHEUS_ROOT_PASSWORD: "${{ secrets.PROMETHEUS_ROOT_PASSWORD }}"
+          PROMETHEUS_ROOT_PASSWORD_BCRYPT: "${{ secrets.PROMETHEUS_ROOT_PASSWORD_BCRYPT }}"
           HELGE_AND_MIRCEA_PASSWORD: "${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
+          HELGE_AND_MIRCEA_PASSWORD_BCRYPT: "${{ secrets.HELGE_AND_MIRCEA_PASSWORD_BCRYPT }}"
           S3_ACCESS_KEY: "${{ secrets.S3_ACCESS_KEY }}"
           S3_SECRET_KEY: "${{ secrets.S3_SECRET_KEY }}"
           S3_BUCKET_NAME: "${{ secrets.S3_BUCKET_NAME }}"
