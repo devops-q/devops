@@ -1,6 +1,5 @@
 - name: Ansible Setup
-  hosts: localhost
-  connection: local
+  hosts: all
   become: yes
   vars:
     prometheus_root_password: "{{ PROMETHEUS_ROOT_PASSWORD }}"
@@ -80,6 +79,7 @@
           set_fact:
             prometheus_root_password_bcrypt: "{{ prometheus_root_password | password_hash('bcrypt') }}"
             helge_and_mircea_password_bcrypt: "{{ helge_and_mircea_password | password_hash('bcrypt') }}"
+
         - name: Write Prometheus configuration file
           template:
             src: /tmp/vm_config/prometheus.yml.j2
