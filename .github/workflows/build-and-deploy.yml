@@ -90,12 +90,7 @@ jobs:
           terraform apply -auto-approve \
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
             -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
-            -var="db_name=${{ vars.DB_NAME }}" \
-            -var="s3_logs_bucket_name=${{ vars.S3_LOGS_BUCKET_NAME }}" \
-            -var="s3_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-            -var="s3_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
-            -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
+            -var="db_name=${{ vars.DB_NAME }}"
           
           ip_address=$(terraform output -raw ip_address)
           db_host=$(terraform output -raw db_private_host)
@@ -112,16 +107,36 @@ jobs:
           echo "db_password=$db_password" >> $GITHUB_ENV
         working-directory: ./itu-minitwit-golang/deployments/terraform/infrastructure
 
-      - name: Check user_data script completion
-        working-directory: ./scripts
+      - name: Set up Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      - name: Create inventory file
+        run: |
+          echo "${{ env.ip_address }} ansible_user=root ansible_ssh_private_key_file=./id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no'" > inventory
+
+      - name: Create vault file
+        run: |
+          mkdir -p group_vars
+          cat > group_vars/all.yml << EOL
+          PROMETHEUS_ROOT_PASSWORD: "${{ secrets.PROMETHEUS_ROOT_PASSWORD }}"
+          PROMETHEUS_ROOT_PASSWORD_BCRYPT: "${{ secrets.PROMETHEUS_ROOT_PASSWORD_BCRYPT }}"
+          HELGE_AND_MIRCEA_PASSWORD: "${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
+          HELGE_AND_MIRCEA_PASSWORD_BCRYPT: "${{ secrets.HELGE_AND_MIRCEA_PASSWORD_BCRYPT }}"
+          S3_ACCESS_KEY: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          S3_SECRET_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          S3_BUCKET_NAME: "${{ vars.S3_LOGS_BUCKET_NAME }}"
+          EOL
+
+      - name: Setup SSH key
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ./id_rsa
           chmod 600 ./id_rsa
 
-          sleep 10
-          
-          scp -o StrictHostKeyChecking=no -i ./id_rsa check_user_data_completion.sh "root@${{ env.ip_address }}":/tmp/
-          ssh -o StrictHostKeyChecking=no -i ./id_rsa "root@${{ env.ip_address }}" "bash /tmp/check_user_data_completion.sh"
+      - name: Run Ansible playbook
+        run: |
+          ansible-playbook -i inventory playbook.yml --extra-vars "@group_vars/all.yml"
 
       - name: Log in to GitHub Docker registry
         if: ${{ needs.get-env.outputs.env == 'DEV' }}
@@ -151,7 +166,6 @@ jobs:
           user: root
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           env_file: ./itu-minitwit-golang/envfile
-          detach: false
       - name: Terraform init observability
         run: terraform init
         working-directory: ./itu-minitwit-golang/deployments/terraform/observability
@@ -159,10 +173,10 @@ jobs:
       - name: Terraform apply observability
         run: |
           terraform apply -auto-approve \
-            -var="vm_ip_address=${{ env.ip_address }}" \
-            -var="grafana_root_password=${{ secrets.GRAFANA_ROOT_PASSWORD }}" \
-            -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
-            -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
+             -var="vm_ip_address=${{ env.ip_address }}" \
+             -var="grafana_root_password=${{ secrets.GRAFANA_ROOT_PASSWORD }}" \
+             -var="prometheus_root_password=${{ secrets.PROMETHEUS_ROOT_PASSWORD }}" \
+             -var="helge_and_mircea_password=${{ secrets.HELGE_AND_MIRCEA_PASSWORD }}"
         working-directory: ./itu-minitwit-golang/deployments/terraform/observability
 
   create-release:
