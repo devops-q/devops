@@ -69,7 +69,7 @@ services:
       - "3100:3100"
     volumes:
       - type: bind
-        source: /mnt/mount/loki-config.yaml
+        source: /mnt/mount/config/loki-config.yaml
         target: /etc/loki/loki-config.yaml
 
       - loki-data:/loki
