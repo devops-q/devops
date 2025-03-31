@@ -67,13 +67,10 @@
           changed_when: false
 
         - name: Copy entire template directory to target machine
-          copy:
+          ansible.builtin.copy:
             src: vm_config/
             dest: /tmp/vm_config/
             mode: '0755'
-            recurse: yes
-
-
 
         - name: Generate bcrypt hashes for passwords
           set_fact:
