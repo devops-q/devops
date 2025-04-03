@@ -38,7 +38,7 @@ func PublicTimelineHandler(c *gin.Context) {
 
 func TimelineHandler(c *gin.Context) {
 	log := logger.Init()
-	log.Info("We got a visitor from: %s\n", c.ClientIP())
+	log.Info("We got a visitor from: %s", c.ClientIP())
 
 	db := c.MustGet("DB").(*gorm.DB)
 	cfg := c.MustGet("Config").(*config.Config)
