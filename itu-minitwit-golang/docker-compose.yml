@@ -47,8 +47,6 @@ services:
       - HELGE_AND_MIRCEA_PASSWORD_BCRYPT=${HELGE_AND_MIRCEA_PASSWORD_BCRYPT}
     networks:
       - minitwit-network
-    deploy:
-      replicas: 3
   grafana:
     image: grafana/grafana:11.5.2
     environment:
@@ -97,8 +95,7 @@ services:
       - loki
     networks:
       - minitwit-network
-    deploy:
-      replicas: 3
+
 
 
 volumes:
