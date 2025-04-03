@@ -97,7 +97,6 @@ services:
       - minitwit-network
 
 
-
 volumes:
     grafana-storage:
     loki-data:
