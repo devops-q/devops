@@ -40,6 +40,7 @@ func TimelineHandler(c *gin.Context) {
 	log := logger.Init()
 	log.Info("We got a visitor from: ", c.ClientIP())
 
+
 	db := c.MustGet("DB").(*gorm.DB)
 	cfg := c.MustGet("Config").(*config.Config)
 
