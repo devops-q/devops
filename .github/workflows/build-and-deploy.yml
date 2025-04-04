@@ -157,7 +157,7 @@ jobs:
           echo "GRAFANA_ROOT_PASSWORD=${{ secrets.GRAFANA_ROOT_PASSWORD }}" >> ./envfile
           echo "INITIAL_API_USER=${{ secrets.API_USER }}" >> ./envfile
           echo "INITIAL_API_PASSWORD=${{ secrets.API_PASSWORD }}" >> ./envfile
-          echo "IP_ADDRESS=${{ env.ip_address }}" >> ./envfile
+          echo "HOST=${{ vars.HOST }}" >> ./envfile
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1
         with:
