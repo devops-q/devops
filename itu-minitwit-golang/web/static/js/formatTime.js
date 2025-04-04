@@ -1,5 +1,5 @@
-window.addEventListener('DOMContentLoaded', init, false);
-function formatTimeLocal(this, event) {
+window.addEventListener('DOMContentLoaded', (this, event) => formatTimeLocal(), false);
+function formatTimeLocal() {
     var times = document.getElementsByClassName("time")
     for (let element of times) {
         var datetime = new Date(element.innerHTML)
