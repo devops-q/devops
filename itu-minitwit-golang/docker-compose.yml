@@ -28,8 +28,6 @@ services:
 
   app:
     image: ${DOCKER_IMAGE}
-    ports:
-      - "80:80"
     environment:
       - PORT=80
       - ENVIRONMENT=production
