@@ -1,27 +1,25 @@
 services:
-
   traefik:
     image: traefik:v3.1
     command:
       - "--log.level=DEBUG"
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=phbl@itu.dk"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
-      - mode: host
-        protocol: tcp
-        published: 80
-        target: 80
-      - mode: host
-        protocol: tcp
-        published: 443
-        target: 443
+      - "80:80"
+      - "443:443"
     volumes:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - minitwit-network
 
 
   app:
@@ -50,9 +48,9 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.app.rule=Host(`${HOST}`)"
-        - "traefik.http.routers.app.entrypoints=web"
+        - "traefik.http.routers.app.entrypoints=websecure"
         - "traefik.http.routers.app.tls.certresolver=myresolver"
-        - "traefik.http.services.app.loadbalancer.server.port=80"
+        - "traefik.http.services.app.loadbalancer.server.port=8080"
       replicas: 3
       update_config:
         order: start-first
