@@ -142,6 +142,8 @@ volumes:
     grafana-storage:
     loki-data:
     alloy-data:
+    letsencrypt:
+
 
 networks:
   minitwit-network:
