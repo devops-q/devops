@@ -81,3 +81,7 @@ func (l *Logger) Fatalf(format string, args ...interface{}) {
 	l.logWithService(slog.LevelError, msg)
 	os.Exit(1)
 }
+func (l *Logger) Infof(format string, args ...interface{}) {
+	msg := fmt.Sprintf(format, args...)
+	l.logWithService(slog.LevelInfo, msg)
+}

@@ -1,0 +1,105 @@
+- name: Ansible Setup
+  hosts: all
+  become: yes
+  vars:
+    prometheus_root_password: "{{ PROMETHEUS_ROOT_PASSWORD }}"
+    helge_and_mircea_password: "{{ HELGE_AND_MIRCEA_PASSWORD }}"
+    prometheus_root_password_bcrypt: "{{ PROMETHEUS_ROOT_PASSWORD_BCRYPT }}"
+    helge_and_mircea_password_bcrypt: "{{ HELGE_AND_MIRCEA_PASSWORD_BCRYPT }}"
+    s3_access_key: "{{ S3_ACCESS_KEY }}"
+    s3_secret_key: "{{ S3_SECRET_KEY }}"
+    s3_logs_bucket_name: "{{ S3_BUCKET_NAME }}"
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - python3-pip
+          - python3-setuptools
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install Docker SDK for Python
+      pip:
+        name: docker>=5.0.0
+        state: present
+    - name: Initialize Docker Swarm with advertise address
+      docker_swarm:
+        state: present
+        advertise_addr: "{{ ansible_default_ipv4.address }}"
+
+    - name: Allow SSH (port 22)
+      ufw:
+        rule: allow
+        name: 'OpenSSH'
+        state: enabled
+
+    - name: Create necessary directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items:
+        - /root/data
+        - /root/prometheus
+        - /mnt/mount
+        - /mnt/mount/prom
+        - /mnt/mount/config
+        - /mnt/mount/config/prom
+
+    - name: Setup permissions for Do mount
+      block:
+        - name: Ensure the mount directory is owned by the correct user
+          file:
+            path: /mnt/mount
+            owner: 1000
+            group: 1000
+            recurse: yes
+
+        - name: Mount the disk (only if not already mounted)
+          mount:
+            path: /mnt/mount
+            src: /dev/disk/by-id/scsi-0DO_Volume_mount
+            fstype: ext4
+            opts: defaults,nofail,discard
+            state: mounted
+
+        - name: Add the mount to /etc/fstab
+          lineinfile:
+            path: /etc/fstab
+            line: '/dev/disk/by-id/scsi-0DO_Volume_mount /mnt/mount ext4 defaults,nofail,discard 0 0'
+            create: yes
+            state: present
+
+        - name: Ensure correct permissions on /mnt/mount
+          file:
+            path: /mnt/mount
+            owner: 1000
+            group: 1000
+            mode: '0775'
+            recurse: yes
+          changed_when: false
+
+        - name: Write Prometheus configuration file
+          template:
+            src: ./vm_config/prometheus.yml.j2
+            dest: /mnt/mount/config/prom/prometheus.yml
+            mode: '0644'
+
+        - name: Write Prometheus web configuration file
+          template:
+            src: ./vm_config/web.yml.j2
+            dest: /mnt/mount/config/prom/web.yml
+            mode: '0644'
+
+        - name: Write Loki configuration file
+          template:
+            src: ./vm_config/loki-config.yaml.j2
+            dest: /mnt/mount/config/loki-config.yaml
+            mode: '0644'
+
+        - name: Write Alloy configuration file
+          template:
+            src: ./vm_config/alloy-config.alloy.j2
+            dest: /mnt/mount/config/alloy-config.alloy
+            mode: '0644'

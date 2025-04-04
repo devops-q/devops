@@ -39,4 +39,14 @@
       <div class="footer">MiniTwit &mdash; A Gin Application</div>
     </div>
   </body>
+  <script>
+      window.addEventListener("load", (event) => formatTimeLocal)
+      function formatTimeLocal() {
+          var times = document.getElementsByClassName("time")
+          for (let element of times) {
+              var datetime = new Date(element.innerHTML)
+              element.innerHTML = "Written @ " + datetime.toLocaleString()
+          }
+      }
+  </script>
 </html>

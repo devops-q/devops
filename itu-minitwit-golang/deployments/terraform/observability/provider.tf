@@ -37,6 +37,5 @@ terraform {
 provider "grafana" {
   url  = "http://${var.vm_ip_address}:3000"
   auth = "admin:${var.grafana_root_password}"
-
 }
 

@@ -22,16 +22,18 @@ services:
         max-file: "3"
     networks:
       - minitwit-network
+    deploy:
+      replicas: 3
   prometheus:
     image: prom/prometheus
     user: "1000:1000"
     volumes:
       - type: bind
-        source: /root/prometheus/
+        source: /mnt/mount/config/prom
         target: /etc/prometheus/
         consistency: consistent
       - type: bind
-        source: /mnt/mount
+        source: /mnt/mount/prom
         target: /prometheus
         consistency: consistent
     command:
@@ -40,11 +42,11 @@ services:
       - '--storage.tsdb.path=/prometheus'
     ports:
       - "9090:9090"
+    environment:
+      - PROMETHEUS_ROOT_PASSWORD_BCRYPT=${PROMETHEUS_ROOT_PASSWORD_BCRYPT}
+      - HELGE_AND_MIRCEA_PASSWORD_BCRYPT=${HELGE_AND_MIRCEA_PASSWORD_BCRYPT}
     networks:
       - minitwit-network
-
-
-
   grafana:
     image: grafana/grafana:11.5.2
     environment:
@@ -52,8 +54,6 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ROOT_PASSWORD}
     ports:
       - "3000:3000"
-    volumes:
-      - grafana-storage:/var/lib/grafana
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
       interval: 30s
@@ -69,8 +69,11 @@ services:
     ports:
       - "3100:3100"
     volumes:
+      - type: bind
+        source: /mnt/mount/config/loki-config.yaml
+        target: /etc/loki/loki-config.yaml
+
       - loki-data:/loki
-      - /root/configs/loki-config.yaml:/etc/loki/loki-config.yaml
     command: -config.file=/etc/loki/loki-config.yaml
     hostname: loki
     networks:
@@ -79,9 +82,12 @@ services:
   alloy:
     image: grafana/alloy:v1.7.5
     volumes:
+      - type: bind
+        source: /mnt/mount/config/alloy-config.alloy
+        target: /etc/alloy/config.river
       - /var/run/docker.sock:/var/run/docker.sock
       - alloy-data:/var/lib/alloy
-      - /root/configs/alloy-config.alloy:/etc/alloy/config.river
+
     ports:
       - "12345:12345"
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.river
@@ -90,10 +96,11 @@ services:
     networks:
       - minitwit-network
 
+
 volumes:
-  grafana-storage:
-  loki-data:
-  alloy-data:
+    grafana-storage:
+    loki-data:
+    alloy-data:
 
 networks:
   minitwit-network:
