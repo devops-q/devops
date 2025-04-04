@@ -1,4 +1,4 @@
-window.addEventListener('DOMContentLoaded', (this, event) => formatTimeLocal(), false);
+window.addEventListener('DOMContentLoaded', (event) => formatTimeLocal(), false);
 function formatTimeLocal() {
     var times = document.getElementsByClassName("time")
     for (let element of times) {
