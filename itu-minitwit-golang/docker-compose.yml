@@ -54,12 +54,6 @@ services:
       - "traefik.http.routers.web.rule=Host(`${IP_ADDRESS}`)"
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=myresolver"
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:80/health" ]
-      retries: 5
-      interval: 5s
-    depends_on:
-      - traefik
     deploy:
       replicas: 3
       update_config:
