@@ -29,7 +29,7 @@ services:
   app:
     image: ${DOCKER_IMAGE}
     environment:
-      - PORT=80
+      - PORT=8080
       - ENVIRONMENT=production
       - GIN_MODE=release
       - DB_HOST=${DB_HOST}
@@ -40,6 +40,7 @@ services:
       - DB_SSL_MODE=require
       - INITIAL_API_USER=${INITIAL_API_USER}
       - INITIAL_API_PASSWORD=${INITIAL_API_PASSWORD}
+
     logging:
       driver: "json-file"
       options:
@@ -50,7 +51,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.web.loadbalancer.server.port=8080"
-      - "traefik.http.routers.web.rule=Host(`zenful.site`)"
+      - "traefik.http.routers.web.rule=Host(`${IP_ADDRESS}`)"
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=myresolver"
     healthcheck:
