@@ -53,8 +53,16 @@ services:
       - "traefik.http.routers.web.rule=Host(`zenful.site`)"
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=myresolver"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:80/health" ]
+      retries: 5
+      interval: 5s
     deploy:
       replicas: 3
+      update_config:
+        order: start-first
+        parallelism: 1
+
   prometheus:
     image: prom/prometheus
     user: "1000:1000"
