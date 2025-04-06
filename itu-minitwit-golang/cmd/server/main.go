@@ -40,8 +40,9 @@ func main() {
 	r.Use(sessions.Sessions("itu-minitwit-session", store))
 
 	r.SetFuncMap(template.FuncMap{
-		"GravatarURL":    utils.GravatarURL,
-		"FormatDateTime": utils.FormatDateTime,
+		"GravatarURL":     utils.GravatarURL,
+		"FormatDateTime":  utils.FormatDateTime,
+		"ToISODateString": utils.ToISODateString,
 	})
 
 	r.Use(middlewares.PrometheusMiddleware(r).Instrument())

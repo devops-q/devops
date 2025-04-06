@@ -49,7 +49,7 @@ setup('Start Docker Compose environment and wait for API health', async ({}, tes
   testInfo.setTimeout(180000);
   try {
     // Start containers
-    await execAsync(`docker compose -f ${DOCKER_COMPOSE_PATH} up -d`);
+    await execAsync(`docker compose -f ${DOCKER_COMPOSE_PATH} up --build -d`);
     console.log('Docker Compose containers started');
 
     // Wait for API to be ready by polling the health endpoint
