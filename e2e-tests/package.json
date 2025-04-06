@@ -25,5 +25,8 @@
     "lint": "biome check .",
     "lint:ci": "biome ci .",
     "lint:fix": "biome check --write --unsafe ."
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["bcrypt", "@biomejs/biome"]
   }
 }
