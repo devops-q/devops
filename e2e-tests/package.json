@@ -9,11 +9,11 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@playwright/test": "^1.51.1",
-    "@types/node": "^22.13.10",
+    "@types/bcrypt": "^5.0.2",
+    "@types/node": "^22.14.0",
     "@types/pg": "^8.11.11"
   },
   "dependencies": {
-    "@types/bcrypt": "^5.0.2",
     "bcrypt": "^5.1.1",
     "pg": "^8.14.1"
   },

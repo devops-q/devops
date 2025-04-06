@@ -1,5 +1,5 @@
 import { test as base } from '@playwright/test';
-import { hashSync } from 'bcrypt'; // Create a custom fixture
+import bcrypt from 'bcrypt';
 import { Pool } from 'pg';
 import { DB_URL } from '../config';
 
@@ -50,7 +50,7 @@ export async function cleanupUser(pool: Pool, name: string): Promise<void> {
 }
 
 export async function createUser(pool: Pool, user: Partial<User>): Promise<User> {
-  const hashedPassword = hashSync(user.pw_hash || 'default-hash', 10);
+  const hashedPassword = await bcrypt.hash(user.pw_hash || 'default-hash', 10);
   const userId = user.id || Math.floor(Math.random() * 1000000) + 1;
 
   const result = await pool.query<User>(
