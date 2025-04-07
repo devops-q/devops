@@ -1,10 +1,29 @@
 services:
-  app:
-    image: ${DOCKER_IMAGE}
+  traefik:
+    image: traefik:v3.1
+    command:
+      - "--log.level=DEBUG"
+      - "--providers.swarm"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+#      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+#      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--certificatesresolvers.myresolver.acme.email=phbl@itu.dk"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - minitwit-network
+
+
+  app:
+    image: ${DOCKER_IMAGE}
     environment:
-      - PORT=80
+      - PORT=8080
       - ENVIRONMENT=production
       - GIN_MODE=release
       - DB_HOST=${DB_HOST}
@@ -15,6 +34,7 @@ services:
       - DB_SSL_MODE=require
       - INITIAL_API_USER=${INITIAL_API_USER}
       - INITIAL_API_PASSWORD=${INITIAL_API_PASSWORD}
+
     logging:
       driver: "json-file"
       options:
@@ -22,6 +42,24 @@ services:
         max-file: "3"
     networks:
       - minitwit-network
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=minitwit-network"
+        - "traefik.http.routers.app.rule=Host(`${HOST}`)"
+        - "traefik.http.routers.app.entrypoints=websecure"
+        - "traefik.http.routers.app.tls.certresolver=myresolver"
+        - "traefik.http.services.app.loadbalancer.server.port=8080"
+        - "traefik.http.routers.app-ip.rule=Host(`${IP_ADDRESS}`)"
+        - "traefik.http.routers.app-ip.entrypoints=web"
+        - "traefik.http.services.app-ip.loadbalancer.server.port=8080"
+        - "traefik.http.routers.app.service=app"
+        - "traefik.http.routers.app-ip.service=app-ip"
+      replicas: 3
+      update_config:
+        order: start-first
+        parallelism: 1
+
   prometheus:
     image: prom/prometheus
     user: "1000:1000"
@@ -45,7 +83,6 @@ services:
       - HELGE_AND_MIRCEA_PASSWORD_BCRYPT=${HELGE_AND_MIRCEA_PASSWORD_BCRYPT}
     networks:
       - minitwit-network
-
   grafana:
     image: grafana/grafana:11.5.2
     environment:
@@ -97,9 +134,11 @@ services:
 
 
 volumes:
-    grafana-storage:
-    loki-data:
-    alloy-data:
+  grafana-storage:
+  loki-data:
+  alloy-data:
+  letsencrypt:
+
 
 networks:
   minitwit-network:
