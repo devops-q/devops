@@ -6,8 +6,6 @@ services:
       - "--providers.swarm"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
-#      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-#      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=phbl@itu.dk"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
