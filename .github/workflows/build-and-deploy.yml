@@ -22,7 +22,7 @@ jobs:
     outputs:
       env: ${{ env.env }}
   build:
-    runs-on: ubuntu-latest
+    runs-on:  ubuntu-latest
     needs:
       - get-env
     defaults:
