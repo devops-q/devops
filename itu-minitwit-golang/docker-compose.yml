@@ -6,8 +6,6 @@ services:
       - "--providers.swarm"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
-#      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-#      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=phbl@itu.dk"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
@@ -47,7 +45,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=minitwit-network"
-        - "traefik.http.routers.app.rule=Host(`${HOST}`)"
+        - "traefik.http.routers.app.rule=Host(`${HOST}`) && Path(`/metrics`)"
         - "traefik.http.routers.app.entrypoints=websecure"
         - "traefik.http.routers.app.tls.certresolver=myresolver"
         - "traefik.http.services.app.loadbalancer.server.port=8080"
