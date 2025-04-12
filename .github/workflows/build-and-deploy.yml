@@ -136,7 +136,7 @@ jobs:
 
       - name: Run Ansible playbook
         run: |
-          ansible-playbook -i inventory playbook.yml --extra-vars "@group_vars/all.yml"
+          ansible-playbook -i inventory playbook.yml
         working-directory: ./itu-minitwit-golang/deployments/ansible
 
       - name: Log in to GitHub Docker registry
