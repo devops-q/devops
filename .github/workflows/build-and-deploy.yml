@@ -136,7 +136,8 @@ jobs:
 
       - name: Run Ansible playbook
         run: |
-          cd itu-minitwit-golang/deployments/ansible/
+          pwd
+          cd deployments/ansible/
           ansible-playbook -i inventory playbook.yml --extra-vars "@group_vars/all.yml"
       - name: Log in to GitHub Docker registry
         if: ${{ needs.get-env.outputs.env == 'DEV' }}
