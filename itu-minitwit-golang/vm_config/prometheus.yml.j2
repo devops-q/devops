@@ -20,6 +20,6 @@ scrape_configs:
     scrape_interval: 5s
     scheme: https
     static_configs:
-      - targets: ['${HOST}']
+      - targets: ['app:8080']
         labels:
           group: 'production'
