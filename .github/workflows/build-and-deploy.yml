@@ -136,9 +136,8 @@ jobs:
 
       - name: Run Ansible playbook
         run: |
+          cd deployments/ansible
           ansible-playbook -i inventory playbook.yml
-        working-directory: ./itu-minitwit-golang/deployments/ansible
-
       - name: Log in to GitHub Docker registry
         if: ${{ needs.get-env.outputs.env == 'DEV' }}
         uses: docker/login-action@v2
