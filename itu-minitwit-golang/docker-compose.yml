@@ -6,8 +6,8 @@ services:
       - "--providers.swarm"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+#      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+#      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=phbl@itu.dk"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
@@ -51,6 +51,11 @@ services:
         - "traefik.http.routers.app.entrypoints=websecure"
         - "traefik.http.routers.app.tls.certresolver=myresolver"
         - "traefik.http.services.app.loadbalancer.server.port=8080"
+        - "traefik.http.routers.app-ip.rule=Host(`${IP_ADDRESS}`)"
+        - "traefik.http.routers.app-ip.entrypoints=web"
+        - "traefik.http.services.app-ip.loadbalancer.server.port=8080"
+        - "traefik.http.routers.app.service=app"
+        - "traefik.http.routers.app-ip.service=app-ip"
       replicas: 3
       update_config:
         order: start-first
@@ -130,10 +135,10 @@ services:
 
 
 volumes:
-    grafana-storage:
-    loki-data:
-    alloy-data:
-    letsencrypt:
+  grafana-storage:
+  loki-data:
+  alloy-data:
+  letsencrypt:
 
 
 networks:
