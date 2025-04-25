@@ -113,15 +113,7 @@ services:
       - minitwit-network
     deploy:
       labels:
-        - "traefik.enable=true"
-        - "traefik.docker.network=minitwit-network"
-        - "traefik.http.routers.loki.rule=Host(`loki.localhost`)"
-        - "traefik.http.routers.loki.entrypoints=web"
-        - "traefik.http.services.loki.loadbalancer.server.port=3100"
-        - "traefik.http.middlewares.auth.basicauth.users=test:$$098f6bcd4621d373cade4e832627b4f6"
-        - "traefik.http.routers.loki.middlewares=auth"
-
-
+        - "traefik.http.middlewares.test-auth.basicauth.users=test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/,test2:$$apr1$$d9hr9HBB$$4HxwgUir3HP4EsggP/QNo0"
   alloy:
     image: grafana/alloy:v1.7.5
     volumes:
