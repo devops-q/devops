@@ -111,9 +111,6 @@ services:
     hostname: loki
     networks:
       - minitwit-network
-    deploy:
-      labels:
-        - "traefik.http.middlewares.test-auth.basicauth.users=test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/,test2:$$apr1$$d9hr9HBB$$4HxwgUir3HP4EsggP/QNo0"
   alloy:
     image: grafana/alloy:v1.7.5
     volumes:
