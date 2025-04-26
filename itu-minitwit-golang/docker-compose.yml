@@ -17,6 +17,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - minitwit-network
+    deploy:
+      labels:
+        - "traefik.http.middlewares.test-auth.basicauth.users=test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/,test2:$$apr1$$d9hr9HBB$$4HxwgUir3HP4EsggP/QNo0"
+
 
 
   app:
@@ -111,6 +115,15 @@ services:
     hostname: loki
     networks:
       - minitwit-network
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=minitwit-network"
+        - "traefik.http.routers.loki.rule=Host(`loki.${HOST}`)"
+        - "traefik.http.routers.loki.entrypoints=websecure"
+        - "traefik.http.routers.loki.tls.certresolver=myresolver"
+        - "traefik.http.services.loki.loadbalancer.server.port=3100"
+        - "traefik.http.routers.loki.middlewares=test-auth"
   alloy:
     image: grafana/alloy:v1.7.5
     volumes:
