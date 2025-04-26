@@ -115,6 +115,9 @@ services:
     hostname: loki
     networks:
       - minitwit-network
+    ports:
+      - "3100:3100"
+
     deploy:
       labels:
         - "traefik.enable=true"
@@ -132,13 +135,13 @@ services:
         target: /etc/alloy/config.river
       - /var/run/docker.sock:/var/run/docker.sock
       - alloy-data:/var/lib/alloy
-
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.river
     depends_on:
       - loki
     networks:
       - minitwit-network
-
+    ports:
+      - "12345:12345"
 
 volumes:
   grafana-storage:
