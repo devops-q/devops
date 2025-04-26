@@ -17,6 +17,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - minitwit-network
+
   app:
     image: ${DOCKER_IMAGE}
     environment:
@@ -122,7 +123,7 @@ services:
       - loki
     networks:
       - minitwit-network
-
+      
 volumes:
   grafana-storage:
   loki-data:
