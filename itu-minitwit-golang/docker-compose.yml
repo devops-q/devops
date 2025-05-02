@@ -18,7 +18,6 @@ services:
     networks:
       - minitwit-network
 
-
   app:
     image: ${DOCKER_IMAGE}
     environment:
@@ -99,21 +98,18 @@ services:
     networks:
       - minitwit-network
 
+
   loki:
     image: grafana/loki:2.9.13
-    ports:
-      - "3100:3100"
     volumes:
       - type: bind
         source: /mnt/mount/config/loki-config.yaml
         target: /etc/loki/loki-config.yaml
-
       - loki-data:/loki
     command: -config.file=/etc/loki/loki-config.yaml
     hostname: loki
     networks:
       - minitwit-network
-
   alloy:
     image: grafana/alloy:v1.7.5
     volumes:
@@ -122,16 +118,12 @@ services:
         target: /etc/alloy/config.river
       - /var/run/docker.sock:/var/run/docker.sock
       - alloy-data:/var/lib/alloy
-
-    ports:
-      - "12345:12345"
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.river
     depends_on:
       - loki
     networks:
       - minitwit-network
-
-
+      
 volumes:
   grafana-storage:
   loki-data:
