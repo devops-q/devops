@@ -34,6 +34,14 @@
         name: 'OpenSSH'
         state: enabled
 
+    - name: Allow SSH (port 22/tcp) through UFW
+      ufw:
+        rule: allow
+        port: 22
+        proto: tcp
+
+
+
     - name: Create necessary directories
       file:
         path: "{{ item }}"
