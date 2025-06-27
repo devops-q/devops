@@ -85,10 +85,10 @@ jobs:
         run: terraform init
         working-directory: ./itu-minitwit-golang/deployments/terraform/infrastructure
 
-      - name: Terraform apply infrastructure
+      - name: Terraform apply infrastructure # TODO: Remove when we want to re-create the infrastructure
         run: |
           terraform apply -auto-approve \
-            -destroy \ 
+            -destroy \
             -var="do_token=${{ secrets.DIGITAL_OCEAN_API_KEY }}" \
             -var="do_ssh_key_name=${{ secrets.DIGITAL_OCEAN_SSH_KEY_NAME }}" \
             -var="db_name=${{ vars.DB_NAME }}"
